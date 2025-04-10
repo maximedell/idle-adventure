@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	html {
+		@apply bg-primary-dark;
+	}
+	main {
+		@apply bg-primary flex flex-row w-full h-full justify-between;
+	}
+	h1 {
+		@apply text-2xl font-bold;
+	}
+	h2 {
+		@apply text-xl font-bold text-primary-dark;
+	}
+	h3 {
+		@apply text-sm font-bold text-primary-light;
+	}
+}
+
+@layer components {
+	.App {
+		@apply h-screen flex flex-col items-center mx-auto max-w-7xl text-primary-light;
+	}
+	.App-header {
+		@apply bg-primary text-white w-full h-12 flex justify-between items-center border-b border-accent;
+	}
+	.logo-l {
+		@apply h-full;
+	}
+	.logo-r {
+		@apply h-full;
+	}
+	.title {
+		@apply text-2xl font-bold text-center text-accent;
+	}
+	.container-main {
+		@apply flex flex-col w-full;
+	}
+	.sidebar-left {
+		@apply w-64 p-4 mr-8 pt-12;
+	}
+	.content-main {
+		@apply flex flex-col items-center justify-center mt-8 h-fit w-4/5 mx-auto;
+	}
+	.sidebar-right {
+		@apply w-64 p-4 ml-8 pt-12;
+	}
+	.btn {
+		@apply inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+	}
+
+	.box-adventurer {
+		@apply bg-primary-dark shadow-md border-primary-light border rounded-lg p-4 mb-4 w-full;
+	}
+
+	.box-area {
+		@apply shadow-md border-primary-light border rounded-lg p-4 mb-4 w-full flex flex-col items-center;
+	}
+
+	.box-monster {
+		@apply bg-primary-dark shadow-md border-accent border rounded-lg p-3 w-full h-full;
+	}
+
+	.container-bar {
+		@apply bg-primary-light flex w-full h-4 rounded relative mt-2;
+	}
+	.text-bar {
+		@apply text-primary-dark absolute left-1/2 -translate-x-1/2  text-xs font-bold;
+	}
+}
+
+@layer utilities {
+	.bg-custom {
+		@apply bg-gradient-to-r from-blue-500 to-green-500;
+	}
+}
