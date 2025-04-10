@@ -24,8 +24,6 @@ export class Area {
 			this.monsters.push(new Monster(monster, monsterUid));
 			counter++;
 		}
-		useMonsterStore.getState().initStore();
-
 		console.log("Area created", data.id);
 	}
 
@@ -45,13 +43,14 @@ export class Area {
 	}
 	addMonster() {
 		const monsters = useAreaStore.getState().monstersByArea[this.data.id];
+		const monster =
+			this.data.monsters[monsters.length % this.data.monsters.length];
+		console.log("Monster index: ", monster);
 		if (monsters.length < this.maxMonsters) {
+			this.monsters.push(new Monster(monster, monster.id + monsters.length));
 			useAreaStore
 				.getState()
-				.addMonsterToArea(
-					this.data.id,
-					this.data.monsters[monsters.length].id + monsters.length
-				);
+				.addMonsterToArea(this.data.id, monster.id + monsters.length);
 		}
 	}
 	getMonsterByUid(uid: string) {

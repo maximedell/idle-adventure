@@ -2,16 +2,24 @@ import { Monster } from "../modules/monster/Monster";
 import { useGameStore } from "../store/GameStore";
 import { skill } from "../types/skill";
 
-export function startCombat(delta: number) {
-	handleCombatTick(delta);
+export function startCombat() {
+	handleCombatTick();
 }
 
-function handleCombatTick(delta: number) {
+function handleCombatTick() {
 	const state = useGameStore.getState();
 	const player = state.adventurer;
 	const area = state.activeArea;
 	if (!player || !area) return;
 	const enemies = area.getMonsters();
+	const alive = enemies.filter((e) => e.isAlive());
+	if (alive.length !== enemies.length) {
+		return;
+	}
+	if (!player.isAlive()) {
+		return;
+	}
+
 	const log: string[] = [];
 
 	// Appliquer les compétences dans l'ordre de priorité
@@ -25,7 +33,7 @@ function handleCombatTick(delta: number) {
 			target.applyDamage(dmg);
 		}
 
-		log.push(
+		console.log(
 			`L'aventurier utilise ${skill.name} et inflige ${dmg} dégâts à ${targets
 				.map((t) => t.getName())
 				.join(", ")}`
@@ -46,7 +54,7 @@ function handleCombatTick(delta: number) {
 				enemy.applySkill(enemySkill);
 				const dmg = computeEnemyDamage(enemySkill);
 				target.applyDamage(dmg);
-				log.push(
+				console.log(
 					`${enemy.getName()} utilise ${
 						enemySkill.name
 					} et inflige ${dmg} dégâts`
@@ -54,7 +62,7 @@ function handleCombatTick(delta: number) {
 			}
 			if (!target.isAlive()) {
 				handlePlayerDeath();
-				break;
+				return;
 			}
 		}
 	}
@@ -88,11 +96,13 @@ function computeSkillDamage(
 }
 
 function endCombatWithVictory() {
+	console.log("Combat terminé avec succès !");
 	return;
 	// Gérer les gains (xp, ressources...) ici
 }
 
 function handlePlayerDeath() {
+	console.log("L'aventurier est mort !");
 	return;
 	// Passage en écran de mort / déclenche prestige
 }

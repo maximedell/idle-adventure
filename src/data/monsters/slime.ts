@@ -18,6 +18,7 @@ export const slime: monster = {
 		experienceToLevelUp: 0,
 	},
 	activeSkills: [allSkills["minor-strike"]],
+	reviveTime: 30,
 	rewards: {
 		experience: 10,
 		gold: 3,

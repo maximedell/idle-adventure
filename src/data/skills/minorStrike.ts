@@ -11,6 +11,7 @@ export const minorStrike: skill = {
 			type: "damage",
 			value: 10,
 			damageType: "physical",
+			target: 1,
 		},
 	],
 };

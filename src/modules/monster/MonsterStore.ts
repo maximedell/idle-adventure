@@ -6,13 +6,16 @@ interface MonsterState {
 	health: Record<string, number>;
 	cooldowns: Record<string, Record<string, number>>;
 	manaBuffer: Record<string, number>;
+	reviveBuffer: Record<string, number>;
 }
 
 interface MonsterActions {
 	initStore: () => void; // Initialize the store with a specific area ID
-	initMonsterCooldowns: (
+	initMonster: (
 		uid: string,
-		recordSkills: Record<string, number>
+		recordSkills: Record<string, number>,
+		health: number,
+		mana: number
 	) => void; // Initialize cooldowns for a specific monster
 	initMana: (uid: string, mana: number) => void;
 	initHealth: (uid: string, health: number) => void;
@@ -22,6 +25,7 @@ interface MonsterActions {
 	loseHealth: (uid: string, amount: number) => void;
 	setCooldown: (uid: string, skillId: string, cooldown: number) => void;
 	setManaBuffer: (uid: string, value: number) => void;
+	setReviveBuffer: (uid: string, value: number) => void;
 }
 
 interface MonsterStore extends MonsterState, MonsterActions {}
@@ -33,6 +37,7 @@ export const useMonsterStore = create<MonsterStore>()(
 			mana: {},
 			health: {},
 			manaBuffer: {},
+			reviveBuffer: {},
 			setManaBuffer: (uid: string, value: number) =>
 				set((state) => ({
 					manaBuffer: {
@@ -46,11 +51,19 @@ export const useMonsterStore = create<MonsterStore>()(
 					mana: {},
 					health: {},
 				})),
-			initMonsterCooldowns: (ui, recordSkills) =>
+			initMonster: (ui, recordSkills, health, mana) =>
 				set((state) => ({
 					cooldowns: {
 						...state.cooldowns,
 						[ui]: recordSkills,
+					},
+					health: {
+						...state.health,
+						[ui]: health,
+					},
+					mana: {
+						...state.mana,
+						[ui]: mana,
 					},
 				})),
 			initMana: (uid, mana) =>
@@ -104,6 +117,13 @@ export const useMonsterStore = create<MonsterStore>()(
 							...state.cooldowns[uid],
 							[skillId]: cooldown,
 						},
+					},
+				})),
+			setReviveBuffer: (uid, value) =>
+				set((state) => ({
+					reviveBuffer: {
+						...state.reviveBuffer,
+						[uid]: value,
 					},
 				})),
 		};

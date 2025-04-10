@@ -6,7 +6,13 @@ import { outskirt } from "../data/areas/outskirt";
 import { Adventurer } from "../modules/adventurer/Adventurer";
 import { Area } from "../modules/area/Area";
 
+let gameloop = false;
 export function GameLoop() {
+	console.log("GameLoop started");
+	if (gameloop) {
+		console.warn("GameLoop already started");
+		return null;
+	}
 	const adventurer = new Adventurer(startingAdventurer);
 	const activeArea = new Area(outskirt);
 	useGameStore.getState().initStore(adventurer, activeArea);
@@ -17,7 +23,7 @@ export function GameLoop() {
 		const loop = (now: number) => {
 			const delta = now - lastUpdate.current;
 			lastUpdate.current = now;
-			//applyTick(delta);
+			applyTick(delta / 1000);
 			frameId = requestAnimationFrame(loop);
 		};
 		frameId = requestAnimationFrame(loop);
@@ -39,6 +45,6 @@ function applyTick(delta: number) {
 		enemy.applyTick(delta);
 	}
 	if (activeArea.isInCombat()) {
-		startCombat(delta);
+		startCombat();
 	}
 }

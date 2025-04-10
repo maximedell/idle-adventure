@@ -8,25 +8,33 @@ export class Monster {
 	private uid: string;
 	private skills: skill[];
 	private stats: stats;
+	private recordSkills: Record<string, number>;
 	constructor(data: MonsterData, uid: string) {
 		const state = useMonsterStore.getState();
 		this.uid = uid;
 		this.data = { ...data };
 		this.skills = this.data.activeSkills;
 		this.stats = this.data.stats;
-		const recordSkills = this.skills.reduce((acc, skill) => {
+		this.recordSkills = this.skills.reduce((acc, skill) => {
 			acc[skill.id] = 0;
 			return acc;
 		}, {} as Record<string, number>);
-		state.initMonsterCooldowns(this.uid, recordSkills);
-		state.initHealth(this.uid, this.stats.health);
-		state.initMana(this.uid, this.stats.mana);
+		state.initMonster(
+			this.uid,
+			this.recordSkills,
+			this.stats.maxHealth,
+			this.stats.maxMana
+		);
 		state.setManaBuffer(this.uid, 0);
+		state.setReviveBuffer(this.uid, 0);
 		console.log("Monster created", this.uid);
 	}
 
 	applyTick(delta: number) {
-		if (!this.isAlive()) return;
+		if (!this.isAlive()) {
+			this.revive(delta);
+			return;
+		}
 		if (this.getCurrentMana() < this.getStats().maxMana) {
 			this.regenerateMana(delta);
 		}
@@ -70,7 +78,13 @@ export class Monster {
 		const manaBuffer = useMonsterStore.getState().manaBuffer[this.uid];
 		const newMana = manaBuffer + manaRegen * delta;
 		if (newMana >= 1) {
-			useMonsterStore.getState().regenMana(this.uid, Math.floor(newMana));
+			if (this.getCurrentMana() + newMana > this.getStats().maxMana) {
+				useMonsterStore
+					.getState()
+					.regenMana(this.uid, this.getStats().maxMana - this.getCurrentMana());
+			} else {
+				useMonsterStore.getState().regenMana(this.uid, Math.floor(newMana));
+			}
 			useMonsterStore.getState().setManaBuffer(this.uid, 0);
 		} else {
 			useMonsterStore.getState().setManaBuffer(this.uid, newMana);
@@ -78,6 +92,7 @@ export class Monster {
 	}
 	reduceCooldowns(delta: number) {
 		for (const [skillId, cooldown] of Object.entries(this.getCooldowns())) {
+			if (!cooldown) continue;
 			useMonsterStore
 				.getState()
 				.setCooldown(this.uid, skillId, Math.max(0, cooldown - delta));
@@ -121,5 +136,24 @@ export class Monster {
 	}
 	getName() {
 		return this.data.name;
+	}
+	revive(delta: number) {
+		if (this.isAlive()) return;
+		const reviveBuffer = useMonsterStore.getState().reviveBuffer[this.uid];
+		const reviveTime = this.data.reviveTime;
+		const newReviveBuffer = reviveBuffer + delta;
+		if (newReviveBuffer >= reviveTime) {
+			useMonsterStore.getState().setReviveBuffer(this.uid, 0);
+			useMonsterStore
+				.getState()
+				.initMonster(
+					this.uid,
+					this.recordSkills,
+					this.stats.maxHealth,
+					this.stats.maxMana
+				);
+		} else {
+			useMonsterStore.getState().setReviveBuffer(this.uid, newReviveBuffer);
+		}
 	}
 }

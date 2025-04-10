@@ -6,6 +6,8 @@ export type monster = {
 	name: string;
 	description?: string;
 
+	reviveTime: number; // en secondes
+
 	stats: stats;
 	activeSkills: skill[];
 

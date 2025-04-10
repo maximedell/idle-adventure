@@ -20,7 +20,8 @@ export class Adventurer {
 	}
 
 	applyTick(delta: number) {
-		this.regenerateMana(delta);
+		if (this.getCurrentMana() < this.getStats().maxMana)
+			this.regenerateMana(delta);
 		this.reduceCooldowns(delta);
 	}
 	levelUp() {
@@ -58,9 +59,12 @@ export class Adventurer {
 	getCurrentHealth() {
 		return useAdventurerStore.getState().stats.health;
 	}
+	getCurrentMana() {
+		return useAdventurerStore.getState().stats.mana;
+	}
 
 	isAlive(): boolean {
-		return useAdventurerStore.getState().stats.health > 0;
+		return this.getCurrentHealth() > 0;
 	}
 
 	regenerateMana(delta: number) {
@@ -68,7 +72,13 @@ export class Adventurer {
 		const manaBuffer = useAdventurerStore.getState().manaBuffer;
 		const newMana = manaBuffer + manaRegen * delta;
 		if (newMana >= 1) {
-			useAdventurerStore.getState().regenMana(Math.floor(newMana));
+			if (this.getCurrentMana() + newMana > this.getStats().maxMana) {
+				useAdventurerStore
+					.getState()
+					.regenMana(this.getStats().maxMana - this.getCurrentMana());
+			} else {
+				useAdventurerStore.getState().regenMana(Math.floor(newMana));
+			}
 			useAdventurerStore.getState().setManaBuffer(0);
 		} else {
 			useAdventurerStore.getState().setManaBuffer(newMana);
