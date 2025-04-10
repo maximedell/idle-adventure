@@ -1,7 +1,7 @@
 import { monster as MonsterData } from "../../types/monster";
 import { skill } from "../../types/skill";
 import { stats } from "../../types/stats";
-import { useMonsterStore } from "./MonsterStore";
+import { useMonsterStore } from "../../store/MonsterStore";
 
 export class Monster {
 	private data: MonsterData;

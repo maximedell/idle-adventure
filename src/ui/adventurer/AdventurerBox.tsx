@@ -1,4 +1,4 @@
-import { useAdventurerStore } from "../../modules/adventurer/AdventurerStore";
+import { useAdventurerStore } from "../../store/AdventurerStore";
 import StatBar from "../shared/StatBar";
 
 export function AdventurerBox() {

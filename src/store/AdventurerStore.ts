@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
-import { stats } from "../../types/stats";
-import { adventurerClass } from "../../types/avdventurerClass";
+import { stats } from "../types/stats";
+import { adventurerClass } from "../types/avdventurerClass";
 
 interface AdventurerState {
 	stats: stats;

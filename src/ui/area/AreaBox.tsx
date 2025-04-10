@@ -1,5 +1,5 @@
 import { use } from "react";
-import { useAreaStore } from "../../modules/area/AreaStore";
+import { useAreaStore } from "../../store/AreaStore";
 import { useGameStore } from "../../store/GameStore";
 import MonsterBox from "../monster/MonsterBox";
 

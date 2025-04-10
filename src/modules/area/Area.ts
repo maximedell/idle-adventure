@@ -1,6 +1,6 @@
 import { area as AreaData } from "../../types/area";
-import { useAreaStore } from "./AreaStore";
-import { useMonsterStore } from "../monster/MonsterStore";
+import { useAreaStore } from "../../store/AreaStore";
+import { useMonsterStore } from "../../store/MonsterStore";
 import { Monster } from "../monster/Monster";
 
 export class Area {

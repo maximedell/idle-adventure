@@ -1,4 +1,4 @@
-import { useAdventurerStore } from "./AdventurerStore";
+import { useAdventurerStore } from "../../store/AdventurerStore";
 import { adventurer as AdventurerData } from "../../types/adventurer";
 import { skill } from "../../types/skill";
 import { stats } from "../../types/stats";

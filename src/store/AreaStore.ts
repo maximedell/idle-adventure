@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
-import { monster } from "../../types/monster";
+import { monster } from "../types/monster";
 
 interface AreaState {
 	monstersByArea: Record<string, string[]>;

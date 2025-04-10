@@ -1,6 +1,6 @@
 import StatBar from "../shared/StatBar";
 import { useGameStore } from "../../store/GameStore";
-import { useMonsterStore } from "../../modules/monster/MonsterStore";
+import { useMonsterStore } from "../../store/MonsterStore";
 
 interface MonsterBoxProps {
 	monsterUid?: string;
