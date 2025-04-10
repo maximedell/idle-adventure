@@ -4,5 +4,5 @@ export type area = {
 	id: string;
 	name: string;
 
-	monster: monster;
+	monsters: monster[];
 };

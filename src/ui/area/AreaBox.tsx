@@ -1,3 +1,4 @@
+import { use } from "react";
 import { useAreaStore } from "../../modules/area/AreaStore";
 import { useGameStore } from "../../store/GameStore";
 import MonsterBox from "../monster/MonsterBox";
@@ -6,10 +7,11 @@ type BattleState = "idle" | "fighting";
 
 export default function AreaBox() {
 	const activeArea = useGameStore((state) => state.activeArea);
+	const activeAreaId = useAreaStore((state) => state.activeArea);
 	if (!activeArea) return null;
 	const battleState = useAreaStore((state) => state.battleState);
 	const monsterUids = useAreaStore(
-		(state) => state.monstersByArea[activeArea.getId()]
+		(state) => state.monstersByArea[activeAreaId]
 	); // Récupère les monstres depuis le store
 	const borderColor =
 		battleState === "idle" ? "border-primary-light" : "border-accent";
@@ -30,7 +32,7 @@ export default function AreaBox() {
 					<option value="fighting">Combattre</option>
 				</select>
 			</div>
-			{monsterUids.length > 0 && (
+			{monsterUids && monsterUids.length > 0 && (
 				<ul className="grid grid-cols-5 gap-4 w-full mt-4">
 					{monsterUids.map((monsterUid, index) => (
 						<li key={index}>

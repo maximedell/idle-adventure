@@ -12,11 +12,13 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 	const handleClick = () => {
 		activeArea.addMonster();
 	};
+	const stateClick = () => {
+		console.log(useMonsterStore.getState());
+	};
 	if (monsterUid) {
 		const monster = activeArea.getMonsterByUid(monsterUid);
-		const health = useMonsterStore.getState().health[monsterUid];
-		console.log("health", health);
-		const mana = useMonsterStore.getState().mana[monsterUid];
+		const health = useMonsterStore((state) => state.health[monsterUid]);
+		const mana = useMonsterStore((state) => state.mana[monsterUid]);
 		if (!monster) return null;
 		return (
 			<div className="box-monster">
@@ -33,6 +35,7 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 						color="mana"
 					/>
 				)}
+				<button onClick={stateClick}>State</button>
 			</div>
 		);
 	} else {

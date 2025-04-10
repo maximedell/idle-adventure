@@ -1,4 +1,3 @@
-import { use } from "react";
 import { monster as MonsterData } from "../../types/monster";
 import { skill } from "../../types/skill";
 import { stats } from "../../types/stats";
@@ -20,21 +19,24 @@ export class Monster {
 			return acc;
 		}, {} as Record<string, number>);
 		state.initMonsterCooldowns(this.uid, recordSkills);
-		state.initMonsterStats(
-			this.uid,
-			this.data.stats.maxMana,
-			this.data.stats.maxHealth
-		);
+		state.initHealth(this.uid, this.stats.health);
+		state.initMana(this.uid, this.stats.mana);
 		state.setManaBuffer(this.uid, 0);
-		console.log("Monster created", this.data.id);
+		console.log("Monster created", this.uid);
 	}
 
 	applyTick(delta: number) {
-		this.regenerateMana(delta);
+		if (!this.isAlive()) return;
+		if (this.getCurrentMana() < this.getStats().maxMana) {
+			this.regenerateMana(delta);
+		}
 		this.reduceCooldowns(delta);
 	}
 	getId(): string {
 		return this.data.id;
+	}
+	getUid(): string {
+		return this.uid;
 	}
 	getStats() {
 		const stats = {

@@ -9,20 +9,23 @@ export class Area {
 	private monsters: Monster[] = [];
 	constructor(data: AreaData) {
 		const state = useAreaStore.getState();
+		state.setActiveArea(data.id);
 		this.data = data;
 		if (!state.monstersByArea[data.id]) {
-			state.addArea(data.id, data.monsters[0]);
+			state.addArea(data.id, data.monsters[0].id + "0");
 		}
 		const monsters = state.monstersByArea[data.id] || [];
 		let counter = 0;
-		for (const monsterId of monsters) {
-			const monster = data.monsters.find((m) => m.id === monsterId);
+		for (const monsterUid of monsters) {
+			const monster = data.monsters.find(
+				(m) => m.id === data.monsters[counter].id
+			);
 			if (!monster) continue;
-			this.monsters.push(new Monster(monster, monsterId + counter.toString()));
+			this.monsters.push(new Monster(monster, monsterUid));
 			counter++;
 		}
 		useMonsterStore.getState().initStore();
-		state.setActiveArea(data.id);
+
 		console.log("Area created", data.id);
 	}
 
@@ -45,11 +48,14 @@ export class Area {
 		if (monsters.length < this.maxMonsters) {
 			useAreaStore
 				.getState()
-				.addMonsterToArea(this.data.id, this.data.monsters[monsters.length].id);
+				.addMonsterToArea(
+					this.data.id,
+					this.data.monsters[monsters.length].id + monsters.length
+				);
 		}
 	}
 	getMonsterByUid(uid: string) {
-		const monster = this.monsters.find((m) => m.getId() === uid);
+		const monster = this.monsters.find((m) => m.getUid() === uid);
 		if (!monster) {
 			return null;
 		}

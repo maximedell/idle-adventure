@@ -30,6 +30,7 @@ export type damageEffect = {
 	type: "damage";
 	damageType: "physical" | "magical";
 	value: number;
+	target: number;
 	duration?: number; // in seconds
 };
 

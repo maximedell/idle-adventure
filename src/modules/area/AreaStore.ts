@@ -10,8 +10,8 @@ interface AreaState {
 
 interface AreaActions {
 	setActiveArea(areaId: string): void;
-	addArea(areaId: string, monster: monster): void;
-	addMonsterToArea(areaId: string, monsterId: string): void;
+	addArea(areaId: string, monsterUid: string): void;
+	addMonsterToArea(areaId: string, monsterUid: string): void;
 	setBattleState(state: "idle" | "fighting"): void;
 }
 interface AreaStore extends AreaState, AreaActions {}
@@ -25,23 +25,23 @@ export const useAreaStore = create<AreaStore>()(
 			setActiveArea: (areaId: string) => {
 				set({ activeArea: areaId });
 			},
-			addArea: (areaId: string, monster: monster) => {
+			addArea: (areaId: string, monsterUid: string) => {
 				set((state) => {
 					return {
 						monstersByArea: {
 							...state.monstersByArea,
-							[areaId]: [monster.id],
+							[areaId]: [monsterUid],
 						},
 					};
 				});
 			},
-			addMonsterToArea: (areaId: string, monsterId: string) => {
+			addMonsterToArea: (areaId: string, monsterUid: string) => {
 				set((state) => {
 					const monsters = state.monstersByArea[areaId] || [];
 					return {
 						monstersByArea: {
 							...state.monstersByArea,
-							[areaId]: [...monsters, monsterId],
+							[areaId]: [...monsters, monsterUid],
 						},
 					};
 				});

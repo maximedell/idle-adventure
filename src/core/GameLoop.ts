@@ -17,7 +17,7 @@ export function GameLoop() {
 		const loop = (now: number) => {
 			const delta = now - lastUpdate.current;
 			lastUpdate.current = now;
-			applyTick(delta);
+			//applyTick(delta);
 			frameId = requestAnimationFrame(loop);
 		};
 		frameId = requestAnimationFrame(loop);
