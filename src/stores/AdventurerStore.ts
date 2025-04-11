@@ -9,6 +9,7 @@ interface AdventurerState {
 	manaBuffer: number;
 	activeSkills: string[];
 	gcd: number; // global cooldown
+	experience: number;
 }
 
 interface AdventurerActions {
@@ -23,6 +24,7 @@ interface AdventurerActions {
 	addActiveSkill: (skillId: string) => void;
 	removeActiveSkill: (skillId: string) => void;
 	setGcd: (value: number) => void;
+	gainExperience: (amount: number) => void;
 }
 
 interface AdventurerStore extends AdventurerState, AdventurerActions {}
@@ -38,8 +40,6 @@ export const useAdventurerStore = create<AdventurerStore>()(
 				dexterity: 10,
 				intelligence: 10,
 				level: 1,
-				experience: 0,
-				experienceToLevelUp: 100,
 				maxHealth: 100,
 				maxMana: 50,
 				manaRegen: 1,
@@ -48,6 +48,7 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			manaBuffer: 0,
 			activeSkills: [],
 			gcd: 0,
+			experience: 0,
 
 			addActiveSkill: (skillId: string) =>
 				set((state) => ({
@@ -91,6 +92,10 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			setGcd: (value: number) =>
 				set((state) => ({
 					gcd: (state.gcd = value),
+				})),
+			gainExperience: (amount: number) =>
+				set((state) => ({
+					experience: (state.experience += amount),
 				})),
 		};
 	})

@@ -3,7 +3,7 @@ import { subscribeWithSelector } from "zustand/middleware";
 import { Adventurer } from "../modules/Adventurer";
 import { Area } from "../modules/Area";
 
-type LogType = "info" | "warning" | "danger" | "success";
+type LogType = "info" | "warning" | "danger" | "success" | "default";
 
 type LogEntry = {
 	message: string;
@@ -26,7 +26,7 @@ interface GameActions {
 
 interface GameStore extends GameState, GameActions {}
 
-const MAX_LOG_LENGTH = 20;
+const MAX_LOG_LENGTH = 100;
 
 export const useGameStore = create<GameStore>()(
 	subscribeWithSelector((set) => {

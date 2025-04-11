@@ -53,19 +53,10 @@ export const useAdventurerLevel = () => {
 };
 
 export const useAdventurerExperience = () => {
-	const experience = useAdventurerStore((state) => state.stats.experience);
-	if (experience === undefined) return null;
+	const experience = useAdventurerStore((state) => state.experience);
+	if (experience === undefined) return 0;
 
 	return experience;
-};
-
-export const useAdventurerExperienceToLevelUp = () => {
-	const experienceToLevelUp = useAdventurerStore(
-		(state) => state.stats.experienceToLevelUp
-	);
-	if (experienceToLevelUp === undefined) return null;
-
-	return experienceToLevelUp;
 };
 
 export const useAdventurerSkillCooldown = (skillId: string) => {

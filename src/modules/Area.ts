@@ -39,7 +39,7 @@ export class Area {
 		const monsters = useAreaStore.getState().monstersByArea[this.data.id];
 		const monster =
 			this.data.monsters[monsters.length % this.data.monsters.length];
-		console.log("Monster index: ", monster);
+
 		if (monsters.length < this.maxMonsters) {
 			this.monsters.push(new Monster(monster, monster.id + monsters.length));
 			useAreaStore

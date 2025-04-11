@@ -1,7 +1,9 @@
+import { Adventurer } from "../modules/Adventurer";
 import { Monster } from "../modules/Monster";
 import { useGameStore } from "../stores/GameStore";
 import { useMonsterStore } from "../stores/MonsterStore";
 import { skill } from "../types/skill";
+import { RewardSystem } from "./RewardSystem";
 
 export function startCombat() {
 	handleCombatTick();
@@ -39,8 +41,11 @@ function handleCombatTick() {
 			`L'aventurier utilise ${skill.name} et inflige ${dmg} dégâts à ${targets
 				.map((t) => t.getName())
 				.join(", ")}`,
-			"info"
+			"default"
 		);
+		for (const target of targets) {
+			if (!target.isAlive()) RewardSystem.applyRewardExperience(player, target);
+		}
 	}
 
 	// Nettoyer les ennemis morts
@@ -48,7 +53,7 @@ function handleCombatTick() {
 
 	// Gérer fin de combat
 	if (aliveEnemies.length === 0) {
-		endCombatWithVictory();
+		endCombatWithVictory(player, enemies);
 	} else {
 		for (const enemy of aliveEnemies) {
 			const enemySkill = enemy.getAvailableSkill();
@@ -99,11 +104,12 @@ function computeSkillDamage(
 	return { dmg, targets };
 }
 
-function endCombatWithVictory() {
+function endCombatWithVictory(adventurer: Adventurer, enemies: Monster[]) {
 	useGameStore
 		.getState()
 		.addBattleLog("L'aventurier a vaincu tous les ennemis !", "success");
 	useMonsterStore.getState().setRespawnMonsters(true);
+	RewardSystem.applyRewardDrops(adventurer, enemies);
 	return;
 	// Gérer les gains (xp, ressources...) ici
 }

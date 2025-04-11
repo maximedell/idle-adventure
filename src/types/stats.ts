@@ -8,6 +8,4 @@ export type stats = {
 	maxMana: number;
 	manaRegen: number;
 	level: number;
-	experience: number;
-	experienceToLevelUp: number;
 };

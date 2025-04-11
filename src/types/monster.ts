@@ -1,5 +1,6 @@
 import { stats } from "./stats";
 import { skill } from "./skill";
+import { resource } from "./resource";
 
 export type monster = {
 	id: string;
@@ -22,6 +23,6 @@ export type monsterRewards = {
 };
 
 export type resourceDrop = {
-	resourceId: string;
-	amount: number;
+	resource: resource;
+	dropRate: number; // 0-100
 };

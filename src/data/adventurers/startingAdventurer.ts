@@ -17,7 +17,5 @@ export const startingAdventurer: adventurer = {
 		maxMana: 10,
 		manaRegen: 1,
 		level: 1,
-		experience: 0,
-		experienceToLevelUp: 100,
 	},
 };

@@ -3,6 +3,8 @@ import { adventurer as AdventurerData } from "../types/adventurer";
 import { skill } from "../types/skill";
 import { stats } from "../types/stats";
 import { adventurerClass } from "../types/avdventurerClass";
+import { resource } from "../types/resource";
+import { useInventoryStore } from "../stores/InventoryStore";
 
 export class Adventurer {
 	private skills: skill[];
@@ -41,8 +43,6 @@ export class Adventurer {
 			dexterity: stats.dexterity + 1,
 			intelligence: stats.intelligence + 1,
 			level: stats.level + 1,
-			experience: 0,
-			experienceToLevelUp: stats.experienceToLevelUp * 1.2,
 		};
 		useAdventurerStore.getState().initStats(newStats);
 	}
@@ -159,5 +159,41 @@ export class Adventurer {
 
 	setCooldown(skillId: string, cooldown: number) {
 		useAdventurerStore.getState().setCooldown(skillId, cooldown);
+	}
+
+	xpRequiredToLevelUp(level: number): number {
+		return Math.floor(100 * Math.pow(1.2, level - 1));
+	}
+	gainExperience(amount: number) {
+		useAdventurerStore.getState().gainExperience(amount);
+	}
+	addResourcesToInventory(
+		resources: Record<string, number>
+	): Record<string, number> {
+		const state = useInventoryStore.getState();
+		const inventoryResources = state.resources;
+		const inventorySizeMax = state.size;
+		const inventorySize = Object.keys(inventoryResources).reduce(
+			(acc, key) => acc + inventoryResources[key],
+			0
+		);
+		const newResources: Record<string, number> = {};
+		let currentSize = inventorySize;
+		for (const resourceId in resources) {
+			if (currentSize >= inventorySizeMax) break;
+			const quantity = resources[resourceId];
+			if (currentSize + quantity <= inventorySizeMax) {
+				newResources[resourceId] = quantity;
+				currentSize += quantity;
+			} else {
+				newResources[resourceId] = inventorySizeMax - currentSize;
+				currentSize = inventorySizeMax;
+			}
+		}
+		for (const resourceId in newResources) {
+			const quantity = newResources[resourceId];
+			state.addResource(resourceId, quantity);
+		}
+		return newResources;
 	}
 }

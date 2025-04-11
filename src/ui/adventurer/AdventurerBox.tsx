@@ -2,6 +2,7 @@ import {
 	useAdventurerStats,
 	useAdventurerClass,
 	useAdventurerActiveSkills,
+	useAdventurerExperience,
 } from "../../selectors/AdventurerSelector";
 import { useAdventurer } from "../../selectors/GameSelector";
 import StatBar from "../shared/StatBar";
@@ -14,6 +15,7 @@ export function AdventurerBox() {
 	const stats = useAdventurerStats();
 	const adventurerClass = useAdventurerClass();
 	const activeSkillIds = useAdventurerActiveSkills();
+	const experience = useAdventurerExperience();
 	const Info = InfoIcon;
 	const skills = adventurer
 		.getActiveSkills()
@@ -38,8 +40,8 @@ export function AdventurerBox() {
 				</div>
 			</div>
 			<StatBar
-				stat={stats.experience}
-				maxStat={stats.experienceToLevelUp}
+				stat={experience}
+				maxStat={adventurer.xpRequiredToLevelUp(stats.level)}
 				color="exp"
 			/>
 			<StatBar stat={stats.health} maxStat={stats.maxHealth} color="hp" />

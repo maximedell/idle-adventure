@@ -97,7 +97,6 @@ export class Monster {
 		).filter(([, cooldown]) => cooldown > 0);
 		if (cooldowns.length === 0) return;
 		for (const [skillId, cooldown] of cooldowns) {
-			console.log("Reducing cooldown for", skillId, "cooldown ", cooldown);
 			useMonsterStore
 				.getState()
 				.setCooldown(this.uid, skillId, Math.max(0, cooldown - delta));

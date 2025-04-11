@@ -21,6 +21,12 @@
 	h3 {
 		@apply text-sm font-bold text-primary-light;
 	}
+	li {
+		@apply text-base font-bold text-primary-light;
+	}
+	ul {
+		@apply list-none pl-4;
+	}
 }
 
 @keyframes fadeIn {

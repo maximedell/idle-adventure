@@ -1,6 +1,11 @@
 import { monster } from "../../types/monster";
 import { allSkills } from "../skills";
+import { allResources } from "../resources";
 
+const resourceDrop = {
+	resource: allResources["rat-tail"],
+	dropRate: 50,
+};
 export const rat: monster = {
 	id: "rat",
 	name: "Rat des villes",
@@ -14,15 +19,13 @@ export const rat: monster = {
 		maxMana: 0,
 		manaRegen: 0,
 		level: 1,
-		experience: 10,
-		experienceToLevelUp: 0,
 	},
 	activeSkills: [allSkills["rat-bite"]],
 	reviveTime: 30,
 	rewards: {
-		experience: 10,
-		gold: 3,
-		resources: [],
+		experience: 5,
+		gold: 0,
+		resources: [resourceDrop],
 	},
 	isBoss: false,
 };
