@@ -1,31 +1,27 @@
 import StatBar from "../shared/StatBar";
-import { useGameStore } from "../../store/GameStore";
-import { useMonsterStore } from "../../store/MonsterStore";
+import {
+	useMonsterHealth,
+	useMonsterMana,
+	useActiveArea,
+	useReviveTimer,
+} from "../../selectors/MonsterSelector";
+import SkillIcon from "../skill/SkillIcon";
+import MonsterIcon from "./MonsterIcon";
 
 interface MonsterBoxProps {
 	monsterUid?: string;
 }
 
 export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
-	const activeArea = useGameStore((state) => state.activeArea);
-	const health = useMonsterStore((state) =>
-		monsterUid ? state.health[monsterUid] : undefined
-	);
-	const mana = useMonsterStore((state) =>
-		monsterUid ? state.mana[monsterUid] : undefined
-	);
-	const reviveTimer = useMonsterStore((state) =>
-		monsterUid ? state.reviveBuffer[monsterUid] : undefined
-	);
+	const activeArea = useActiveArea();
+	const health = useMonsterHealth(monsterUid);
+	const mana = useMonsterMana(monsterUid);
+	const reviveTimer = useReviveTimer(monsterUid);
 
 	if (!activeArea) return null;
 
 	const handleClick = () => {
 		activeArea.addMonster();
-	};
-
-	const stateClick = () => {
-		console.log(useMonsterStore.getState());
 	};
 
 	if (monsterUid) {
@@ -34,7 +30,11 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 		const reviveTime = monster.getData().reviveTime;
 		return (
 			<div className="box-monster">
-				<h3>{monster.getName()}</h3>
+				<div className="flex flex-row items-center">
+					<MonsterIcon monster={monster.getData()} className="w-8 h-8" />
+					<h3>{monster.getName()}</h3>
+				</div>
+
 				<StatBar
 					stat={health ? health : reviveTimer ? Math.floor(reviveTimer) : 0}
 					maxStat={health ? monster.getStats().maxHealth : reviveTime}
@@ -47,6 +47,16 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 						color="mana"
 					/>
 				)}
+				<div className="flex flex-row gap-2 mt-1">
+					{monster.getSkills().map((skill) => (
+						<SkillIcon
+							skill={skill}
+							className="w-5 h-5"
+							key={skill.id}
+							monsterUid={monster.getUid()}
+						/>
+					))}
+				</div>
 			</div>
 		);
 	}

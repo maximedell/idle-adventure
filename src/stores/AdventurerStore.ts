@@ -1,13 +1,14 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { stats } from "../types/stats";
-import { adventurerClass } from "../types/avdventurerClass";
 
 interface AdventurerState {
 	stats: stats;
 	cooldowns: Record<string, number>;
 	class: string;
 	manaBuffer: number;
+	activeSkills: string[];
+	gcd: number; // global cooldown
 }
 
 interface AdventurerActions {
@@ -19,6 +20,9 @@ interface AdventurerActions {
 	regenMana: (amount: number) => void;
 	loseHealth: (amount: number) => void;
 	setManaBuffer: (value: number) => void;
+	addActiveSkill: (skillId: string) => void;
+	removeActiveSkill: (skillId: string) => void;
+	setGcd: (value: number) => void;
 }
 
 interface AdventurerStore extends AdventurerState, AdventurerActions {}
@@ -42,6 +46,17 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			},
 			class: "",
 			manaBuffer: 0,
+			activeSkills: [],
+			gcd: 0,
+
+			addActiveSkill: (skillId: string) =>
+				set((state) => ({
+					activeSkills: [...state.activeSkills, skillId],
+				})),
+			removeActiveSkill: (skillId: string) =>
+				set((state) => ({
+					activeSkills: state.activeSkills.filter((skill) => skill !== skillId),
+				})),
 
 			setManaBuffer: (value: number) =>
 				set((state) => ({
@@ -72,6 +87,10 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			loseHealth: (amount: number) =>
 				set((state) => ({
 					stats: { ...state.stats, health: state.stats.health - amount },
+				})),
+			setGcd: (value: number) =>
+				set((state) => ({
+					gcd: (state.gcd = value),
 				})),
 		};
 	})

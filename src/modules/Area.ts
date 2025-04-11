@@ -1,7 +1,6 @@
-import { area as AreaData } from "../../types/area";
-import { useAreaStore } from "../../store/AreaStore";
-import { useMonsterStore } from "../../store/MonsterStore";
-import { Monster } from "../monster/Monster";
+import { area as AreaData } from "../types/area";
+import { useAreaStore } from "../stores/AreaStore";
+import { Monster } from "./Monster";
 
 export class Area {
 	private data: AreaData;
@@ -9,7 +8,6 @@ export class Area {
 	private monsters: Monster[] = [];
 	constructor(data: AreaData) {
 		const state = useAreaStore.getState();
-		state.setActiveArea(data.id);
 		this.data = data;
 		if (!state.monstersByArea[data.id]) {
 			state.addArea(data.id, data.monsters[0].id + "0");
@@ -29,10 +27,6 @@ export class Area {
 
 	getId() {
 		return this.data.id;
-	}
-
-	isInCombat() {
-		return useAreaStore.getState().battleState === "fighting";
 	}
 
 	getName() {

@@ -1,19 +1,41 @@
-import { useAdventurerStore } from "../../store/AdventurerStore";
+import {
+	useAdventurerStats,
+	useAdventurerClass,
+	useAdventurerActiveSkills,
+} from "../../selectors/AdventurerSelector";
+import { useAdventurer } from "../../selectors/GameSelector";
 import StatBar from "../shared/StatBar";
+import SkillIcon from "../skill/SkillIcon";
+import InfoIcon from "../../icons/shared/info.svg?react";
 
 export function AdventurerBox() {
-	const stats = useAdventurerStore((state) => state.stats);
-	const adventurerClass =
-		useAdventurerStore((state) => state.class) || "Aventurier";
+	const adventurer = useAdventurer();
+	if (!adventurer) return null;
+	const stats = useAdventurerStats();
+	const adventurerClass = useAdventurerClass();
+	const activeSkillIds = useAdventurerActiveSkills();
+	const Info = InfoIcon;
+	const skills = adventurer
+		.getActiveSkills()
+		.filter((skill) => activeSkillIds.includes(skill.id));
 	return (
 		<div className="box-adventurer">
 			<div>
-				<h2 className="title">
-					{adventurerClass} Niv.{stats.level}
-				</h2>
-				<p>Force: {stats.strength}</p>
-				<p>Dextérité: {stats.dexterity}</p>
-				<p>Intelligence: {stats.intelligence}</p>
+				<div className="flex flex-rox justify-center relative">
+					<h2 className="title">
+						{adventurerClass} Niv.{stats.level}
+					</h2>
+					<button className="w-6 h-6 absolute top-0 right-0 ">
+						<Info className="w-full h-full fill-current text-primary-light" />
+					</button>
+				</div>
+				<div className={`flex flex-row gap-2`}>
+					{skills.map((skill) => (
+						<div key={skill.id} className="flex flex-col items-center">
+							<SkillIcon skill={skill} className="w-8 h-8" />
+						</div>
+					))}
+				</div>
 			</div>
 			<StatBar
 				stat={stats.experience}

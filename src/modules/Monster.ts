@@ -1,7 +1,7 @@
-import { monster as MonsterData } from "../../types/monster";
-import { skill } from "../../types/skill";
-import { stats } from "../../types/stats";
-import { useMonsterStore } from "../../store/MonsterStore";
+import { monster as MonsterData } from "../types/monster";
+import { skill } from "../types/skill";
+import { stats } from "../types/stats";
+import { useMonsterStore } from "../stores/MonsterStore";
 
 export class Monster {
 	private data: MonsterData;
@@ -33,12 +33,10 @@ export class Monster {
 	applyTick(delta: number) {
 		if (!this.isAlive()) {
 			this.revive(delta);
-			return;
 		}
-		if (this.getCurrentMana() < this.getStats().maxMana) {
-			this.regenerateMana(delta);
-		}
+		this.regenerateMana(delta);
 		this.reduceCooldowns(delta);
+		this.updateGcd(delta);
 	}
 	getId(): string {
 		return this.data.id;
@@ -74,6 +72,9 @@ export class Monster {
 	}
 
 	regenerateMana(delta: number) {
+		if (this.getStats().mana === 0) return;
+		if (this.getCurrentMana() >= this.getStats().maxMana) return;
+		if (!this.isAlive()) return;
 		const { manaRegen } = this.getStats();
 		const manaBuffer = useMonsterStore.getState().manaBuffer[this.uid];
 		const newMana = manaBuffer + manaRegen * delta;
@@ -91,8 +92,12 @@ export class Monster {
 		}
 	}
 	reduceCooldowns(delta: number) {
-		for (const [skillId, cooldown] of Object.entries(this.getCooldowns())) {
-			if (!cooldown) continue;
+		const cooldowns = Object.entries(
+			useMonsterStore.getState().cooldowns[this.uid]
+		).filter(([, cooldown]) => cooldown > 0);
+		if (cooldowns.length === 0) return;
+		for (const [skillId, cooldown] of cooldowns) {
+			console.log("Reducing cooldown for", skillId, "cooldown ", cooldown);
 			useMonsterStore
 				.getState()
 				.setCooldown(this.uid, skillId, Math.max(0, cooldown - delta));
@@ -117,14 +122,20 @@ export class Monster {
 		return cooldown === 0 && this.getCurrentMana() >= skill.manaCost;
 	}
 	getAvailableSkill(): skill | null {
+		const gcd = useMonsterStore.getState().gcd[this.uid];
+		if (gcd > 0) return null;
 		const usable = this.skills
 			.filter((skill) => this.isAvailableSkill(skill.id))
 			.sort((a, b) => b.cooldown - a.cooldown); // priorité cooldown
 		return usable[0] || null;
 	}
+	setGcd(value: number) {
+		useMonsterStore.getState().setGcd(this.uid, value);
+	}
 	applySkill(skill: skill) {
 		this.useMana(skill.manaCost);
 		this.setCooldown(skill.id, skill.cooldown);
+		this.setGcd(1);
 	}
 
 	getData(): MonsterData {
@@ -138,7 +149,7 @@ export class Monster {
 		return this.data.name;
 	}
 	revive(delta: number) {
-		if (this.isAlive()) return;
+		if (this.isAlive() || !useMonsterStore.getState().respawnMonsters) return;
 		const reviveBuffer = useMonsterStore.getState().reviveBuffer[this.uid];
 		const reviveTime = this.data.reviveTime;
 		const newReviveBuffer = reviveBuffer + delta;
@@ -156,4 +167,14 @@ export class Monster {
 			useMonsterStore.getState().setReviveBuffer(this.uid, newReviveBuffer);
 		}
 	}
+	getSkills() {
+		return this.skills;
+	}
+	updateGcd(delta: number) {
+		const gcd = useMonsterStore.getState().gcd[this.uid];
+		if (gcd > 0) {
+			this.setGcd(Math.max(0, gcd - delta));
+		}
+	}
+	respawn() {}
 }

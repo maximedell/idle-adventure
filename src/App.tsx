@@ -5,8 +5,14 @@ import logor from "./assets/logo-r.png";
 import "./App.css";
 import AreaBox from "./ui/area/AreaBox";
 import { GameLoop } from "./core/GameLoop";
+import BattleLog from "./ui/battle/BattleLog";
 
 function App() {
+	const icons = import.meta.glob("/src/assets/skills/*.svg?react", {
+		eager: true,
+		import: "default",
+	});
+	console.log("SVG imports:", icons);
 	return (
 		<>
 			<GameLoop />
@@ -22,6 +28,7 @@ function App() {
 						<div className="content-main">
 							<AdventurerBox />
 							<AreaBox />
+							<BattleLog />
 						</div>
 					</div>
 					<div className="sidebar-right"></div>

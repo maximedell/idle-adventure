@@ -1,5 +1,6 @@
-import { Monster } from "../modules/monster/Monster";
-import { useGameStore } from "../store/GameStore";
+import { Monster } from "../modules/Monster";
+import { useGameStore } from "../stores/GameStore";
+import { useMonsterStore } from "../stores/MonsterStore";
 import { skill } from "../types/skill";
 
 export function startCombat() {
@@ -13,30 +14,32 @@ function handleCombatTick() {
 	if (!player || !area) return;
 	const enemies = area.getMonsters();
 	const alive = enemies.filter((e) => e.isAlive());
-	if (alive.length !== enemies.length) {
+	if (!player.isAlive() || !player.getActiveSkills().length) {
 		return;
 	}
-	if (!player.isAlive()) {
-		return;
+	if (alive.length === 0) return;
+	if (
+		alive.length === enemies.length &&
+		useMonsterStore.getState().respawnMonsters
+	) {
+		useMonsterStore.getState().setRespawnMonsters(false);
 	}
-
-	const log: string[] = [];
 
 	// Appliquer les compétences dans l'ordre de priorité
 	const skill = player.getAvailableSkill();
 
 	if (skill) {
 		player.applySkill(skill);
-		const { dmg, targets } = computeSkillDamage(skill, enemies);
+		const { dmg, targets } = computeSkillDamage(skill, alive);
 
 		for (const target of targets) {
 			target.applyDamage(dmg);
 		}
-
-		console.log(
+		state.addBattleLog(
 			`L'aventurier utilise ${skill.name} et inflige ${dmg} dégâts à ${targets
 				.map((t) => t.getName())
-				.join(", ")}`
+				.join(", ")}`,
+			"info"
 		);
 	}
 
@@ -54,10 +57,11 @@ function handleCombatTick() {
 				enemy.applySkill(enemySkill);
 				const dmg = computeEnemyDamage(enemySkill);
 				target.applyDamage(dmg);
-				console.log(
+				state.addBattleLog(
 					`${enemy.getName()} utilise ${
 						enemySkill.name
-					} et inflige ${dmg} dégâts`
+					} et inflige ${dmg} dégâts`,
+					"warning"
 				);
 			}
 			if (!target.isAlive()) {
@@ -96,13 +100,18 @@ function computeSkillDamage(
 }
 
 function endCombatWithVictory() {
-	console.log("Combat terminé avec succès !");
+	useGameStore
+		.getState()
+		.addBattleLog("L'aventurier a vaincu tous les ennemis !", "success");
+	useMonsterStore.getState().setRespawnMonsters(true);
 	return;
 	// Gérer les gains (xp, ressources...) ici
 }
 
 function handlePlayerDeath() {
-	console.log("L'aventurier est mort !");
+	const state = useGameStore.getState();
+	state.addBattleLog("L'aventurier est mort !", "danger");
+	state.setBattleState("idle");
 	return;
 	// Passage en écran de mort / déclenche prestige
 }

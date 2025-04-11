@@ -1,28 +1,35 @@
-import { useAdventurerStore } from "../../store/AdventurerStore";
-import { adventurer as AdventurerData } from "../../types/adventurer";
-import { skill } from "../../types/skill";
-import { stats } from "../../types/stats";
-import { adventurerClass } from "../../types/avdventurerClass";
+import { useAdventurerStore } from "../stores/AdventurerStore";
+import { adventurer as AdventurerData } from "../types/adventurer";
+import { skill } from "../types/skill";
+import { stats } from "../types/stats";
+import { adventurerClass } from "../types/avdventurerClass";
 
 export class Adventurer {
 	private skills: skill[];
+
 	private class: adventurerClass | null;
 	constructor(data: AdventurerData) {
+		const state = useAdventurerStore.getState();
 		this.skills = data.activeSkills;
 		this.class = data.class || null;
 		const recordSkills = this.skills.reduce((acc, skill) => {
 			acc[skill.id] = 0;
 			return acc;
 		}, {} as Record<string, number>);
-		useAdventurerStore.getState().initCooldowns(recordSkills);
-		useAdventurerStore.getState().initStats(data.stats);
+		state.initCooldowns(recordSkills);
+		state.initStats(data.stats);
+		if (!state.activeSkills.length) {
+			for (const skill of this.skills) {
+				state.addActiveSkill(skill.id);
+			}
+		}
 		console.log("Adventurer created");
 	}
 
 	applyTick(delta: number) {
-		if (this.getCurrentMana() < this.getStats().maxMana)
-			this.regenerateMana(delta);
+		this.regenerateMana(delta);
 		this.reduceCooldowns(delta);
+		this.updateGcd(delta);
 	}
 	levelUp() {
 		const stats = useAdventurerStore.getState().stats;
@@ -68,6 +75,7 @@ export class Adventurer {
 	}
 
 	regenerateMana(delta: number) {
+		if (this.getCurrentMana() >= this.getStats().maxMana) return;
 		const { manaRegen } = this.getStats();
 		const manaBuffer = useAdventurerStore.getState().manaBuffer;
 		const newMana = manaBuffer + manaRegen * delta;
@@ -86,10 +94,19 @@ export class Adventurer {
 	}
 
 	reduceCooldowns(delta: number) {
-		for (const [skillId, time] of Object.entries(this.getCooldowns())) {
+		for (const [skillId, time] of Object.entries(this.getCooldowns()).filter(
+			([, time]) => time > 0
+		)) {
 			useAdventurerStore
 				.getState()
 				.setCooldown(skillId, Math.max(0, time - delta));
+		}
+	}
+
+	updateGcd(delta: number) {
+		const gcd = useAdventurerStore.getState().gcd;
+		if (gcd > 0) {
+			this.setGcd(Math.max(0, gcd - delta));
 		}
 	}
 
@@ -100,16 +117,32 @@ export class Adventurer {
 		return cooldown === 0 && this.getStat("mana") >= skill.manaCost;
 	}
 
+	getActiveSkills(): skill[] {
+		const activeSkillIds = useAdventurerStore.getState().activeSkills;
+		return this.skills.filter((skill) => activeSkillIds.includes(skill.id));
+	}
+
 	getAvailableSkill(): skill | null {
-		const usable = this.skills
+		const gcd = useAdventurerStore.getState().gcd;
+		if (gcd > 0) return null;
+		const usable = this.getActiveSkills()
 			.filter((skill) => this.isSkillAvailable(skill.id))
 			.sort((a, b) => b.cooldown - a.cooldown); // priorité cooldown
 		return usable[0] || null;
 	}
-
+	getSkills(): skill[] {
+		return this.skills;
+	}
+	useMana(amount: number) {
+		useAdventurerStore.getState().useMana(amount);
+	}
+	setGcd(value: number) {
+		useAdventurerStore.getState().setGcd(value);
+	}
 	applySkill(skill: skill) {
-		useAdventurerStore.getState().useMana(skill.manaCost);
+		this.useMana(skill.manaCost);
 		this.setCooldown(skill.id, skill.cooldown);
+		this.setGcd(1);
 	}
 
 	applyDamage(amount: number) {

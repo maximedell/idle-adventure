@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import { useGameStore } from "../store/GameStore";
+import { useGameStore } from "../stores/GameStore";
 import { startCombat } from "../systems/CombatSystem";
 import { startingAdventurer } from "../data/adventurers/startingAdventurer";
 import { outskirt } from "../data/areas/outskirt";
-import { Adventurer } from "../modules/adventurer/Adventurer";
-import { Area } from "../modules/area/Area";
+import { Adventurer } from "../modules/Adventurer";
+import { Area } from "../modules/Area";
 
 let gameloop = false;
 export function GameLoop() {
@@ -44,7 +44,7 @@ function applyTick(delta: number) {
 	for (const enemy of ennemies) {
 		enemy.applyTick(delta);
 	}
-	if (activeArea.isInCombat()) {
+	if (state.battleState === "fighting") {
 		startCombat();
 	}
 }

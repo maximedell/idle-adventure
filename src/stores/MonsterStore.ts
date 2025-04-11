@@ -7,6 +7,8 @@ interface MonsterState {
 	cooldowns: Record<string, Record<string, number>>;
 	manaBuffer: Record<string, number>;
 	reviveBuffer: Record<string, number>;
+	gcd: Record<string, number>;
+	respawnMonsters: boolean;
 }
 
 interface MonsterActions {
@@ -26,6 +28,8 @@ interface MonsterActions {
 	setCooldown: (uid: string, skillId: string, cooldown: number) => void;
 	setManaBuffer: (uid: string, value: number) => void;
 	setReviveBuffer: (uid: string, value: number) => void;
+	setGcd: (uid: string, value: number) => void;
+	setRespawnMonsters: (value: boolean) => void;
 }
 
 interface MonsterStore extends MonsterState, MonsterActions {}
@@ -38,6 +42,8 @@ export const useMonsterStore = create<MonsterStore>()(
 			health: {},
 			manaBuffer: {},
 			reviveBuffer: {},
+			gcd: {},
+			respawnMonsters: false,
 			setManaBuffer: (uid: string, value: number) =>
 				set((state) => ({
 					manaBuffer: {
@@ -64,6 +70,14 @@ export const useMonsterStore = create<MonsterStore>()(
 					mana: {
 						...state.mana,
 						[ui]: mana,
+					},
+					gcd: {
+						...state.gcd,
+						[ui]: 0,
+					},
+					reviveBuffer: {
+						...state.reviveBuffer,
+						[ui]: 0,
 					},
 				})),
 			initMana: (uid, mana) =>
@@ -125,6 +139,17 @@ export const useMonsterStore = create<MonsterStore>()(
 						...state.reviveBuffer,
 						[uid]: value,
 					},
+				})),
+			setGcd: (uid, value) =>
+				set((state) => ({
+					gcd: {
+						...state.gcd,
+						[uid]: value,
+					},
+				})),
+			setRespawnMonsters: (value) =>
+				set(() => ({
+					respawnMonsters: value,
 				})),
 		};
 	})
