@@ -16,7 +16,9 @@ function handleCombatTick() {
 	if (!player || !area) return;
 	const enemies = area.getMonsters();
 	const alive = enemies.filter((e) => e.isAlive());
-	if (!player.isAlive() || !player.getActiveSkills().length) {
+	const skill = player.getAvailableSkill();
+
+	if (!player.isAlive() || !skill) {
 		return;
 	}
 	if (alive.length === 0) return;
@@ -28,25 +30,24 @@ function handleCombatTick() {
 	}
 
 	// Appliquer les compétences dans l'ordre de priorité
-	const skill = player.getAvailableSkill();
 
-	if (skill) {
-		player.applySkill(skill);
-		const { dmg, targets } = computeSkillDamage(skill, alive);
+	player.applySkill(skill);
+	const { dmg, targets } = computeSkillDamage(skill, alive);
 
-		for (const target of targets) {
-			target.applyDamage(dmg);
-		}
-		state.addBattleLog(
-			`L'aventurier utilise ${skill.name} et inflige ${dmg} dégâts à ${targets
-				.map((t) => t.getName())
-				.join(", ")}`,
-			"default"
-		);
-		for (const target of targets) {
-			if (!target.isAlive()) RewardSystem.applyRewardExperience(player, target);
-		}
+	for (const target of targets) {
+		target.applyDamage(dmg);
 	}
+	state.addBattleLog(
+		`L'aventurier utilise ${skill.name} et inflige ${dmg} dégâts à ${targets
+			.map((t) => t.getName())
+			.join(", ")}`,
+		"default"
+	);
+	for (const target of targets) {
+		if (!target.isAlive()) RewardSystem.applyRewardExperience(player, target);
+	}
+
+	if (!state.inCombat) state.setInCombat(true);
 
 	// Nettoyer les ennemis morts
 	const aliveEnemies = enemies.filter((e) => e.isAlive());
@@ -110,6 +111,7 @@ function endCombatWithVictory(adventurer: Adventurer, enemies: Monster[]) {
 		.addBattleLog("L'aventurier a vaincu tous les ennemis !", "success");
 	useMonsterStore.getState().setRespawnMonsters(true);
 	RewardSystem.applyRewardDrops(adventurer, enemies);
+	useGameStore.getState().setInCombat(false);
 	return;
 	// Gérer les gains (xp, ressources...) ici
 }
@@ -117,7 +119,7 @@ function endCombatWithVictory(adventurer: Adventurer, enemies: Monster[]) {
 function handlePlayerDeath() {
 	const state = useGameStore.getState();
 	state.addBattleLog("L'aventurier est mort !", "danger");
-	state.setBattleState("idle");
+	state.setBattleState(false);
 	return;
 	// Passage en écran de mort / déclenche prestige
 }

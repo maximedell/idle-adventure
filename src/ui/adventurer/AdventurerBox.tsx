@@ -3,6 +3,8 @@ import {
 	useAdventurerClass,
 	useAdventurerActiveSkills,
 	useAdventurerExperience,
+	useAdventurerCurrentHealth,
+	useAdventurerCurrentMana,
 } from "../../selectors/AdventurerSelector";
 import { useAdventurer } from "../../selectors/GameSelector";
 import StatBar from "../shared/StatBar";
@@ -13,9 +15,12 @@ export function AdventurerBox() {
 	const adventurer = useAdventurer();
 	if (!adventurer) return null;
 	const stats = useAdventurerStats();
+	console.log("AdventurerBox stats", stats);
 	const adventurerClass = useAdventurerClass();
 	const activeSkillIds = useAdventurerActiveSkills();
 	const experience = useAdventurerExperience();
+	const currentHealth = useAdventurerCurrentHealth();
+	const currentMana = useAdventurerCurrentMana();
 	const Info = InfoIcon;
 	const skills = adventurer
 		.getActiveSkills()
@@ -44,8 +49,16 @@ export function AdventurerBox() {
 				maxStat={adventurer.xpRequiredToLevelUp(stats.level)}
 				color="exp"
 			/>
-			<StatBar stat={stats.health} maxStat={stats.maxHealth} color="hp" />
-			<StatBar stat={stats.mana} maxStat={stats.maxMana} color="mana" />
+			<StatBar
+				stat={currentHealth}
+				maxStat={adventurer.getMaxHealth(stats.level)}
+				color="hp"
+			/>
+			<StatBar
+				stat={currentMana}
+				maxStat={adventurer.getMaxMana(stats.intelligence)}
+				color="mana"
+			/>
 		</div>
 	);
 }

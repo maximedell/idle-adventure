@@ -1,4 +1,4 @@
-import { stats } from "./stats";
+import { stats, monsterStats } from "./stats";
 import { skill } from "./skill";
 import { resource } from "./resource";
 
@@ -9,7 +9,7 @@ export type monster = {
 
 	reviveTime: number; // en secondes
 
-	stats: stats;
+	stats: monsterStats;
 	activeSkills: skill[];
 
 	rewards: monsterRewards;

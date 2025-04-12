@@ -6,49 +6,37 @@ import {
 import { useGameStore } from "../../stores/GameStore";
 import MonsterBox from "../monster/MonsterBox";
 import FightIcon from "../../icons/shared/fight.svg?react";
-import IdleIcon from "../../icons/shared/idle.svg?react";
-
-type BattleState = "idle" | "fighting";
+import { useIsInCombat } from "../../selectors/GameSelector";
+import { useNotificationStore } from "../../stores/NotificationStore";
 
 export default function AreaBox() {
 	const activeArea = useActiveArea();
 	if (!activeArea) return null;
 	const battleState = useBattleState();
+	const isInCombat = useIsInCombat();
 	const setBattleState = useGameStore((s) => s.setBattleState);
 	const monsterUids = useAreaMonsters();
-	const borderColor =
-		battleState === "idle" ? "border-primary-light" : "border-accent";
+	const borderColor = battleState ? "border-accent" : "border-primary-light";
 	const Fight = FightIcon;
-	const Idle = IdleIcon;
-	const handleClick = (state: BattleState) => {
-		if (state !== battleState) {
-			setBattleState(state);
+	const handleClick = () => {
+		if (isInCombat) {
+			useNotificationStore
+				.getState()
+				.addNotification("Impossible pendant un combat!", "warning");
+			return;
 		}
+		setBattleState(!battleState);
 	};
 	return (
 		<div className={`box-area relative ${borderColor}`}>
 			<h2>{activeArea.getName()}</h2>
-			<div className="absolute top-0 right-0 m-4">
+			<div className="absolute top-0 right-0 m-4 text-primary-light">
 				<button
-					className={"w-8 h-8 border border-primary-dark rounded mr-4"}
-					onClick={() => handleClick("fighting")}
+					className={"w-8 h-8 rounded mr-4"}
+					onClick={() => handleClick()}
 				>
 					<Fight
-						className={`${
-							battleState === "fighting" ? "text-accent" : "text-primary-dark"
-						}
-                        w-full h-full fill-current`}
-					/>
-				</button>
-				<button
-					className="w-8 h-8 border border-primary-dark rounded"
-					onClick={() => handleClick("idle")}
-				>
-					<Idle
-						className={`${
-							battleState === "idle" ? "text-pimary-light" : "text-primary-dark"
-						}
-                        w-full h-full fill-current`}
+						className={`${borderColor} w-full h-full fill-current border rounded`}
 					/>
 				</button>
 			</div>

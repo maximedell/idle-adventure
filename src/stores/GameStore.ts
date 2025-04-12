@@ -13,15 +13,17 @@ interface GameState {
 	adventurer: Adventurer | null;
 	activeArea: Area | null;
 	unlockedAreas: string[];
-	battleState: "idle" | "fighting";
+	battleState: boolean;
 	battleLog: LogEntry[];
+	inCombat: boolean;
 }
 
 interface GameActions {
 	initStore: (adventurer: Adventurer, area: Area) => void;
-	setBattleState(state: "idle" | "fighting"): void;
+	setBattleState(state: boolean): void;
 	addBattleLog(message: string, type: LogType): void; // Add a log to the battle log, if the log is full, remove the first one
 	clearBattleLog(): void;
+	setInCombat(val: boolean): void;
 }
 
 interface GameStore extends GameState, GameActions {}
@@ -34,8 +36,9 @@ export const useGameStore = create<GameStore>()(
 			adventurer: null,
 			activeArea: null,
 			unlockedAreas: [],
-			battleState: "idle",
+			battleState: false,
 			battleLog: [],
+			inCombat: false,
 
 			initStore: (adventurer: Adventurer, area: Area) =>
 				set(() => ({
@@ -43,7 +46,7 @@ export const useGameStore = create<GameStore>()(
 					activeArea: area,
 					unlockedAreas: ["outskirt"],
 				})),
-			setBattleState: (state: "idle" | "fighting") => {
+			setBattleState: (state: boolean) => {
 				set({ battleState: state });
 			},
 			addBattleLog: (message: string, type: LogType) => {
@@ -55,6 +58,9 @@ export const useGameStore = create<GameStore>()(
 			},
 			clearBattleLog: () => {
 				set({ battleLog: [] });
+			},
+			setInCombat: (val: boolean) => {
+				set({ inCombat: val });
 			},
 		};
 	})

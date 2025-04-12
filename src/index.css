@@ -10,13 +10,13 @@
 		@apply h-full;
 	}
 	main {
-		@apply bg-primary flex flex-row w-full h-full justify-between;
+		@apply flex flex-row w-full h-full justify-between border-x border-primary;
 	}
 	h1 {
 		@apply text-2xl font-bold;
 	}
 	h2 {
-		@apply text-xl font-bold text-primary-dark;
+		@apply text-xl font-bold text-primary-light;
 	}
 	h3 {
 		@apply text-sm font-bold text-primary-light;
@@ -51,7 +51,7 @@
 		@apply h-full flex flex-col items-center mx-auto max-w-7xl text-primary-light;
 	}
 	.App-header {
-		@apply bg-primary text-white w-full h-12 flex justify-between items-center border-b border-accent shadow-md;
+		@apply text-white w-full h-12 flex justify-between items-center border-b border-accent shadow-md;
 	}
 	.logo-l {
 		@apply h-full;

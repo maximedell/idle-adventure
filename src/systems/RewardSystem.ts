@@ -50,42 +50,56 @@ export const RewardSystem = {
 		}
 		const newResources = adventurer.addResourcesToInventory(resources);
 		let leftoverResources: Record<string, number> = {};
-		for (const resourceId in newResources) {
-			const quantity = newResources[resourceId];
-			if (resources[resourceId] > quantity) {
-				leftoverResources[resourceId] = resources[resourceId] - quantity;
+		for (const resourceId in resources) {
+			if (!newResources[resourceId]) {
+				leftoverResources[resourceId] = resources[resourceId];
+			} else if (newResources[resourceId] < resources[resourceId]) {
+				leftoverResources[resourceId] =
+					resources[resourceId] - newResources[resourceId];
 			}
 		}
+		console.log("resources", resources);
+		console.log("newResources", newResources);
+		console.log("leftoverResources", leftoverResources);
 		state.addBattleLog(
-			this.getRewardDropText(gold, newResources, resourcesList),
+			this.getRewardDropText(
+				gold,
+				newResources,
+				resourcesList,
+				leftoverResources
+			),
 			"info"
 		);
 		if (Object.keys(leftoverResources).length > 0) {
-			state.addBattleLog(
-				`L'inventaire est plein. Vous avez du laisser ${this.getResourcesText(
-					leftoverResources,
-					resourcesList
-				)} par terre.`,
-				"warning"
-			);
-			state.setBattleState("idle");
+			state.addBattleLog("Combat mis en pause (inventaire plein)", "danger");
+			state.setBattleState(false);
 		}
 	},
 	getRewardDropText(
 		gold: number,
 		resources: Record<string, number>,
-		resourceList: resource[]
+		resourceList: resource[],
+		leftoverResources: Record<string, number>
 	): string {
 		let resourcesText = this.getResourcesText(resources, resourceList);
 		let goldText = this.getGoldText(gold);
+		let leftoverResourcesText = this.getResourcesText(
+			leftoverResources,
+			resourceList
+		);
+		if (leftoverResourcesText.length > 0) {
+			leftoverResourcesText = `Vous n'avez pas assez de place dans votre inventaire pour ramasser ${leftoverResourcesText}.`;
+		}
 		if (resourcesText.length > 0 && goldText.length > 0) {
-			return `L'aventurier a dépouillé les monstres et a trouvé ${goldText} et ${resourcesText}.`;
+			return `Vous avez ramassé ${resourcesText} et ${goldText} pièces d'or. ${leftoverResourcesText}`;
 		} else if (resourcesText.length > 0) {
-			return `L'aventurier a dépouillé les monstres et a trouvé ${resourcesText}.`;
+			return `Vous avez ramassé ${resourcesText}. ${leftoverResourcesText}`;
 		} else if (goldText.length > 0) {
-			return `L'aventurier a dépouillé les monstres et a trouvé ${goldText}.`;
+			return `Vous avez ramassé ${goldText} pièces d'or. ${leftoverResourcesText}`;
+		} else if (leftoverResourcesText.length > 0) {
+			return leftoverResourcesText;
 		} else {
-			return "L'aventurier a dépouillé les monstres et n'a rien trouvé.";
+			return `Vous n'avez rien ramassé.`;
 		}
 	},
 	getGoldText(gold: number): string {

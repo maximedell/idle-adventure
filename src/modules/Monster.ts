@@ -1,13 +1,13 @@
 import { monster as MonsterData } from "../types/monster";
 import { skill } from "../types/skill";
-import { stats } from "../types/stats";
+import { monsterStats } from "../types/stats";
 import { useMonsterStore } from "../stores/MonsterStore";
 
 export class Monster {
 	private data: MonsterData;
 	private uid: string;
 	private skills: skill[];
-	private stats: stats;
+	private stats: monsterStats;
 	private recordSkills: Record<string, number>;
 	constructor(data: MonsterData, uid: string) {
 		const state = useMonsterStore.getState();
@@ -22,8 +22,8 @@ export class Monster {
 		state.initMonster(
 			this.uid,
 			this.recordSkills,
-			this.stats.maxHealth,
-			this.stats.maxMana
+			this.stats.health,
+			this.stats.mana
 		);
 		state.setManaBuffer(this.uid, 0);
 		state.setReviveBuffer(this.uid, 0);
@@ -72,17 +72,17 @@ export class Monster {
 	}
 
 	regenerateMana(delta: number) {
-		if (this.getStats().mana === 0) return;
-		if (this.getCurrentMana() >= this.getStats().maxMana) return;
+		const maxMana = this.getStats().mana;
+		if (maxMana === 0) return;
+		const currentMana = this.getCurrentMana();
+		if (currentMana >= maxMana) return;
 		if (!this.isAlive()) return;
 		const { manaRegen } = this.getStats();
 		const manaBuffer = useMonsterStore.getState().manaBuffer[this.uid];
 		const newMana = manaBuffer + manaRegen * delta;
 		if (newMana >= 1) {
-			if (this.getCurrentMana() + newMana > this.getStats().maxMana) {
-				useMonsterStore
-					.getState()
-					.regenMana(this.uid, this.getStats().maxMana - this.getCurrentMana());
+			if (currentMana + newMana > maxMana) {
+				useMonsterStore.getState().regenMana(this.uid, maxMana - currentMana);
 			} else {
 				useMonsterStore.getState().regenMana(this.uid, Math.floor(newMana));
 			}
@@ -159,8 +159,8 @@ export class Monster {
 				.initMonster(
 					this.uid,
 					this.recordSkills,
-					this.stats.maxHealth,
-					this.stats.maxMana
+					this.stats.health,
+					this.stats.mana
 				);
 		} else {
 			useMonsterStore.getState().setReviveBuffer(this.uid, newReviveBuffer);

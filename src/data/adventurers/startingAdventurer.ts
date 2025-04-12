@@ -8,14 +8,9 @@ export const startingAdventurer: adventurer = {
 	unlockedTalentIds: [],
 	activeSkills: [allSkills["minor-strike"], allSkills["striking-arrows"]],
 	stats: {
-		strength: 2,
-		dexterity: 1,
+		strength: 0,
+		dexterity: 0,
 		intelligence: 0,
-		health: 100,
-		maxHealth: 100,
-		mana: 10,
-		maxMana: 10,
-		manaRegen: 1,
 		level: 1,
 	},
 };

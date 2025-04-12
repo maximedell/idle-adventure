@@ -5,7 +5,7 @@ export const useAdventurerStats = () => {
 };
 
 export const useAdventurerClass = () => {
-	const adventurerClass = useAdventurerStore((state) => state.class);
+	const adventurerClass = useAdventurerStore((state) => state.currentClass);
 	if (!adventurerClass) return "Aventurier";
 	return adventurerClass;
 };
@@ -18,45 +18,15 @@ export const useAdventurerActiveSkills = () => {
 };
 
 export const useAdventurerCurrentHealth = () => {
-	const currentHealth = useAdventurerStore((state) => state.stats.health);
-	if (currentHealth === undefined) return null;
-
-	return currentHealth;
-};
-
-export const useAdventurerMaxHealth = () => {
-	const maxHealth = useAdventurerStore((state) => state.stats.maxHealth);
-	if (maxHealth === undefined) return null;
-
-	return maxHealth;
+	return useAdventurerStore((state) => state.currentHealth);
 };
 
 export const useAdventurerCurrentMana = () => {
-	const currentMana = useAdventurerStore((state) => state.stats.mana);
-	if (currentMana === undefined) return null;
-
-	return currentMana;
-};
-
-export const useAdventurerMaxMana = () => {
-	const maxMana = useAdventurerStore((state) => state.stats.maxMana);
-	if (maxMana === undefined) return null;
-
-	return maxMana;
-};
-
-export const useAdventurerLevel = () => {
-	const level = useAdventurerStore((state) => state.stats.level);
-	if (level === undefined) return null;
-
-	return level;
+	return useAdventurerStore((state) => state.currentMana);
 };
 
 export const useAdventurerExperience = () => {
-	const experience = useAdventurerStore((state) => state.experience);
-	if (experience === undefined) return 0;
-
-	return experience;
+	return useAdventurerStore((state) => state.experience);
 };
 
 export const useAdventurerSkillCooldown = (skillId: string) => {

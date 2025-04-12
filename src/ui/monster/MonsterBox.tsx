@@ -7,6 +7,8 @@ import {
 } from "../../selectors/MonsterSelector";
 import SkillIcon from "../skill/SkillIcon";
 import MonsterIcon from "./MonsterIcon";
+import { useNotificationStore } from "../../stores/NotificationStore";
+import { useBattleState } from "../../selectors/AreaSelector";
 
 interface MonsterBoxProps {
 	monsterUid?: string;
@@ -17,10 +19,17 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 	const health = useMonsterHealth(monsterUid);
 	const mana = useMonsterMana(monsterUid);
 	const reviveTimer = useReviveTimer(monsterUid);
+	const battleState = useBattleState();
 
 	if (!activeArea) return null;
 
 	const handleClick = () => {
+		if (battleState) {
+			useNotificationStore
+				.getState()
+				.addNotification("Impossible pendant un combat!", "warning");
+			return;
+		}
 		activeArea.addMonster();
 	};
 
@@ -37,13 +46,13 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 
 				<StatBar
 					stat={health ? health : reviveTimer ? Math.floor(reviveTimer) : 0}
-					maxStat={health ? monster.getStats().maxHealth : reviveTime}
+					maxStat={health ? monster.getStats().health : reviveTime}
 					color={health ? "hp" : "exp"}
 				/>
-				{monster.getStats().maxMana > 0 && (
+				{monster.getStats().mana > 0 && (
 					<StatBar
 						stat={mana ?? 0}
-						maxStat={monster.getStats().maxMana}
+						maxStat={monster.getStats().mana}
 						color="mana"
 					/>
 				)}

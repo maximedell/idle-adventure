@@ -36,7 +36,7 @@ export default function BattleLog() {
 		.reverse();
 	return (
 		<div className="box-adventurer">
-			<h2 className="text-white text-lg font-bold mb-2">Battle Log</h2>
+			<h2 className="mb-2 text-center">Battle Log</h2>
 			<div className="flex flex-row gap-2">
 				<div className="">
 					{logTypes.map((type) => (

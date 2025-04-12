@@ -44,7 +44,7 @@ function applyTick(delta: number) {
 	for (const enemy of ennemies) {
 		enemy.applyTick(delta);
 	}
-	if (state.battleState === "fighting") {
+	if (state.battleState) {
 		startCombat();
 	}
 }

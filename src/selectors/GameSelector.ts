@@ -7,14 +7,8 @@ export const useActiveArea = () => {
 	return activeArea;
 };
 
-export const useIsFighting = () => {
-	const battleState = useGameStore((state) => state.battleState);
-	return battleState === "fighting";
-};
-
-export const useIsIdle = () => {
-	const battleState = useGameStore((state) => state.battleState);
-	return battleState === "idle";
+export const useIsInCombat = () => {
+	return useGameStore((state) => state.inCombat);
 };
 
 export const useAdventurer = () => {

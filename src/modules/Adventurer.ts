@@ -3,23 +3,29 @@ import { adventurer as AdventurerData } from "../types/adventurer";
 import { skill } from "../types/skill";
 import { stats } from "../types/stats";
 import { adventurerClass } from "../types/avdventurerClass";
-import { resource } from "../types/resource";
 import { useInventoryStore } from "../stores/InventoryStore";
 
 export class Adventurer {
 	private skills: skill[];
-
+	private baseManaRegen: number = 0.2;
+	private baseMaxMana: number = 5;
+	private baseMaxHealth: number = 100;
 	private class: adventurerClass | null;
 	constructor(data: AdventurerData) {
 		const state = useAdventurerStore.getState();
 		this.skills = data.activeSkills;
 		this.class = data.class || null;
-		const recordSkills = this.skills.reduce((acc, skill) => {
+		const cooldowns = this.skills.reduce((acc, skill) => {
 			acc[skill.id] = 0;
 			return acc;
 		}, {} as Record<string, number>);
-		state.initCooldowns(recordSkills);
-		state.initStats(data.stats);
+		state.initAdventurer(
+			data.stats,
+			this.getMaxHealth(data.stats.level),
+			this.getMaxMana(data.stats.intelligence),
+			data.class?.id || "",
+			cooldowns
+		);
 		if (!state.activeSkills.length) {
 			for (const skill of this.skills) {
 				state.addActiveSkill(skill.id);
@@ -33,25 +39,45 @@ export class Adventurer {
 		this.reduceCooldowns(delta);
 		this.updateGcd(delta);
 	}
+
 	levelUp() {
 		const stats = useAdventurerStore.getState().stats;
 		const newStats = {
 			...stats,
-			health: stats.health + 10,
-			mana: stats.mana + 5,
 			strength: stats.strength + 1,
 			dexterity: stats.dexterity + 1,
 			intelligence: stats.intelligence + 1,
 			level: stats.level + 1,
 		};
-		useAdventurerStore.getState().initStats(newStats);
+		useAdventurerStore.getState().setStats(newStats);
+		useAdventurerStore
+			.getState()
+			.setCurrentMana(this.getMaxMana(newStats.intelligence));
+		useAdventurerStore
+			.getState()
+			.setCurrentHealth(this.getMaxHealth(newStats.level));
 	}
+
+	getMaxHealth(level: number): number {
+		return this.baseMaxHealth + 50 * (level - 1);
+	}
+
+	getMaxMana(intelligence: number): number {
+		return this.baseMaxMana + intelligence * 2;
+	}
+
+	getManaRegen(intelligence: number): number {
+		return this.baseManaRegen + intelligence * 0.1;
+	}
+
 	getStats(): stats {
 		return useAdventurerStore.getState().stats;
 	}
+
 	setStat(stat: keyof stats, value: number) {
 		useAdventurerStore.getState().setStat(stat, value);
 	}
+
 	getStat(stat: keyof stats): number {
 		return useAdventurerStore.getState().stats[stat];
 	}
@@ -59,15 +85,17 @@ export class Adventurer {
 	getClass() {
 		return this.class;
 	}
+
 	getClassName() {
 		return this.class?.name || "Aucune classe";
 	}
 
 	getCurrentHealth() {
-		return useAdventurerStore.getState().stats.health;
+		return useAdventurerStore.getState().currentHealth;
 	}
+
 	getCurrentMana() {
-		return useAdventurerStore.getState().stats.mana;
+		return useAdventurerStore.getState().currentMana;
 	}
 
 	isAlive(): boolean {
@@ -75,17 +103,17 @@ export class Adventurer {
 	}
 
 	regenerateMana(delta: number) {
-		if (this.getCurrentMana() >= this.getStats().maxMana) return;
-		const { manaRegen } = this.getStats();
+		const currentMana = this.getCurrentMana();
+		const maxMana = this.getMaxMana(this.getStat("intelligence"));
+		if (currentMana >= maxMana) return;
+		const manaRegen = this.getManaRegen(this.getStat("intelligence"));
 		const manaBuffer = useAdventurerStore.getState().manaBuffer;
 		const newMana = manaBuffer + manaRegen * delta;
-		if (newMana >= 1) {
-			if (this.getCurrentMana() + newMana > this.getStats().maxMana) {
-				useAdventurerStore
-					.getState()
-					.regenMana(this.getStats().maxMana - this.getCurrentMana());
+		if (newMana >= 0.1) {
+			if (currentMana + newMana > maxMana) {
+				useAdventurerStore.getState().regenMana(maxMana - currentMana);
 			} else {
-				useAdventurerStore.getState().regenMana(Math.floor(newMana));
+				useAdventurerStore.getState().regenMana(Math.floor(newMana * 10) / 10);
 			}
 			useAdventurerStore.getState().setManaBuffer(0);
 		} else {
@@ -114,7 +142,7 @@ export class Adventurer {
 		const skill = this.skills.find((s) => s.id === skillId);
 		if (!skill) return false;
 		const cooldown = this.getCooldown(skillId) ?? 0;
-		return cooldown === 0 && this.getStat("mana") >= skill.manaCost;
+		return cooldown === 0 && this.getCurrentMana() >= skill.manaCost;
 	}
 
 	getActiveSkills(): skill[] {
@@ -130,15 +158,19 @@ export class Adventurer {
 			.sort((a, b) => b.cooldown - a.cooldown); // priorité cooldown
 		return usable[0] || null;
 	}
+
 	getSkills(): skill[] {
 		return this.skills;
 	}
+
 	useMana(amount: number) {
 		useAdventurerStore.getState().useMana(amount);
 	}
+
 	setGcd(value: number) {
 		useAdventurerStore.getState().setGcd(value);
 	}
+
 	applySkill(skill: skill) {
 		this.useMana(skill.manaCost);
 		this.setCooldown(skill.id, skill.cooldown);
@@ -146,7 +178,7 @@ export class Adventurer {
 	}
 
 	applyDamage(amount: number) {
-		this.setStat("health", Math.max(0, this.getCurrentHealth() - amount));
+		useAdventurerStore.getState().loseHealth(amount);
 	}
 
 	getCooldowns() {
@@ -164,9 +196,21 @@ export class Adventurer {
 	xpRequiredToLevelUp(level: number): number {
 		return Math.floor(100 * Math.pow(1.2, level - 1));
 	}
+
 	gainExperience(amount: number) {
-		useAdventurerStore.getState().gainExperience(amount);
+		if (amount <= 0) return;
+		const state = useAdventurerStore.getState();
+		const currentXp = state.experience;
+		const xpToLevelUp = this.xpRequiredToLevelUp(state.stats.level);
+		if (currentXp + amount >= xpToLevelUp) {
+			const xpLeft = currentXp + amount - xpToLevelUp;
+			this.levelUp();
+			state.setExperience(xpLeft);
+		} else {
+			state.gainExperience(amount);
+		}
 	}
+
 	addResourcesToInventory(
 		resources: Record<string, number>
 	): Record<string, number> {

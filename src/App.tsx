@@ -6,6 +6,8 @@ import "./App.css";
 import AreaBox from "./ui/area/AreaBox";
 import { GameLoop } from "./core/GameLoop";
 import BattleLog from "./ui/battle/BattleLog";
+import NotificationContainer from "./ui/notification/NotificationContainer";
+import InventorySidebar from "./ui/inventory/InventorySidebar";
 
 function App() {
 	const icons = import.meta.glob("/src/assets/skills/*.svg?react", {
@@ -22,8 +24,11 @@ function App() {
 					<h1 className="title">Idle Adventure</h1>
 					<img src={logor} className="logo-r" alt="logor" />
 				</header>
+				<NotificationContainer />
 				<main>
-					<div className="sidebar-left"></div>
+					<div className="sidebar-left">
+						<InventorySidebar />
+					</div>
 					<div className="container-main">
 						<div className="content-main">
 							<AdventurerBox />
