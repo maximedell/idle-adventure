@@ -85,7 +85,7 @@ function handleCombatTick() {
 							`${enemy.getName()} utilise ${
 								enemySkill.name
 							} et inflige ${dmg} dégâts à l'aventurier`,
-							"default"
+							"warning"
 						);
 					}
 				}

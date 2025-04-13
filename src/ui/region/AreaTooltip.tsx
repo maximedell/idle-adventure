@@ -19,28 +19,27 @@ export default function AreaTooltip({
 	const [monsters, setMonsters] = useState<MonsterData[]>([]);
 
 	useEffect(() => {
-		const fetchArea = async () => {
+		const fetchAll = async () => {
 			const areaData = await DataUtil.getAreaById(areaId);
 			setArea(areaData);
-		};
-		const fetchMonsters = async () => {
+			if (!areaData) return;
+
 			const monsterData = await Promise.all(
-				area?.monsterIds?.map(async (monsterId) => {
+				areaData.monsterIds?.map(async (monsterId) => {
 					const monster = await DataUtil.getMonsterById(monsterId);
 					return monster;
 				}) || []
 			);
 			setMonsters(monsterData);
+			setIsLoading(false);
 		};
-		fetchMonsters();
-		fetchArea();
-		setIsLoading(false);
+		fetchAll();
 	}, [areaId]);
-	if (!area) return null;
+
 	if (isLoading) {
 		return <LoadingSpinner />;
 	}
-
+	if (!area) return null;
 	if (isLocked) {
 		return (
 			<div className={`${className}`}>

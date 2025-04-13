@@ -11,11 +11,11 @@ import { useNotificationStore } from "../../stores/NotificationStore";
 
 export default function AreaBox() {
 	const activeArea = useActiveArea();
-	if (!activeArea) return null;
 	const battleState = useBattleState();
 	const isInCombat = useIsInCombat();
 	const setBattleState = useGameStore((s) => s.setBattleState);
 	const monsterUids = useAreaMonsters();
+	if (!activeArea) return null;
 	const borderColor = battleState ? "border-accent" : "border-primary-light";
 	const Fight = FightIcon;
 	const handleClick = () => {

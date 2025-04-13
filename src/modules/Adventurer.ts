@@ -40,7 +40,6 @@ export class Adventurer {
 			data.level,
 			instance.getMaxHealth(data.level),
 			instance.getMaxMana(data.intelligence),
-			data.classId || "",
 			cooldowns
 		);
 		if (!state.activeSkills.length) {

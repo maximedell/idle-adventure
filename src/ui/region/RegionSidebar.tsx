@@ -1,5 +1,5 @@
 import {
-	useActiveAreaId,
+	useActiveArea,
 	useUnlockedRegions,
 } from "../../selectors/GameSelector";
 import { DataUtil } from "../../utils/DataUtil";
@@ -15,15 +15,9 @@ export default function RegionSidebar() {
 	const [developedRegions, setDevelopedRegions] = useState<
 		Record<string, boolean>
 	>({});
-	const activeAreaId = useActiveAreaId();
+	const activeAreaId = useActiveArea()?.getId();
+
 	useEffect(() => {
-		const initialDevelopedRegions = Object.keys(regions).reduce(
-			(acc, regionId) => {
-				acc[regionId] = false;
-				return acc;
-			},
-			{} as Record<string, boolean>
-		);
 		const fetchRegions = async () => {
 			const regionsData = await Promise.all(
 				Object.keys(unlockedRegions).map(async (regionId) => {
@@ -35,13 +29,20 @@ export default function RegionSidebar() {
 				})
 			);
 			setRegions(regionsData);
+			setIsLoading(false);
 		};
 		fetchRegions();
+	}, [unlockedRegions]);
+	useEffect(() => {
+		const initialDevelopedRegions = regions.reduce((acc, region) => {
+			acc[region.id] = false;
+			return acc;
+		}, {} as Record<string, boolean>);
 		setDevelopedRegions(initialDevelopedRegions);
-		setIsLoading(false);
-	}, [regions, unlockedRegions]);
-
-	if (isLoading) return <LoadingSpinner />;
+	}, [regions]);
+	if (!activeAreaId) return null;
+	if (!unlockedRegions) return null;
+	if (isLoading || !activeAreaId) return <LoadingSpinner />;
 
 	return (
 		<div>
@@ -77,6 +78,7 @@ export default function RegionSidebar() {
 													? "bg-primary text-primary-light font-bold"
 													: ""
 											}`}
+											onClick={(e) => e.stopPropagation()}
 										>
 											<RegionArea
 												areaId={areaId}

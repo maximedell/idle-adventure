@@ -1,10 +1,7 @@
 import { useGameStore } from "../stores/GameStore";
 
 export const useActiveArea = () => {
-	const activeArea = useGameStore((state) => state.activeArea);
-	if (!activeArea) return null;
-
-	return activeArea;
+	return useGameStore((state) => state.activeArea);
 };
 
 export const useIsInCombat = () => {
@@ -12,17 +9,11 @@ export const useIsInCombat = () => {
 };
 
 export const useAdventurer = () => {
-	const adventurer = useGameStore((state) => state.adventurer);
-	if (!adventurer) return null;
-
-	return adventurer;
+	return useGameStore((state) => state.adventurer);
 };
 
 export const useBattleLog = () => {
-	const battleLog = useGameStore((state) => state.battleLog);
-	if (!battleLog) return null;
-
-	return battleLog;
+	return useGameStore((state) => state.battleLog);
 };
 
 export const useUnlockedRegions = () => {
@@ -31,11 +22,4 @@ export const useUnlockedRegions = () => {
 
 export const useUnlockedAreas = (regionId: string) => {
 	return useGameStore((state) => state.unlockedRegions);
-};
-
-export const useActiveAreaId = () => {
-	const activeArea = useGameStore((state) => state.activeArea);
-	if (!activeArea) return null;
-
-	return activeArea.getId();
 };

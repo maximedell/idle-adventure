@@ -30,14 +30,16 @@ export default function MonsterTooltip({
 function getOptionnalStats(monster: Monster): JSX.Element[] | null {
 	const stats = monster.getStats();
 	const statsList = [];
-	for (const [key, value] of Object.entries(stats)) {
-		if (key !== "health" && key !== "level" && value > 0) {
-			statsList.push(
-				<p key={key} className="text-sm">
-					{StatUtil.getStatName(key)}: {value}
-				</p>
-			);
-		}
+	if (stats.strength > 0) {
+		statsList.push(<p className="text-sm">Force: {stats.strength}</p>);
+	}
+	if (stats.dexterity > 0) {
+		statsList.push(<p className="text-sm">Dextérité: {stats.dexterity}</p>);
+	}
+	if (stats.intelligence > 0) {
+		statsList.push(
+			<p className="text-sm">Intelligence: {stats.intelligence}</p>
+		);
 	}
 	return statsList.length > 0 ? statsList : null;
 }

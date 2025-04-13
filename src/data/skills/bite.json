@@ -1,15 +1,16 @@
 {
-  "id": "bite",
-  "name": "Bite",
-  "description": "Bites the enemy.",
-  "type": "active",
-  "manaCost": 0,
-  "cooldown": 4,
-  "effects": [
-    {
-      "type": "damage",
-      "damageType": "physical",
-      "value": 5
-    }
-  ]
+	"id": "bite",
+	"name": "Morsure",
+	"description": "Mords un ennemi pour lui infliger des dégâts physiques.",
+	"type": "active",
+	"manaCost": 0,
+	"cooldown": 1.5,
+	"effects": [
+		{
+			"type": "damage",
+			"damageType": "physical",
+			"value": 1,
+			"target": 1
+		}
+	]
 }

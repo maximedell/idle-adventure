@@ -8,7 +8,6 @@ interface AdventurerState {
 	intelligence: number;
 	level: number;
 	cooldowns: Record<string, number>;
-	currentClass: string;
 	manaBuffer: number;
 	activeSkills: string[];
 	gcd: number; // global cooldown
@@ -25,7 +24,6 @@ interface AdventurerActions {
 		level: number,
 		health: number,
 		mana: number,
-		currentClass: string,
 		cooldowns: Record<string, number>
 	) => void;
 	setCooldown: (skillId: string, cooldown: number) => void;
@@ -57,7 +55,6 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			level: 1,
 			currentHealth: 100,
 			currentMana: 100,
-			currentClass: "",
 			manaBuffer: 0,
 			activeSkills: [],
 			gcd: 0,
@@ -128,7 +125,6 @@ export const useAdventurerStore = create<AdventurerStore>()(
 				level: number,
 				health: number,
 				mana: number,
-				currentClass: string,
 				cooldowns: Record<string, number>
 			) =>
 				set((state) => ({
@@ -138,7 +134,6 @@ export const useAdventurerStore = create<AdventurerStore>()(
 					level: (state.level = level),
 					currentHealth: (state.currentHealth = health),
 					currentMana: (state.currentMana = mana),
-					currentClass: (state.currentClass = currentClass),
 					cooldowns: (state.cooldowns = cooldowns),
 				})),
 			levelUp: () =>

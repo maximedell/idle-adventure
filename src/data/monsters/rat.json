@@ -5,13 +5,13 @@
 	"reviveTime": 10,
 	"level": 1,
 	"stats": {
-		"health": 20,
-		"maxHealth": 20,
+		"health": 15,
+		"maxHealth": 15,
 		"mana": 0,
 		"maxMana": 0,
-		"strength": 2,
+		"strength": 0,
 		"dexterity": 3,
-		"intelligence": 1,
+		"intelligence": 0,
 		"armor": 0,
 		"magicResist": 0,
 		"damageMultiplierPhysical": 1,
@@ -22,14 +22,14 @@
 		"criticalDamage": 1,
 		"cooldownReduction": 0
 	},
-	"skills": ["bite"],
+	"activeSkillIds": ["bite"],
 	"isBoss": false,
 	"rewards": {
 		"gold": 0,
 		"experience": 5,
 		"resourceDrops": [
 			{
-				"id": "rat-tail",
+				"resourceId": "rat-tail",
 				"amount": 1,
 				"dropRate": 50
 			}

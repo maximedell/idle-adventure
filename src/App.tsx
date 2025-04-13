@@ -11,11 +11,6 @@ import InventorySidebar from "./ui/inventory/InventorySidebar";
 import RegionSidebar from "./ui/region/RegionSidebar";
 
 function App() {
-	const icons = import.meta.glob("/src/assets/skills/*.svg?react", {
-		eager: true,
-		import: "default",
-	});
-	console.log("SVG imports:", icons);
 	return (
 		<>
 			<GameLoop />

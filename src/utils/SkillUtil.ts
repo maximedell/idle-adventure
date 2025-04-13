@@ -7,7 +7,7 @@ export const SkillUtil = {
 			skill.cooldown *
 			(1 - stats.dexterity * 0.01) *
 			(1 - stats.cooldownReduction);
-		return cooldown;
+		return Math.floor(cooldown * 10) / 10;
 	},
 
 	getEffectiveDamageToTarget(

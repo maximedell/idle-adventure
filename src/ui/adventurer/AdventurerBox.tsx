@@ -1,10 +1,10 @@
 import {
-	useAdventurerStats,
-	useAdventurerClass,
 	useAdventurerActiveSkills,
 	useAdventurerExperience,
 	useAdventurerCurrentHealth,
 	useAdventurerCurrentMana,
+	useAdventurerLevel,
+	useAdventurerIntelligence,
 } from "../../selectors/AdventurerSelector";
 import { useAdventurer } from "../../selectors/GameSelector";
 import StatBar from "../shared/StatBar";
@@ -15,13 +15,13 @@ import SkillTooltip from "../skill/SkillTooltip";
 
 export function AdventurerBox() {
 	const adventurer = useAdventurer();
-	if (!adventurer) return null;
-	const stats = useAdventurerStats();
-	const adventurerClass = useAdventurerClass();
+	const level = useAdventurerLevel();
+	const intelligence = useAdventurerIntelligence();
 	const activeSkillIds = useAdventurerActiveSkills();
 	const experience = useAdventurerExperience();
 	const currentHealth = useAdventurerCurrentHealth();
 	const currentMana = useAdventurerCurrentMana();
+	if (!adventurer) return null;
 	const Info = InfoIcon;
 	const skills = adventurer
 		.getActiveSkills()
@@ -30,9 +30,7 @@ export function AdventurerBox() {
 		<div className="box-adventurer">
 			<div>
 				<div className="flex flex-rox justify-center relative">
-					<h2 className="title">
-						{adventurerClass} Niv.{stats.level}
-					</h2>
+					<h2 className="title">Aventurier Niv.{level}</h2>
 					<button className="w-6 h-6 absolute top-0 right-0 ">
 						<Info className="w-full h-full fill-current text-primary-light" />
 					</button>
@@ -53,17 +51,17 @@ export function AdventurerBox() {
 			</div>
 			<StatBar
 				stat={experience}
-				maxStat={adventurer.xpRequiredToLevelUp(stats.level)}
+				maxStat={adventurer.xpRequiredToLevelUp(level)}
 				color="exp"
 			/>
 			<StatBar
 				stat={currentHealth}
-				maxStat={adventurer.getMaxHealth(stats.level)}
+				maxStat={adventurer.getMaxHealth(level)}
 				color="hp"
 			/>
 			<StatBar
 				stat={currentMana}
-				maxStat={adventurer.getMaxMana(stats.intelligence)}
+				maxStat={adventurer.getMaxMana(intelligence)}
 				color="mana"
 			/>
 		</div>

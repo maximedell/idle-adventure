@@ -1,13 +1,16 @@
 import { useAdventurerStore } from "../stores/AdventurerStore";
 
-export const useAdventurerStats = () => {
-	return useAdventurerStore((state) => state.stats);
+export const useAdventurerLevel = () => {
+	return useAdventurerStore((state) => state.level);
 };
-
-export const useAdventurerClass = () => {
-	const adventurerClass = useAdventurerStore((state) => state.currentClass);
-	if (!adventurerClass) return "Aventurier";
-	return adventurerClass;
+export const useAdventurerStrength = () => {
+	return useAdventurerStore((state) => state.strength);
+};
+export const useAdventurerDexterity = () => {
+	return useAdventurerStore((state) => state.dexterity);
+};
+export const useAdventurerIntelligence = () => {
+	return useAdventurerStore((state) => state.intelligence);
 };
 
 export const useAdventurerActiveSkills = () => {

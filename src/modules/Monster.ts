@@ -16,7 +16,7 @@ export class Monster {
 		this.uid = uid;
 		this.data = { ...data };
 	}
-	async create(data: MonsterData, uid: string): Promise<Monster> {
+	static async create(data: MonsterData, uid: string): Promise<Monster> {
 		const instance = new Monster(data, uid);
 		const state = useMonsterStore.getState();
 		instance.data = { ...data };
@@ -129,11 +129,13 @@ export class Monster {
 		}
 	}
 	reduceCooldowns(delta: number) {
-		const cooldowns = Object.entries(
-			useMonsterStore.getState().cooldowns[this.uid]
-		).filter(([, cooldown]) => cooldown > 0);
-		if (cooldowns.length === 0) return;
-		for (const [skillId, cooldown] of cooldowns) {
+		const cooldowns = useMonsterStore.getState().cooldowns[this.uid];
+		if (!cooldowns) return;
+		const cooldownsFiltered = Object.entries(cooldowns).filter(
+			([, cooldown]) => cooldown > 0
+		);
+		if (cooldownsFiltered.length === 0) return;
+		for (const [skillId, cooldown] of cooldownsFiltered) {
 			useMonsterStore
 				.getState()
 				.setCooldown(this.uid, skillId, Math.max(0, cooldown - delta));
