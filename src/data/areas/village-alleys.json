@@ -1,0 +1,6 @@
+{
+	"id": "village-alleys",
+	"name": "Ruelles",
+	"size": 5,
+	"monsterIds": ["rat"]
+}

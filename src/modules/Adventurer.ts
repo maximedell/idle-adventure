@@ -1,61 +1,74 @@
 import { useAdventurerStore } from "../stores/AdventurerStore";
-import { adventurer as AdventurerData } from "../types/adventurer";
-import { skill } from "../types/skill";
-import { combatStats, stats } from "../types/stats";
-import { adventurerClass } from "../types/avdventurerClass";
+import { AdventurerData } from "../types/adventurer";
+import { Skill } from "../types/skill";
+import { CombatStats } from "../types/stats";
 import { useInventoryStore } from "../stores/InventoryStore";
+import { DataUtil } from "../utils/DataUtil";
 
+type Stat = "strength" | "dexterity" | "intelligence";
 export class Adventurer {
-	private skills: skill[];
+	private skills: Skill[] = [];
 	private baseManaRegen: number = 0.2;
 	private baseMaxMana: number = 5;
 	private baseMaxHealth: number = 100;
-	private class: adventurerClass | null;
-	constructor(data: AdventurerData) {
+	private classId: string | null = null;
+
+	constructor(private data: AdventurerData) {}
+
+	static async create(data: AdventurerData): Promise<Adventurer> {
+		const instance = new Adventurer(data);
 		const state = useAdventurerStore.getState();
-		this.skills = data.activeSkills;
-		this.class = data.class || null;
-		const cooldowns = this.skills.reduce((acc, skill) => {
+		const skills = await Promise.all(
+			data.activeSkillIds.map(async (skillId) => {
+				const skill = await DataUtil.getSkillById(skillId);
+				if (!skill) {
+					throw new Error(`Skill with id ${skillId} not found`);
+				}
+				return skill;
+			})
+		);
+		instance.skills = skills;
+		instance.classId = data.classId || null;
+		const cooldowns = skills.reduce((acc, skill) => {
 			acc[skill.id] = 0;
 			return acc;
 		}, {} as Record<string, number>);
 		state.initAdventurer(
-			data.stats,
-			this.getMaxHealth(data.stats.level),
-			this.getMaxMana(data.stats.intelligence),
-			data.class?.id || "",
+			data.strength,
+			data.dexterity,
+			data.intelligence,
+			data.level,
+			instance.getMaxHealth(data.level),
+			instance.getMaxMana(data.intelligence),
+			data.classId || "",
 			cooldowns
 		);
 		if (!state.activeSkills.length) {
-			for (const skill of this.skills) {
+			for (const skill of skills) {
 				state.addActiveSkill(skill.id);
 			}
 		}
 		console.log("Adventurer created");
+		return instance;
 	}
-
 	applyTick(delta: number) {
 		this.regenerateMana(delta);
 		this.reduceCooldowns(delta);
 		this.updateGcd(delta);
 	}
+	getLevel(): number {
+		return useAdventurerStore.getState().level;
+	}
 
 	levelUp() {
-		const stats = useAdventurerStore.getState().stats;
-		const newStats = {
-			...stats,
-			strength: stats.strength + 1,
-			dexterity: stats.dexterity + 1,
-			intelligence: stats.intelligence + 1,
-			level: stats.level + 1,
-		};
-		useAdventurerStore.getState().setStats(newStats);
-		useAdventurerStore
-			.getState()
-			.setCurrentMana(this.getMaxMana(newStats.intelligence));
-		useAdventurerStore
-			.getState()
-			.setCurrentHealth(this.getMaxHealth(newStats.level));
+		let state = useAdventurerStore.getState();
+		state.addStat("strength", 1);
+		state.addStat("dexterity", 1);
+		state.addStat("intelligence", 1);
+		state.levelUp();
+		state = useAdventurerStore.getState();
+		state.setCurrentHealth(this.getMaxHealth(state.level));
+		state.setCurrentMana(this.getMaxMana(state.intelligence));
 	}
 
 	getMaxHealth(level: number): number {
@@ -70,11 +83,15 @@ export class Adventurer {
 		return this.baseManaRegen + intelligence * 0.1;
 	}
 
-	getStats(): stats {
-		return useAdventurerStore.getState().stats;
+	getStats(): Record<string, number> {
+		return {
+			strength: this.getStat("strength"),
+			dexterity: this.getStat("dexterity"),
+			intelligence: this.getStat("intelligence"),
+		};
 	}
 
-	getCombatStats(): combatStats {
+	getCombatStats(): CombatStats {
 		const stats = this.getStats();
 		return {
 			health: this.getCurrentHealth(),
@@ -105,20 +122,29 @@ export class Adventurer {
 		return this.getStats().intelligence * 0.1;
 	}
 
-	setStat(stat: keyof stats, value: number) {
+	setStat(stat: Stat, value: number) {
 		useAdventurerStore.getState().setStat(stat, value);
 	}
 
-	getStat(stat: keyof stats): number {
-		return useAdventurerStore.getState().stats[stat];
+	getStat(stat: Stat): number {
+		switch (stat) {
+			case "strength":
+				return useAdventurerStore.getState().strength;
+			case "dexterity":
+				return useAdventurerStore.getState().dexterity;
+			case "intelligence":
+				return useAdventurerStore.getState().intelligence;
+			default:
+				throw new Error(`Stat ${stat} not found`);
+		}
 	}
 
 	getClass() {
-		return this.class;
+		return this.classId;
 	}
 
 	getClassName() {
-		return this.class?.name || "Aucune classe";
+		return this.classId || "Aucune classe";
 	}
 
 	getCurrentHealth() {
@@ -176,12 +202,12 @@ export class Adventurer {
 		return cooldown === 0 && this.getCurrentMana() >= skill.manaCost;
 	}
 
-	getActiveSkills(): skill[] {
+	getActiveSkills(): Skill[] {
 		const activeSkillIds = useAdventurerStore.getState().activeSkills;
 		return this.skills.filter((skill) => activeSkillIds.includes(skill.id));
 	}
 
-	getAvailableSkill(): skill | null {
+	getAvailableSkill(): Skill | null {
 		const gcd = useAdventurerStore.getState().gcd;
 		if (gcd > 0) return null;
 		const usable = this.getActiveSkills()
@@ -190,7 +216,7 @@ export class Adventurer {
 		return usable[0] || null;
 	}
 
-	getSkills(): skill[] {
+	getSkills(): Skill[] {
 		return this.skills;
 	}
 
@@ -202,7 +228,7 @@ export class Adventurer {
 		useAdventurerStore.getState().setGcd(value);
 	}
 
-	applySkill(skill: skill) {
+	applySkill(skill: Skill) {
 		this.useMana(skill.manaCost);
 		this.setCooldown(skill.id, skill.cooldown);
 		this.setGcd(1);
@@ -233,7 +259,7 @@ export class Adventurer {
 		amount = Math.floor(amount);
 		const state = useAdventurerStore.getState();
 		const currentXp = state.experience;
-		const xpToLevelUp = this.xpRequiredToLevelUp(state.stats.level);
+		const xpToLevelUp = this.xpRequiredToLevelUp(state.level);
 		if (currentXp + amount >= xpToLevelUp) {
 			const xpLeft = currentXp + amount - xpToLevelUp;
 			this.levelUp();

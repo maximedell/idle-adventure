@@ -1,8 +1,8 @@
 import { Adventurer } from "../modules/Adventurer";
 import { Monster } from "../modules/Monster";
-import { resourceDrop } from "../types/monster";
+import { ResourceDropData } from "../types/monster";
 import { useGameStore } from "../stores/GameStore";
-import { resource } from "../types/resource";
+import { DataUtil } from "../utils/DataUtil";
 export const RewardSystem = {
 	/**
 	 * Calculates and apply the rewarded experience for defeating a monster.
@@ -12,8 +12,7 @@ export const RewardSystem = {
 	 */
 	applyRewardExperience(adventurer: Adventurer, monster: Monster) {
 		const baseExperience = monster.getData().rewards.experience;
-		const levelDifference =
-			adventurer.getStats().level - monster.getStats().level;
+		const levelDifference = adventurer.getLevel() - monster.getLevel();
 		const levelDifferenceFactor = Math.max(0, 1 - 0.2 * levelDifference);
 		const experienceReward = Math.floor(baseExperience * levelDifferenceFactor);
 		adventurer.gainExperience(experienceReward);
@@ -27,23 +26,23 @@ export const RewardSystem = {
 			);
 	},
 
-	applyRewardDrops(adventurer: Adventurer, monsters: Monster[]) {
+	async applyRewardDrops(adventurer: Adventurer, monsters: Monster[]) {
 		const state = useGameStore.getState();
 		let resources: Record<string, number> = {};
 		let gold = 0;
-		const resourcesList = monsters
-			.flatMap((monster) => monster.getData().rewards.resources || [])
-			.flatMap((resourceDrop) => resourceDrop.resource);
+		const resourceIdsList = monsters
+			.flatMap((monster) => monster.getData().rewards.resourceDrops || [])
+			.flatMap((resourceDrop) => resourceDrop.resourceId);
 		for (const monster of monsters) {
 			const monsterData = monster.getData();
-			if (monsterData.rewards.resources) {
-				for (const resourceDrop of monsterData.rewards.resources) {
-					const resource = resourceDrop.resource;
-					if (!resources[resource.id]) {
-						resources[resource.id] = 0;
+			if (monsterData.rewards.resourceDrops) {
+				for (const resourceDrop of monsterData.rewards.resourceDrops) {
+					const resourceId = resourceDrop.resourceId;
+					if (!resources[resourceId]) {
+						resources[resourceId] = 0;
 					}
 					const amount = this.rollResources(resourceDrop);
-					resources[resource.id] += amount;
+					resources[resourceId] += amount;
 				}
 			}
 			gold += Math.max(0, Math.floor(Math.random() * monsterData.rewards.gold));
@@ -58,15 +57,13 @@ export const RewardSystem = {
 					resources[resourceId] - newResources[resourceId];
 			}
 		}
-		state.addBattleLog(
-			this.getRewardDropText(
-				gold,
-				newResources,
-				resourcesList,
-				leftoverResources
-			),
-			"info"
+		const rewardDropText = await this.getRewardDropText(
+			gold,
+			newResources,
+			resourceIdsList,
+			leftoverResources
 		);
+		state.addBattleLog(rewardDropText, "info");
 		if (
 			Object.values(leftoverResources).reduce((acc, value) => acc + value, 0) >
 			0
@@ -75,17 +72,17 @@ export const RewardSystem = {
 			state.setBattleState(false);
 		}
 	},
-	getRewardDropText(
+	async getRewardDropText(
 		gold: number,
 		resources: Record<string, number>,
-		resourceList: resource[],
+		resourceIdsList: string[],
 		leftoverResources: Record<string, number>
-	): string {
-		let resourcesText = this.getResourcesText(resources, resourceList);
+	): Promise<string> {
+		let resourcesText = await this.getResourcesText(resources, resourceIdsList);
 		let goldText = this.getGoldText(gold);
-		let leftoverResourcesText = this.getResourcesText(
+		let leftoverResourcesText = await this.getResourcesText(
 			leftoverResources,
-			resourceList
+			resourceIdsList
 		);
 		if (leftoverResourcesText.length > 0) {
 			leftoverResourcesText = `Vous n'avez pas assez de place dans votre inventaire pour ramasser ${leftoverResourcesText}.`;
@@ -108,16 +105,18 @@ export const RewardSystem = {
 		}
 		return `${gold} or`;
 	},
-	getResourcesText(
+	async getResourcesText(
 		resourcesRecord: Record<string, number>,
-		resourceList: resource[]
-	): string {
+		resourceIdsList: string[]
+	): Promise<string> {
 		if (Object.keys(resourcesRecord).length === 0) {
 			return "";
 		}
 		let resourcesText = "";
 		for (const resourceId in resourcesRecord) {
-			const resource = resourceList.find((r) => r.id === resourceId);
+			const id = resourceIdsList.find((r) => r === resourceId);
+			if (!id) continue;
+			const resource = await DataUtil.getResourceById(id);
 			if (resource && resourcesRecord[resourceId] > 0) {
 				resourcesText += `${resourcesRecord[resourceId]} ${resource.name}, `;
 			}
@@ -130,10 +129,9 @@ export const RewardSystem = {
 		return resourcesText;
 	},
 
-	rollResources(resourceDrop: resourceDrop): number {
+	rollResources(resourceDrop: ResourceDropData): number {
 		const dropRate = resourceDrop.dropRate;
-		const resource = resourceDrop.resource;
-		const quantity = resource.quantity;
+		const quantity = resourceDrop.amount;
 		let amount = 0;
 		if (Math.random() * 100 < dropRate) {
 			amount = Math.max(1, Math.floor(Math.random() * quantity));

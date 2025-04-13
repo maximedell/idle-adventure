@@ -1,0 +1,38 @@
+{
+	"id": "rat",
+	"name": "Rat de campagne",
+	"description": "Un rat ordinaire, mais qui a la fâcheuse tendance à se reproduire très vite.",
+	"reviveTime": 10,
+	"level": 1,
+	"stats": {
+		"health": 20,
+		"maxHealth": 20,
+		"mana": 0,
+		"maxMana": 0,
+		"strength": 2,
+		"dexterity": 3,
+		"intelligence": 1,
+		"armor": 0,
+		"magicResist": 0,
+		"damageMultiplierPhysical": 1,
+		"damageMultiplierMagical": 1,
+		"defenseMultiplierPhysical": 1,
+		"defenseMultiplierMagical": 1,
+		"criticalChance": 0,
+		"criticalDamage": 1,
+		"cooldownReduction": 0
+	},
+	"skills": ["bite"],
+	"isBoss": false,
+	"rewards": {
+		"gold": 0,
+		"experience": 5,
+		"resourceDrops": [
+			{
+				"id": "rat-tail",
+				"amount": 1,
+				"dropRate": 50
+			}
+		]
+	}
+}

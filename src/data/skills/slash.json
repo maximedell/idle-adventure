@@ -1,0 +1,15 @@
+{
+  "id": "slash",
+  "name": "Slash",
+  "description": "Slashes with a crude blade.",
+  "type": "active",
+  "manaCost": 4,
+  "cooldown": 6,
+  "effects": [
+    {
+      "type": "damage",
+      "damageType": "physical",
+      "value": 10
+    }
+  ]
+}

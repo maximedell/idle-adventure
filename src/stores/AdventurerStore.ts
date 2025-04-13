@@ -1,9 +1,12 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
-import { stats } from "../types/stats";
 
+type Stat = "strength" | "dexterity" | "intelligence";
 interface AdventurerState {
-	stats: stats;
+	strength: number;
+	dexterity: number;
+	intelligence: number;
+	level: number;
 	cooldowns: Record<string, number>;
 	currentClass: string;
 	manaBuffer: number;
@@ -16,15 +19,19 @@ interface AdventurerState {
 
 interface AdventurerActions {
 	initAdventurer: (
-		stats: stats,
+		strength: number,
+		dexterity: number,
+		intelligence: number,
+		level: number,
 		health: number,
 		mana: number,
 		currentClass: string,
 		cooldowns: Record<string, number>
 	) => void;
 	setCooldown: (skillId: string, cooldown: number) => void;
-	setStat: (stat: string, value: number) => void;
-	setStats: (stats: stats) => void;
+	setStat: (stat: Stat, value: number) => void;
+	addStat: (stat: Stat, value: number) => void;
+	levelUp: () => void;
 	useMana: (amount: number) => void;
 	regenMana: (amount: number) => void;
 	loseHealth: (amount: number) => void;
@@ -44,12 +51,10 @@ export const useAdventurerStore = create<AdventurerStore>()(
 	subscribeWithSelector((set) => {
 		return {
 			cooldowns: {},
-			stats: {
-				strength: 0,
-				dexterity: 0,
-				intelligence: 1,
-				level: 1,
-			},
+			strength: 0,
+			dexterity: 0,
+			intelligence: 0,
+			level: 1,
 			currentHealth: 100,
 			currentMana: 100,
 			currentClass: "",
@@ -75,14 +80,14 @@ export const useAdventurerStore = create<AdventurerStore>()(
 				set((state) => ({
 					cooldowns: { ...state.cooldowns, [skillId]: cooldown },
 				})),
-			setStat: (stat: string, value: number) =>
-				set((state) => ({
-					stats: { ...state.stats, [stat]: value },
-				})),
-			setStats: (stats: stats) =>
-				set((state) => ({
-					stats: { ...state.stats, ...stats },
-				})),
+			setStat: (stat: Stat, value: number) =>
+				set(
+					(state) =>
+						({
+							[stat]: (state[stat] = value),
+						} as Pick<AdventurerState, Stat>)
+				),
+
 			useMana: (amount: number) =>
 				set((state) => ({
 					currentMana: state.currentMana - amount,
@@ -117,19 +122,36 @@ export const useAdventurerStore = create<AdventurerStore>()(
 				})),
 
 			initAdventurer: (
-				stats: stats,
+				strength: number,
+				dexterity: number,
+				intelligence: number,
+				level: number,
 				health: number,
 				mana: number,
 				currentClass: string,
 				cooldowns: Record<string, number>
 			) =>
 				set((state) => ({
-					stats: { ...state.stats, ...stats },
+					strength: (state.strength = strength),
+					dexterity: (state.dexterity = dexterity),
+					intelligence: (state.intelligence = intelligence),
+					level: (state.level = level),
 					currentHealth: (state.currentHealth = health),
 					currentMana: (state.currentMana = mana),
 					currentClass: (state.currentClass = currentClass),
 					cooldowns: (state.cooldowns = cooldowns),
 				})),
+			levelUp: () =>
+				set((state) => ({
+					level: (state.level += 1),
+				})),
+			addStat: (stat: Stat, value: number) =>
+				set(
+					(state) =>
+						({
+							[stat]: (state[stat] += value),
+						} as Pick<AdventurerState, Stat>)
+				),
 		};
 	})
 );

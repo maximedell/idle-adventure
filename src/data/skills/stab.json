@@ -1,0 +1,15 @@
+{
+  "id": "stab",
+  "name": "Stab",
+  "description": "Stabs with a rusty dagger.",
+  "type": "active",
+  "manaCost": 2,
+  "cooldown": 5,
+  "effects": [
+    {
+      "type": "damage",
+      "damageType": "physical",
+      "value": 8
+    }
+  ]
+}

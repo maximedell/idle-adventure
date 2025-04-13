@@ -4,7 +4,7 @@ import { useGameStore } from "../stores/GameStore";
 import { useMonsterStore } from "../stores/MonsterStore";
 import { RewardSystem } from "./RewardSystem";
 import { SkillUtil } from "../utils/SkillUtil";
-import { combatStats } from "../types/stats";
+import { CombatStats } from "../types/stats";
 
 export function startCombat() {
 	handleCombatTick();
@@ -98,7 +98,7 @@ function handleCombatTick() {
 	}
 }
 
-function getActualCritMultiplier(stats: combatStats): number {
+function getActualCritMultiplier(stats: CombatStats): number {
 	let critChance = SkillUtil.getCriticalChance(stats);
 	let critMultiplier = 1;
 	while (critChance > 0) {

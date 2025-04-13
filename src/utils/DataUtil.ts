@@ -1,66 +1,94 @@
-import { resource } from "../types/resource";
-import { skill } from "../types/skill";
-import { monster } from "../types/monster";
-import { allResources } from "../data/resources";
-import { allSkills } from "../data/skills";
-import { allMonsters } from "../data/monsters";
-import { region } from "../types/region";
-import { allRegions } from "../data/region";
-import { area } from "../types/area";
-import { allAreas } from "../data/areas";
+import { MonsterData } from "../types/monster";
+import { Skill } from "../types/skill";
+import { Resource } from "../types/resource";
+import { AreaData } from "../types/area";
+import { Region } from "../types/region";
+
+const monsterModules = import.meta.glob("../data/monsters/*.json", {
+	import: "default",
+}) as Record<string, () => Promise<MonsterData>>;
+const monsterCache: Record<string, MonsterData> = {};
+
+const skillModules = import.meta.glob("../data/skills/*.json", {
+	import: "default",
+}) as Record<string, () => Promise<Skill>>;
+const skillCache: Record<string, Skill> = {};
+
+const resourceModules = import.meta.glob("../data/resources/*.json", {
+	import: "default",
+}) as Record<string, () => Promise<Resource>>;
+const resourceCache: Record<string, Resource> = {};
+
+const areaModules = import.meta.glob("../data/areas/*.json", {
+	import: "default",
+}) as Record<string, () => Promise<AreaData>>;
+const areaCache: Record<string, AreaData> = {};
+
+const regionModules = import.meta.glob("../data/regions/*.json", {
+	import: "default",
+}) as Record<string, () => Promise<Region>>;
+const regionCache: Record<string, Region> = {};
 
 export const DataUtil = {
-	/**
-	 * Retrieves the resource data for a given resource ID.
-	 * @param {string} id - The ID of the resource.
-	 * @returns {resource | undefined} - The resource data or undefined if not found.
-	 */
-	getResourceData(id: string): resource | undefined {
-		return allResources[id] || undefined;
+	async getMonsterById(id: string): Promise<MonsterData> {
+		if (monsterCache[id]) return monsterCache[id];
+
+		const entry = Object.entries(monsterModules).find(([path]) =>
+			path.match(new RegExp(`/${id}\\.json$`))
+		);
+		if (!entry) throw new Error("Monster not found: " + id);
+
+		const loader = entry[1];
+		const data = await loader();
+		monsterCache[id] = data;
+		return data;
 	},
 
-	/**
-	 * Retrieves the skill data for a given skill ID.
-	 * @param {string} id - The ID of the skill.
-	 * @returns {skill | undefined} - The skill data or undefined if not found.
-	 */
-	getSkillData(id: string): skill | undefined {
-		return allSkills[id] || undefined;
+	async getSkillById(id: string): Promise<Skill> {
+		if (skillCache[id]) return skillCache[id];
+		const entry = Object.entries(skillModules).find(([path]) =>
+			path.match(new RegExp(`/${id}\\.json$`))
+		);
+		if (!entry) throw new Error("Skill not found: " + id);
+		const loader = entry[1];
+		const data = await loader();
+		skillCache[id] = data;
+		return data;
 	},
 
-	/**
-	 * Retrieves the monster data for a given monster ID.
-	 * @param {string} id - The ID of the monster.
-	 * @returns {monster | undefined} - The monster data or undefined if not found.
-	 */
-	getMonsterData(id: string): monster | undefined {
-		return allMonsters[id] || undefined;
+	async getResourceById(id: string): Promise<Resource> {
+		if (resourceCache[id]) return resourceCache[id];
+		const entry = Object.entries(resourceModules).find(([path]) =>
+			path.match(new RegExp(`/${id}\\.json$`))
+		);
+		if (!entry) throw new Error("Resource not found: " + id);
+		const loader = entry[1];
+		const data = await loader();
+		resourceCache[id] = data;
+		return data;
 	},
 
-	getRegionData(id: string): region | undefined {
-		return allRegions[id] || undefined;
+	async getAreaById(id: string): Promise<AreaData> {
+		if (areaCache[id]) return areaCache[id];
+		const entry = Object.entries(areaModules).find(([path]) =>
+			path.match(new RegExp(`/${id}\\.json$`))
+		);
+		if (!entry) throw new Error("Area not found: " + id);
+		const loader = entry[1];
+		const data = await loader();
+		areaCache[id] = data;
+		return data;
 	},
 
-	getAreaIdsFromRegionId(id: string): string[] {
-		const region = allRegions[id];
-		if (!region) return [];
-		console.log(region.areas);
-		const areaIds = region.areas.map((area) => area.id);
-		return areaIds;
-	},
-
-	getRegionIdFromAreaId(id: string): string | undefined {
-		const area = allAreas[id];
-		if (!area) return undefined;
-		for (const region of Object.values(allRegions)) {
-			if (region.areas.some((areaData) => areaData.id === id)) {
-				return region.id;
-			}
-		}
-		return undefined;
-	},
-
-	getAreaData(id: string): area | undefined {
-		return allAreas[id] || undefined;
+	async getRegionById(id: string): Promise<Region> {
+		if (regionCache[id]) return regionCache[id];
+		const entry = Object.entries(regionModules).find(([path]) =>
+			path.match(new RegExp(`/${id}\\.json$`))
+		);
+		if (!entry) throw new Error("Region not found: " + id);
+		const loader = entry[1];
+		const data = await loader();
+		regionCache[id] = data;
+		return data;
 	},
 };

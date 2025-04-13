@@ -1,13 +1,13 @@
-import { adventurerClass } from "./avdventurerClass";
-import { skill } from "./skill";
-import { stats } from "./stats";
-
-export type adventurer = {
-	stats: stats;
+export type AdventurerData = {
 	gold: number;
 	talentPoints: number;
 	destinyPoints: number;
-	class?: adventurerClass;
-	activeSkills: skill[];
+	classId?: string;
+	unlockedSkillIds: string[];
+	activeSkillIds: string[];
 	unlockedTalentIds: string[];
+	strength: number;
+	dexterity: number;
+	intelligence: number;
+	level: number;
 };

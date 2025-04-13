@@ -17,7 +17,7 @@ export default function MonsterTooltip({
 	return (
 		<div className={`${className} text-nowrap`}>
 			<h3 className="text-lg font-bold">{data.name}</h3>
-			<p className="text-sm">Niveau: {stats.level}</p>
+			<p className="text-sm">Niveau: {data.level}</p>
 			<p className="text-sm">PV: {stats.health}</p>
 			{optionalStats &&
 				optionalStats.map((stat, index) => (

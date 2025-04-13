@@ -1,0 +1,16 @@
+{
+  "id": "smoke-bomb",
+  "name": "Smoke Bomb",
+  "description": "Reduces enemy accuracy.",
+  "type": "active",
+  "manaCost": 3,
+  "cooldown": 6,
+  "effects": [
+    {
+      "type": "buffDefense",
+      "damageType": "physical",
+      "value": 2,
+      "duration": 4
+    }
+  ]
+}

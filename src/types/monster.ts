@@ -1,41 +1,27 @@
-import { stats, monsterStats } from "./stats";
-import { skill } from "./skill";
-import { resource } from "./resource";
-import { area } from "./area";
+import { CombatStats } from "./stats";
 
-export type monster = {
+export type MonsterData = {
 	id: string;
 	name: string;
 	description?: string;
-
-	reviveTime: number; // en secondes
-
-	stats: monsterStats;
-	activeSkills: skill[];
-
-	rewards: monsterRewards;
+	reviveTime: number;
+	stats: CombatStats;
+	level: number;
+	activeSkillIds: string[];
+	rewards: {
+		experience: number;
+		gold: number;
+		resourceDrops: ResourceDropData[];
+	};
 	isBoss: boolean;
+	bossRewards?: {
+		resourceDrops: ResourceDropData[];
+		items?: string[];
+	};
 };
 
-export type monsterRewards = {
-	experience: number;
-	gold: number;
-	resources: resourceDrop[]; // pour plus tard : composants de craft
-};
-
-export type resourceDrop = {
-	resource: resource;
-	dropRate: number; // 0-100
-};
-
-export type boss = monster & {
-	isBoss: true;
-	isDefeated: boolean;
-	bossRewards: bossRewards;
-};
-
-export type bossRewards = {
-	unlocksRegion?: string;
-	unlocksArea?: area;
-	specialItem?: string;
+export type ResourceDropData = {
+	resourceId: string;
+	amount: number;
+	dropRate: number;
 };

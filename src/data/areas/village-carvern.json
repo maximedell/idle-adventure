@@ -1,0 +1,10 @@
+{
+	"id": "village-cavern",
+	"name": "Caverne du mystèrieuse",
+	"size": 5,
+	"monsterIds": [],
+	"unlockRequirement": {
+		"level": 15,
+		"gold": 2000
+	}
+}

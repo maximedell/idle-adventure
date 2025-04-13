@@ -1,35 +1,51 @@
-import { monster as MonsterData } from "../types/monster";
-import { skill } from "../types/skill";
-import { combatStats, monsterStats } from "../types/stats";
+import { MonsterData } from "../types/monster";
+import { Skill } from "../types/skill";
+import { CombatStats } from "../types/stats";
 import { useMonsterStore } from "../stores/MonsterStore";
+import { DataUtil } from "../utils/DataUtil";
 
 export class Monster {
 	private data: MonsterData;
 	private uid: string;
-	private skills: skill[];
-	private stats: monsterStats;
-	private recordSkills: Record<string, number>;
+	private skills: Skill[] = [];
+	private level: number = 1;
+	private stats: CombatStats = {} as CombatStats;
+	private recordSkills: Record<string, number> = {};
+
 	constructor(data: MonsterData, uid: string) {
-		const state = useMonsterStore.getState();
 		this.uid = uid;
 		this.data = { ...data };
-		this.skills = this.data.activeSkills;
-		this.stats = this.data.stats;
-		this.recordSkills = this.skills.reduce((acc, skill) => {
+	}
+	async create(data: MonsterData, uid: string): Promise<Monster> {
+		const instance = new Monster(data, uid);
+		const state = useMonsterStore.getState();
+		instance.data = { ...data };
+		instance.skills = await Promise.all(
+			data.activeSkillIds.map(async (skillId) => {
+				const skill = await DataUtil.getSkillById(skillId);
+				if (!skill) {
+					throw new Error(`Skill with id ${skillId} not found`);
+				}
+				return skill;
+			})
+		);
+		instance.stats = data.stats;
+		instance.level = data.level;
+		instance.recordSkills = instance.skills.reduce((acc, skill) => {
 			acc[skill.id] = 0;
 			return acc;
 		}, {} as Record<string, number>);
 		state.initMonster(
-			this.uid,
-			this.recordSkills,
-			this.stats.health,
-			this.stats.mana
+			uid,
+			instance.recordSkills,
+			instance.stats.health,
+			instance.stats.mana
 		);
-		state.setManaBuffer(this.uid, 0);
-		state.setReviveBuffer(this.uid, 0);
-		console.log("Monster created", this.uid);
+		state.setManaBuffer(uid, 0);
+		state.setReviveBuffer(uid, 0);
+		console.log("Monster created", uid);
+		return instance;
 	}
-
 	applyTick(delta: number) {
 		if (!this.isAlive()) {
 			this.revive(delta);
@@ -44,13 +60,13 @@ export class Monster {
 	getUid(): string {
 		return this.uid;
 	}
-	getStats(): monsterStats {
-		const stats = {
-			...this.data.stats,
-		};
-		return stats;
+	getStats(): CombatStats {
+		return this.stats;
 	}
-	getCombatStats(): combatStats {
+	getLevel(): number {
+		return this.level;
+	}
+	getCombatStats(): CombatStats {
 		const stats = {
 			...this.data.stats,
 		};
@@ -65,13 +81,13 @@ export class Monster {
 			manaRegen: this.stats.manaRegen,
 			armor: stats.armor,
 			magicResist: stats.magicResist,
-			damageMultiplierPhysical: 1,
-			damageMultiplierMagical: 1,
-			defenseMultiplierPhysical: 1,
-			defenseMultiplierMagical: 1,
-			cooldownReduction: 0,
-			criticalChance: 0,
-			criticalDamageMultiplier: 0,
+			damageMultiplierPhysical: stats.damageMultiplierPhysical,
+			damageMultiplierMagical: stats.damageMultiplierMagical,
+			defenseMultiplierPhysical: stats.defenseMultiplierPhysical,
+			defenseMultiplierMagical: stats.defenseMultiplierMagical,
+			cooldownReduction: stats.cooldownReduction,
+			criticalChance: stats.criticalChance,
+			criticalDamageMultiplier: stats.criticalDamageMultiplier,
 		};
 	}
 	getCurrentHealth() {
@@ -141,7 +157,7 @@ export class Monster {
 		const cooldown = this.getCooldown(skillId) ?? 0;
 		return cooldown === 0 && this.getCurrentMana() >= skill.manaCost;
 	}
-	getAvailableSkill(): skill | null {
+	getAvailableSkill(): Skill | null {
 		const gcd = useMonsterStore.getState().gcd[this.uid];
 		if (gcd > 0) return null;
 		const usable = this.skills
@@ -152,7 +168,7 @@ export class Monster {
 	setGcd(value: number) {
 		useMonsterStore.getState().setGcd(this.uid, value);
 	}
-	applySkill(skill: skill) {
+	applySkill(skill: Skill) {
 		this.useMana(skill.manaCost);
 		this.setCooldown(skill.id, skill.cooldown);
 		this.setGcd(1);

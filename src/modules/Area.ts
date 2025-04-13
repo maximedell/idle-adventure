@@ -1,17 +1,20 @@
-import { area as AreaData } from "../types/area";
+import { AreaData } from "../types/area";
 import { useAreaStore } from "../stores/AreaStore";
 import { Monster } from "./Monster";
+import { DataUtil } from "../utils/DataUtil";
 
 export class Area {
-	private data: AreaData;
+	private data: AreaData = {} as AreaData;
 	private monsters: Monster[] = [];
+
+	constructor(data: AreaData) {}
+	/* 	
 	constructor(data: AreaData) {
 		const state = useAreaStore.getState();
 		this.data = data;
 		if (!state.monstersByArea[data.id]) {
-			if (data.boss) {
-				state.addArea(data.id, data.boss.id);
-				console.log("Boss added to area", data.boss.id);
+			if (data.isBossArea) {
+				state.addArea(data.id, data.monsters[0].id);
 			} else {
 				state.addArea(data.id, data.monsters[0].id + "0");
 				console.log("Monster added to area", data.monsters[0].id + "0");
@@ -31,6 +34,32 @@ export class Area {
 
 		console.log("Area created", data.id);
 	}
+ */
+	static async create(data: AreaData): Promise<Area> {
+		const instance = new Area(data);
+		const state = useAreaStore.getState();
+		instance.data = data;
+		if (!state.monstersByArea[data.id]) {
+			if (data.isBossArea) {
+				state.addArea(data.id, data.monsterIds[0]);
+			} else {
+				state.addArea(data.id, data.monsterIds[0] + "0");
+			}
+		}
+		const monsters = useAreaStore.getState().monstersByArea[data.id] || [];
+		let counter = 0;
+		for (const monsterUid of monsters) {
+			const monsterId = data.monsterIds.find(
+				(m) => m === data.monsterIds[counter]
+			);
+			if (!monsterId) continue;
+			const monsterData = await DataUtil.getMonsterById(monsterId);
+			instance.monsters.push(new Monster(monsterData, monsterUid));
+			counter++;
+		}
+		console.log("Area created", data.id);
+		return instance;
+	}
 
 	getId() {
 		return this.data.id;
@@ -45,16 +74,19 @@ export class Area {
 	getMonsters() {
 		return this.monsters;
 	}
-	addMonster() {
-		const monsters = useAreaStore.getState().monstersByArea[this.data.id];
-		const monster =
-			this.data.monsters[monsters.length % this.data.monsters.length];
+	async addMonster() {
+		const monsterIds = useAreaStore.getState().monstersByArea[this.data.id];
+		const monsterId =
+			this.data.monsterIds[monsterIds.length % this.data.monsterIds.length];
 
-		if (monsters.length < this.data.size) {
-			this.monsters.push(new Monster(monster, monster.id + monsters.length));
+		if (monsterIds.length < this.data.size) {
+			const monsterData = await DataUtil.getMonsterById(monsterId);
+			this.monsters.push(
+				new Monster(monsterData, monsterId + monsterIds.length)
+			);
 			useAreaStore
 				.getState()
-				.addMonsterToArea(this.data.id, monster.id + monsters.length);
+				.addMonsterToArea(this.data.id, monsterId + monsterIds.length);
 		}
 	}
 	getMonsterByUid(uid: string) {
@@ -65,10 +97,7 @@ export class Area {
 		return monster;
 	}
 
-	getBoss() {
-		if (!this.data.boss) {
-			return null;
-		}
-		return this.monsters[0];
+	isBossArea() {
+		return this.data.isBossArea;
 	}
 }

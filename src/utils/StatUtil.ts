@@ -1,4 +1,4 @@
-import { stats, monsterStats, combatStats } from "../types/stats";
+import { CombatStats } from "../types/stats";
 
 export const StatUtil = {
 	getStatName(stat: string): string {

@@ -1,0 +1,10 @@
+{
+	"id": "village-wood",
+	"name": "Forêt du village",
+	"size": 5,
+	"monsterIds": [],
+	"unlockRequirement": {
+		"level": 10,
+		"gold": 750
+	}
+}

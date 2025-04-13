@@ -1,0 +1,16 @@
+{
+	"id": "wild-dog",
+	"name": "Chien sauvage",
+	"description": "Un chien sauvage qui rôde dans la forêt. Il est connu pour sa grande agilité et sa rapidité.",
+	"reviveTime": 15,
+	"stats": {
+		"health": 35,
+		"maxHealth": 35,
+		"mana": 0,
+		"maxMana": 0,
+		"strength": 5,
+		"dexterity": 10,
+		"intelligence": 1
+	},
+	"skills": ["bite", "howl"]
+}

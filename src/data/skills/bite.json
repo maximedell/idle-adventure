@@ -1,0 +1,15 @@
+{
+  "id": "bite",
+  "name": "Bite",
+  "description": "Bites the enemy.",
+  "type": "active",
+  "manaCost": 0,
+  "cooldown": 4,
+  "effects": [
+    {
+      "type": "damage",
+      "damageType": "physical",
+      "value": 5
+    }
+  ]
+}

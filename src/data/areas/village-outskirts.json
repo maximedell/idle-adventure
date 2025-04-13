@@ -1,0 +1,10 @@
+{
+	"id": "village-outskirts",
+	"name": "Abords du village",
+	"size": 5,
+	"monsterIds": [],
+	"unlockRequirement": {
+		"level": 5,
+		"gold": 100
+	}
+}

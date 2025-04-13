@@ -1,0 +1,8 @@
+{
+	"id": "rat-tail",
+	"name": "Queue de rat",
+	"description": "Une queue de rat. Elle est encore chaude.",
+	"value": 1,
+	"quantity": 1,
+	"rarity": "common"
+}

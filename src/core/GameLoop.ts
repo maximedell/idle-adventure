@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useGameStore } from "../stores/GameStore";
 import { startCombat } from "../systems/CombatSystem";
-import { startingAdventurer } from "../data/adventurers/startingAdventurer";
+import startingAdventurer from "../data/adventurers/startingAdventurer.json";
 import { villageAlleys } from "../data/areas/village-alleys";
 import { Adventurer } from "../modules/Adventurer";
 import { Area } from "../modules/Area";
@@ -48,11 +48,11 @@ function applyTick(delta: number) {
 	}
 }
 
-function initGame() {
+async function initGame() {
 	const state = useGameStore.getState();
 	const unlockedRegions = { "home-village": ["village-alleys"] };
-	const adventurer = new Adventurer(startingAdventurer);
-	const activeArea = new Area(villageAlleys);
+	const adventurer = await Adventurer.create(startingAdventurer);
+	const activeArea = await Area.create(villageAlleys);
 	state.initStore(adventurer, activeArea, unlockedRegions);
 	gameloop = true;
 	console.log("Game initialized");

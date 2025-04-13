@@ -1,5 +1,8 @@
 import { DataUtil } from "../../utils/DataUtil";
-
+import { AreaData } from "../../types/area";
+import { useEffect, useState } from "react";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import { MonsterData } from "../../types/monster";
 interface AreaTooltipProps {
 	areaId: string;
 	className?: string;
@@ -11,8 +14,32 @@ export default function AreaTooltip({
 	className,
 	isLocked,
 }: AreaTooltipProps) {
-	const area = DataUtil.getAreaData(areaId);
+	const [area, setArea] = useState<AreaData | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [monsters, setMonsters] = useState<MonsterData[]>([]);
+
+	useEffect(() => {
+		const fetchArea = async () => {
+			const areaData = await DataUtil.getAreaById(areaId);
+			setArea(areaData);
+		};
+		const fetchMonsters = async () => {
+			const monsterData = await Promise.all(
+				area?.monsterIds?.map(async (monsterId) => {
+					const monster = await DataUtil.getMonsterById(monsterId);
+					return monster;
+				}) || []
+			);
+			setMonsters(monsterData);
+		};
+		fetchMonsters();
+		fetchArea();
+		setIsLoading(false);
+	}, [areaId]);
 	if (!area) return null;
+	if (isLoading) {
+		return <LoadingSpinner />;
+	}
 
 	if (isLocked) {
 		return (
@@ -38,7 +65,7 @@ export default function AreaTooltip({
 				<p className="text-sm">{area.description}</p>
 				<p className="text-sm">Monstres:</p>
 				<ul className="list-none list-inside">
-					{area.monsters.map((monster, index) => (
+					{monsters.map((monster, index) => (
 						<li key={index} className="text-sm text-nowrap">
 							{monster.name}
 						</li>

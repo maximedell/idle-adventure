@@ -1,8 +1,6 @@
-import { area } from "./area";
-
-export type region = {
+export type Region = {
 	id: string;
 	name: string;
 	description?: string;
-	areas: area[];
+	areaIds: string[];
 };

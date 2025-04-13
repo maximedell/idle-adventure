@@ -1,10 +1,10 @@
 import { Adventurer } from "../../modules/Adventurer";
 import { Monster } from "../../modules/Monster";
-import { damageEffect, skill } from "../../types/skill";
+import { SkillEffect, Skill } from "../../types/skill";
 import { SkillUtil } from "../../utils/SkillUtil";
 
 interface SkillTooltipProps {
-	skill: skill;
+	skill: Skill;
 	className?: string;
 	owner?: Adventurer | Monster;
 }
@@ -35,7 +35,7 @@ export default function SkillTooltip({
 }
 
 function getCooldownDescription(
-	skill: skill,
+	skill: Skill,
 	owner?: Adventurer | Monster
 ): string {
 	if (owner) {
@@ -60,7 +60,7 @@ function getDesciriptionFromEffect(
 }
 
 function getDamageEffectDescription(
-	effect: damageEffect,
+	effect: SkillEffect,
 	owner?: Adventurer | Monster
 ): string {
 	let dmg = effect.value;

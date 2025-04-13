@@ -1,8 +1,8 @@
-import { damageEffect, skill } from "../types/skill";
-import { combatStats } from "../types/stats";
+import { SkillEffect, Skill } from "../types/skill";
+import { CombatStats } from "../types/stats";
 
 export const SkillUtil = {
-	getEffectiveCooldown(skill: skill, stats: combatStats): number {
+	getEffectiveCooldown(skill: Skill, stats: CombatStats): number {
 		const cooldown =
 			skill.cooldown *
 			(1 - stats.dexterity * 0.01) *
@@ -11,9 +11,9 @@ export const SkillUtil = {
 	},
 
 	getEffectiveDamageToTarget(
-		effect: damageEffect,
-		attacker: combatStats,
-		target: combatStats,
+		effect: SkillEffect,
+		attacker: CombatStats,
+		target: CombatStats,
 		critMultiplier: number = 1
 	): number {
 		let effectiveDamage = this.getEffectiveDamage(effect, attacker);
@@ -35,7 +35,7 @@ export const SkillUtil = {
 		return Math.max(damage, 0);
 	},
 
-	getEffectiveDamage(effect: damageEffect, attacker: combatStats): number {
+	getEffectiveDamage(effect: SkillEffect, attacker: CombatStats): number {
 		let damage = 0;
 		if (effect.damageType === "physical") {
 			const damageMultiplier =
@@ -50,11 +50,11 @@ export const SkillUtil = {
 		return Math.max(damage, 0);
 	},
 
-	getCriticalChance(stats: combatStats): number {
+	getCriticalChance(stats: CombatStats): number {
 		return stats.dexterity * 0.01 + stats.criticalChance;
 	},
 
-	getCriticalMultiplier(stats: combatStats): number {
+	getCriticalMultiplier(stats: CombatStats): number {
 		return stats.criticalDamageMultiplier + stats.dexterity * 0.05;
 	},
 };

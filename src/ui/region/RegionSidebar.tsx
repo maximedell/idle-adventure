@@ -6,8 +6,12 @@ import { DataUtil } from "../../utils/DataUtil";
 import DevelopIcon from "../../icons/shared/develop.svg?react";
 import RegionArea from "./RegionArea";
 import { useEffect, useState } from "react";
+import { Region } from "../../types/region";
+import LoadingSpinner from "../shared/LoadingSpinner";
 export default function RegionSidebar() {
-	const regions = useUnlockedRegions();
+	const unlockedRegions = useUnlockedRegions();
+	const [regions, setRegions] = useState<Region[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 	const [developedRegions, setDevelopedRegions] = useState<
 		Record<string, boolean>
 	>({});
@@ -20,38 +24,52 @@ export default function RegionSidebar() {
 			},
 			{} as Record<string, boolean>
 		);
+		const fetchRegions = async () => {
+			const regionsData = await Promise.all(
+				Object.keys(unlockedRegions).map(async (regionId) => {
+					const region = await DataUtil.getRegionById(regionId);
+					if (!region) {
+						throw new Error(`Region with id ${regionId} not found`);
+					}
+					return region;
+				})
+			);
+			setRegions(regionsData);
+		};
+		fetchRegions();
 		setDevelopedRegions(initialDevelopedRegions);
-	}, [regions]);
+		setIsLoading(false);
+	}, [regions, unlockedRegions]);
+
+	if (isLoading) return <LoadingSpinner />;
 
 	return (
 		<div>
 			<h2 className="text-lg font-bold text-center">Regions</h2>
 			<ul className="p-0">
-				{Object.entries(regions).map(([regionId]) => (
+				{regions.map((region) => (
 					<li
-						key={regionId}
+						key={region.id}
 						className="cursor-pointer select-none"
 						onClick={() =>
 							setDevelopedRegions((prev) => ({
 								...prev,
-								[regionId]: !prev[regionId],
+								[region.id]: !prev[region.id],
 							}))
 						}
 					>
 						<div className="text-sm w-full bg-primary-light text-black p-1 px-2 flex justify-between items-center">
-							<h2 className="text-black">
-								{DataUtil.getRegionData(regionId)?.name}
-							</h2>
+							<h2 className="text-black">{region.name}</h2>
 							<DevelopIcon
 								className={`w-4 h-4 fill-current ${
-									developedRegions[regionId] ? "rotate-180" : ""
+									developedRegions[region.id] ? "rotate-180" : ""
 								}`}
 							/>
 						</div>
-						{developedRegions[regionId] && (
+						{developedRegions[region.id] && (
 							<ul className={`flex flex-col p-0`}>
-								{DataUtil.getAreaIdsFromRegionId(regionId)?.length > 0 &&
-									DataUtil.getAreaIdsFromRegionId(regionId).map((areaId) => (
+								{region.areaIds?.length > 0 &&
+									region.areaIds.map((areaId) => (
 										<li
 											key={areaId}
 											className={`flex flex-col w-full hover:bg-primary hover:text-black ${
@@ -60,7 +78,12 @@ export default function RegionSidebar() {
 													: ""
 											}`}
 										>
-											<RegionArea areaId={areaId} key={areaId} className="" />
+											<RegionArea
+												areaId={areaId}
+												regionId={region.id}
+												key={areaId}
+												className=""
+											/>
 										</li>
 									))}
 							</ul>

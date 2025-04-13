@@ -1,0 +1,15 @@
+{
+	"id": "minor-strike",
+	"name": "Frappe mineure",
+	"description": "Une attaque mineure qui inflige 10 dégâts à un ennemi.",
+	"manaCost": 0,
+	"cooldown": 2,
+	"effects": [
+		{
+			"type": "damage",
+			"value": 10,
+			"target": 1,
+			"damageType": "physical"
+		}
+	]
+}

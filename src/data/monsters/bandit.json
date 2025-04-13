@@ -1,0 +1,16 @@
+{
+	"id": "bandit",
+	"name": "Bandit",
+	"description": "Un bandit attaquant les voyageurs sur la route. Il est connu pour sa grande force et son agilité.",
+	"reviveTime": 25,
+	"stats": {
+		"health": 45,
+		"maxHealth": 45,
+		"mana": 10,
+		"maxMana": 10,
+		"strength": 6,
+		"dexterity": 4,
+		"intelligence": 2
+	},
+	"skills": ["slash", "taunt"]
+}

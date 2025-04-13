@@ -1,0 +1,9 @@
+{
+	"id": "village-cavern-boss",
+	"name": "Fond de la grotte",
+	"size": 1,
+	"monsterIds": [],
+	"unlockRequirement": {
+		"level": 20
+	}
+}

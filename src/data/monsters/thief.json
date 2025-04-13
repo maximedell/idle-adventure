@@ -1,0 +1,16 @@
+{
+	"id": "thief",
+	"name": "Voleur",
+	"description": "Un voleur qui a décidé de se faire un peu d'argent sur le dos des aventuriers.",
+	"reviveTime": 20,
+	"stats": {
+		"health": 30,
+		"maxHealth": 30,
+		"mana": 5,
+		"maxMana": 5,
+		"strength": 4,
+		"dexterity": 5,
+		"intelligence": 2
+	},
+	"skills": ["stab", "smoke-bomb"]
+}

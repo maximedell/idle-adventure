@@ -1,0 +1,12 @@
+{
+	"id": "home-village",
+	"name": "Village natal",
+	"description": "Le village où vous avez grandi. Il est paisible et tranquille, mais il y a des rumeurs de monstres dans les environs.",
+	"areaIds": [
+		"village-alleys",
+		"village-outskirts",
+		"village-wood",
+		"village-cavern",
+		"village-cavern-boss"
+	]
+}
