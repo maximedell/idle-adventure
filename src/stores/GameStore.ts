@@ -11,15 +11,20 @@ type LogEntry = {
 };
 interface GameState {
 	adventurer: Adventurer | null;
+
+	unlockedRegions: Record<string, string[]>;
 	activeArea: Area | null;
-	unlockedAreas: string[];
 	battleState: boolean;
 	battleLog: LogEntry[];
 	inCombat: boolean;
 }
 
 interface GameActions {
-	initStore: (adventurer: Adventurer, area: Area) => void;
+	initStore: (
+		adventurer: Adventurer,
+		area: Area,
+		unlockedRegions: Record<string, string[]>
+	) => void;
 	setBattleState(state: boolean): void;
 	addBattleLog(message: string, type: LogType): void; // Add a log to the battle log, if the log is full, remove the first one
 	clearBattleLog(): void;
@@ -34,22 +39,23 @@ export const useGameStore = create<GameStore>()(
 	subscribeWithSelector((set) => {
 		return {
 			adventurer: null,
+			unlockedRegions: {},
 			activeArea: null,
-			unlockedAreas: [],
 			battleState: false,
 			battleLog: [],
 			inCombat: false,
 
-			initStore: (adventurer: Adventurer, area: Area) =>
+			initStore: (adventurer, area, unlockedRegions) =>
 				set(() => ({
 					adventurer: adventurer,
 					activeArea: area,
+					unlockedRegions: unlockedRegions,
 					unlockedAreas: ["outskirt"],
 				})),
-			setBattleState: (state: boolean) => {
+			setBattleState: (state) => {
 				set({ battleState: state });
 			},
-			addBattleLog: (message: string, type: LogType) => {
+			addBattleLog: (message, type) => {
 				set((state) => ({
 					battleLog: [...state.battleLog, { message, type }].slice(
 						-MAX_LOG_LENGTH
@@ -59,7 +65,7 @@ export const useGameStore = create<GameStore>()(
 			clearBattleLog: () => {
 				set({ battleLog: [] });
 			},
-			setInCombat: (val: boolean) => {
+			setInCombat: (val) => {
 				set({ inCombat: val });
 			},
 		};

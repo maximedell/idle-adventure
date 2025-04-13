@@ -4,6 +4,10 @@ import { monster } from "../types/monster";
 import { allResources } from "../data/resources";
 import { allSkills } from "../data/skills";
 import { allMonsters } from "../data/monsters";
+import { region } from "../types/region";
+import { allRegions } from "../data/region";
+import { area } from "../types/area";
+import { allAreas } from "../data/areas";
 
 export const DataUtil = {
 	/**
@@ -31,5 +35,32 @@ export const DataUtil = {
 	 */
 	getMonsterData(id: string): monster | undefined {
 		return allMonsters[id] || undefined;
+	},
+
+	getRegionData(id: string): region | undefined {
+		return allRegions[id] || undefined;
+	},
+
+	getAreaIdsFromRegionId(id: string): string[] {
+		const region = allRegions[id];
+		if (!region) return [];
+		console.log(region.areas);
+		const areaIds = region.areas.map((area) => area.id);
+		return areaIds;
+	},
+
+	getRegionIdFromAreaId(id: string): string | undefined {
+		const area = allAreas[id];
+		if (!area) return undefined;
+		for (const region of Object.values(allRegions)) {
+			if (region.areas.some((areaData) => areaData.id === id)) {
+				return region.id;
+			}
+		}
+		return undefined;
+	},
+
+	getAreaData(id: string): area | undefined {
+		return allAreas[id] || undefined;
 	},
 };

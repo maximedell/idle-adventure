@@ -8,6 +8,7 @@ import { GameLoop } from "./core/GameLoop";
 import BattleLog from "./ui/battle/BattleLog";
 import NotificationContainer from "./ui/notification/NotificationContainer";
 import InventorySidebar from "./ui/inventory/InventorySidebar";
+import RegionSidebar from "./ui/region/RegionSidebar";
 
 function App() {
 	const icons = import.meta.glob("/src/assets/skills/*.svg?react", {
@@ -36,9 +37,26 @@ function App() {
 							<BattleLog />
 						</div>
 					</div>
-					<div className="sidebar-right"></div>
+					<div className="sidebar-right">
+						<RegionSidebar />
+					</div>
 				</main>
-				<div className="footer"></div>
+				<div className="footer flex flex-col items-center">
+					<p>© 2025 Idle Adventure 1.0.0</p>
+					<p>
+						Icons by{" "}
+						<a href="https://game-icons.net" target="_blank">
+							game-icons.net
+						</a>
+						, licensed under{" "}
+						<a
+							href="https://creativecommons.org/licenses/by/4.0/deed.en"
+							target="_blank"
+						>
+							CC BY 4.0
+						</a>
+					</p>
+				</div>
 			</div>
 		</>
 	);

@@ -17,11 +17,11 @@ export default function InventorySidebar() {
 			<h2 className="text-lg font-bold">
 				Inventaire ({taken}/{max})
 			</h2>
-			<h2 className="text-md font-semibold flex items-center">
+			<h2 className="text-md font-semibold flex items-center mt-4">
 				<GoldIcon className="fill-current text-primary-light h-6 w-6 mr-2" />{" "}
 				{gold}
 			</h2>
-			<h3 className="text-md font-semibold mt-8">Resources:</h3>
+			<h3 className="text-md font-semibold mt-4">Resources:</h3>
 			{/* Use a list to display resources */}
 			<ul className="pl-5 l">
 				{Object.entries(resources).map(([key, value]) => (

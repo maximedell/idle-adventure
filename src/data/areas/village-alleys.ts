@@ -1,8 +1,9 @@
 import { area } from "../../types/area";
 import { rat } from "../monsters/rat";
 
-export const outskirt: area = {
-	id: "outskirt",
-	name: "Sortie de la ville",
+export const villageAlleys: area = {
+	id: "village-alleys",
+	size: 5,
+	name: "Ruelles",
 	monsters: [rat],
 };

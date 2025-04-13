@@ -1,7 +1,7 @@
 import { useAdventurerStore } from "../stores/AdventurerStore";
 import { adventurer as AdventurerData } from "../types/adventurer";
 import { skill } from "../types/skill";
-import { stats } from "../types/stats";
+import { combatStats, stats } from "../types/stats";
 import { adventurerClass } from "../types/avdventurerClass";
 import { useInventoryStore } from "../stores/InventoryStore";
 
@@ -72,6 +72,37 @@ export class Adventurer {
 
 	getStats(): stats {
 		return useAdventurerStore.getState().stats;
+	}
+
+	getCombatStats(): combatStats {
+		const stats = this.getStats();
+		return {
+			health: this.getCurrentHealth(),
+			mana: this.getCurrentMana(),
+			strength: stats.strength,
+			dexterity: stats.dexterity,
+			intelligence: stats.intelligence,
+			maxHealth: this.getMaxHealth(stats.level),
+			maxMana: this.getMaxMana(stats.intelligence),
+			manaRegen: this.getManaRegen(stats.intelligence),
+			damageMultiplierPhysical: 1,
+			damageMultiplierMagical: 1,
+			defenseMultiplierPhysical: 1,
+			defenseMultiplierMagical: 1,
+			cooldownReduction: 0,
+			armor: this.getArmor(),
+			magicResist: this.getMagicResist(),
+			criticalChance: 0,
+			criticalDamageMultiplier: 0,
+		};
+	}
+
+	getArmor(): number {
+		return this.getStats().strength * 0.1;
+	}
+
+	getMagicResist(): number {
+		return this.getStats().intelligence * 0.1;
 	}
 
 	setStat(stat: keyof stats, value: number) {
@@ -199,6 +230,7 @@ export class Adventurer {
 
 	gainExperience(amount: number) {
 		if (amount <= 0) return;
+		amount = Math.floor(amount);
 		const state = useAdventurerStore.getState();
 		const currentXp = state.experience;
 		const xpToLevelUp = this.xpRequiredToLevelUp(state.stats.level);

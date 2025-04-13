@@ -18,6 +18,7 @@ export default function AreaBox() {
 	const monsterUids = useAreaMonsters();
 	const borderColor = battleState ? "border-accent" : "border-primary-light";
 	const Fight = FightIcon;
+	const bossMonster = activeArea.getBoss();
 	const handleClick = () => {
 		if (isInCombat) {
 			useNotificationStore
@@ -31,28 +32,30 @@ export default function AreaBox() {
 		<div className={`box-area relative ${borderColor}`}>
 			<h2>{activeArea.getName()}</h2>
 			<div className="absolute top-0 right-0 m-4 text-primary-light">
-				<button
-					className={"w-8 h-8 rounded mr-4"}
-					onClick={() => handleClick()}
-				>
+				<button className={"w-8 h-8 rounded"} onClick={() => handleClick()}>
 					<Fight
 						className={`${borderColor} w-full h-full fill-current border rounded`}
 					/>
 				</button>
 			</div>
-			{monsterUids && monsterUids.length > 0 && (
+			{!bossMonster && monsterUids && monsterUids.length > 0 && (
 				<ul className="grid grid-cols-5 gap-4 w-full mt-4">
 					{monsterUids.map((monsterUid, index) => (
 						<li key={index}>
 							<MonsterBox monsterUid={monsterUid} />
 						</li>
 					))}
-					{monsterUids.length < activeArea.maxMonsters && (
+					{monsterUids.length < activeArea.getSize() && (
 						<li>
 							<MonsterBox />
 						</li>
 					)}
 				</ul>
+			)}
+			{bossMonster && (
+				<div className="grid grid-cols-1 gap-4 w-full mt-4">
+					<MonsterBox monsterUid={bossMonster.getUid()} />
+				</div>
 			)}
 		</div>
 	);

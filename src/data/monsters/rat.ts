@@ -8,7 +8,7 @@ const resourceDrop = {
 };
 export const rat: monster = {
 	id: "rat",
-	name: "Rat des villes",
+	name: "Rat de campagne",
 	stats: {
 		strength: 1,
 		dexterity: 0,

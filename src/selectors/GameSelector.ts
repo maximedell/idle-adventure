@@ -24,3 +24,18 @@ export const useBattleLog = () => {
 
 	return battleLog;
 };
+
+export const useUnlockedRegions = () => {
+	return useGameStore((state) => state.unlockedRegions);
+};
+
+export const useUnlockedAreas = (regionId: string) => {
+	return useGameStore((state) => state.unlockedRegions);
+};
+
+export const useActiveAreaId = () => {
+	const activeArea = useGameStore((state) => state.activeArea);
+	if (!activeArea) return null;
+
+	return activeArea.getId();
+};

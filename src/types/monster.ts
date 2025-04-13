@@ -1,6 +1,7 @@
 import { stats, monsterStats } from "./stats";
 import { skill } from "./skill";
 import { resource } from "./resource";
+import { area } from "./area";
 
 export type monster = {
 	id: string;
@@ -25,4 +26,16 @@ export type monsterRewards = {
 export type resourceDrop = {
 	resource: resource;
 	dropRate: number; // 0-100
+};
+
+export type boss = monster & {
+	isBoss: true;
+	isDefeated: boolean;
+	bossRewards: bossRewards;
+};
+
+export type bossRewards = {
+	unlocksRegion?: string;
+	unlocksArea?: area;
+	specialItem?: string;
 };

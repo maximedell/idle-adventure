@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useGameStore } from "../stores/GameStore";
 import { startCombat } from "../systems/CombatSystem";
 import { startingAdventurer } from "../data/adventurers/startingAdventurer";
-import { outskirt } from "../data/areas/outskirt";
+import { villageAlleys } from "../data/areas/village-alleys";
 import { Adventurer } from "../modules/Adventurer";
 import { Area } from "../modules/Area";
 
@@ -13,9 +13,8 @@ export function GameLoop() {
 		console.warn("GameLoop already started");
 		return null;
 	}
-	const adventurer = new Adventurer(startingAdventurer);
-	const activeArea = new Area(outskirt);
-	useGameStore.getState().initStore(adventurer, activeArea);
+	initGame();
+
 	const lastUpdate = useRef(performance.now());
 
 	useEffect(() => {
@@ -47,4 +46,14 @@ function applyTick(delta: number) {
 	if (state.battleState) {
 		startCombat();
 	}
+}
+
+function initGame() {
+	const state = useGameStore.getState();
+	const unlockedRegions = { "home-village": ["village-alleys"] };
+	const adventurer = new Adventurer(startingAdventurer);
+	const activeArea = new Area(villageAlleys);
+	state.initStore(adventurer, activeArea, unlockedRegions);
+	gameloop = true;
+	console.log("Game initialized");
 }

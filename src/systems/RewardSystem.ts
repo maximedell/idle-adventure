@@ -58,9 +58,6 @@ export const RewardSystem = {
 					resources[resourceId] - newResources[resourceId];
 			}
 		}
-		console.log("resources", resources);
-		console.log("newResources", newResources);
-		console.log("leftoverResources", leftoverResources);
 		state.addBattleLog(
 			this.getRewardDropText(
 				gold,
@@ -70,7 +67,10 @@ export const RewardSystem = {
 			),
 			"info"
 		);
-		if (Object.keys(leftoverResources).length > 0) {
+		if (
+			Object.values(leftoverResources).reduce((acc, value) => acc + value, 0) >
+			0
+		) {
 			state.addBattleLog("Combat mis en pause (inventaire plein)", "danger");
 			state.setBattleState(false);
 		}

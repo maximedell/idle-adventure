@@ -1,6 +1,6 @@
 import { monster as MonsterData } from "../types/monster";
 import { skill } from "../types/skill";
-import { monsterStats } from "../types/stats";
+import { combatStats, monsterStats } from "../types/stats";
 import { useMonsterStore } from "../stores/MonsterStore";
 
 export class Monster {
@@ -44,15 +44,36 @@ export class Monster {
 	getUid(): string {
 		return this.uid;
 	}
-	getStats() {
+	getStats(): monsterStats {
 		const stats = {
 			...this.data.stats,
-			health: useMonsterStore.getState().health[this.uid],
-			mana: useMonsterStore.getState().mana[this.uid],
 		};
 		return stats;
 	}
-
+	getCombatStats(): combatStats {
+		const stats = {
+			...this.data.stats,
+		};
+		return {
+			strength: stats.strength,
+			dexterity: stats.dexterity,
+			intelligence: stats.intelligence,
+			health: this.getCurrentHealth(),
+			maxHealth: this.stats.health,
+			mana: this.getCurrentMana(),
+			maxMana: this.stats.mana,
+			manaRegen: this.stats.manaRegen,
+			armor: stats.armor,
+			magicResist: stats.magicResist,
+			damageMultiplierPhysical: 1,
+			damageMultiplierMagical: 1,
+			defenseMultiplierPhysical: 1,
+			defenseMultiplierMagical: 1,
+			cooldownReduction: 0,
+			criticalChance: 0,
+			criticalDamageMultiplier: 0,
+		};
+	}
 	getCurrentHealth() {
 		return useMonsterStore.getState().health[this.uid];
 	}

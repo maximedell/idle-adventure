@@ -4,15 +4,21 @@ import { Monster } from "./Monster";
 
 export class Area {
 	private data: AreaData;
-	public maxMonsters = 10;
 	private monsters: Monster[] = [];
 	constructor(data: AreaData) {
 		const state = useAreaStore.getState();
 		this.data = data;
 		if (!state.monstersByArea[data.id]) {
-			state.addArea(data.id, data.monsters[0].id + "0");
+			if (data.boss) {
+				state.addArea(data.id, data.boss.id);
+				console.log("Boss added to area", data.boss.id);
+			} else {
+				state.addArea(data.id, data.monsters[0].id + "0");
+				console.log("Monster added to area", data.monsters[0].id + "0");
+			}
 		}
-		const monsters = state.monstersByArea[data.id] || [];
+		const monsters = useAreaStore.getState().monstersByArea[data.id] || [];
+		console.log(monsters);
 		let counter = 0;
 		for (const monsterUid of monsters) {
 			const monster = data.monsters.find(
@@ -22,6 +28,7 @@ export class Area {
 			this.monsters.push(new Monster(monster, monsterUid));
 			counter++;
 		}
+
 		console.log("Area created", data.id);
 	}
 
@@ -32,6 +39,9 @@ export class Area {
 	getName() {
 		return this.data.name;
 	}
+	getSize() {
+		return this.data.size;
+	}
 	getMonsters() {
 		return this.monsters;
 	}
@@ -40,7 +50,7 @@ export class Area {
 		const monster =
 			this.data.monsters[monsters.length % this.data.monsters.length];
 
-		if (monsters.length < this.maxMonsters) {
+		if (monsters.length < this.data.size) {
 			this.monsters.push(new Monster(monster, monster.id + monsters.length));
 			useAreaStore
 				.getState()
@@ -53,5 +63,12 @@ export class Area {
 			return null;
 		}
 		return monster;
+	}
+
+	getBoss() {
+		if (!this.data.boss) {
+			return null;
+		}
+		return this.monsters[0];
 	}
 }

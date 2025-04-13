@@ -27,6 +27,9 @@
 	ul {
 		@apply list-none pl-4;
 	}
+	a {
+		@apply text-primary-light underline;
+	}
 }
 
 @keyframes fadeIn {
@@ -66,13 +69,13 @@
 		@apply flex flex-col w-full;
 	}
 	.sidebar-left {
-		@apply w-64 p-4 mr-8 pt-12;
+		@apply w-1/5 p-2 mr-8;
 	}
 	.content-main {
-		@apply flex flex-col items-center justify-center mt-8 h-fit w-full mx-auto;
+		@apply flex flex-col items-center justify-center mt-4 h-fit w-full mx-auto;
 	}
 	.sidebar-right {
-		@apply w-64 p-4 ml-8 pt-12;
+		@apply w-1/5 p-0 ml-8;
 	}
 	.btn {
 		@apply inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;

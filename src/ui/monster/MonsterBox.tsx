@@ -9,6 +9,9 @@ import SkillIcon from "../skill/SkillIcon";
 import MonsterIcon from "./MonsterIcon";
 import { useNotificationStore } from "../../stores/NotificationStore";
 import { useBattleState } from "../../selectors/AreaSelector";
+import TooltipWrapper from "../shared/TooltipWrapper";
+import SkillTooltip from "../skill/SkillTooltip";
+import MonsterTooltip from "./MonsterTooltip";
 
 interface MonsterBoxProps {
 	monsterUid?: string;
@@ -39,9 +42,12 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 		const reviveTime = monster.getData().reviveTime;
 		return (
 			<div className="box-monster">
-				<div className="flex flex-row items-center">
-					<MonsterIcon monster={monster.getData()} className="w-8 h-8" />
-					<h3>{monster.getName()}</h3>
+				<div className="flex flex-row justify-center cursor-default w-full">
+					<TooltipWrapper
+						tooltipContent={<MonsterTooltip monster={monster} className="" />}
+					>
+						<MonsterIcon monster={monster.getData()} className="w-8 h-8" />
+					</TooltipWrapper>
 				</div>
 
 				<StatBar
@@ -58,12 +64,17 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 				)}
 				<div className="flex flex-row gap-2 mt-1">
 					{monster.getSkills().map((skill) => (
-						<SkillIcon
-							skill={skill}
-							className="w-5 h-5"
+						<TooltipWrapper
 							key={skill.id}
-							monsterUid={monster.getUid()}
-						/>
+							tooltipContent={<SkillTooltip skill={skill} owner={monster} />}
+						>
+							<SkillIcon
+								skill={skill}
+								className="w-5 h-5"
+								key={skill.id}
+								monsterUid={monster.getUid()}
+							/>
+						</TooltipWrapper>
 					))}
 				</div>
 			</div>

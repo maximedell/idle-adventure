@@ -10,12 +10,13 @@ import { useAdventurer } from "../../selectors/GameSelector";
 import StatBar from "../shared/StatBar";
 import SkillIcon from "../skill/SkillIcon";
 import InfoIcon from "../../icons/shared/info.svg?react";
+import TooltipWrapper from "../shared/TooltipWrapper";
+import SkillTooltip from "../skill/SkillTooltip";
 
 export function AdventurerBox() {
 	const adventurer = useAdventurer();
 	if (!adventurer) return null;
 	const stats = useAdventurerStats();
-	console.log("AdventurerBox stats", stats);
 	const adventurerClass = useAdventurerClass();
 	const activeSkillIds = useAdventurerActiveSkills();
 	const experience = useAdventurerExperience();
@@ -39,7 +40,13 @@ export function AdventurerBox() {
 				<div className={`flex flex-row gap-2`}>
 					{skills.map((skill) => (
 						<div key={skill.id} className="flex flex-col items-center">
-							<SkillIcon skill={skill} className="w-8 h-8" />
+							<TooltipWrapper
+								tooltipContent={
+									<SkillTooltip skill={skill} owner={adventurer} />
+								}
+							>
+								<SkillIcon skill={skill} className="w-8 h-8" />
+							</TooltipWrapper>
 						</div>
 					))}
 				</div>

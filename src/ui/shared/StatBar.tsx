@@ -15,7 +15,7 @@ export default function StatBar({ stat, maxStat, color }: StatBarProps) {
 	return (
 		<div className="container-bar ">
 			<p className="text-bar">
-				{stat}/{maxStat}
+				{Math.floor(stat * 10) / 10}/{maxStat}
 			</p>
 			<div
 				className={`${barColor} rounded h-full transition-all duration-300 ease-in-out`}
