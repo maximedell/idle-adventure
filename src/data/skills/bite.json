@@ -9,7 +9,7 @@
 		{
 			"type": "damage",
 			"damageType": "physical",
-			"value": 1,
+			"value": 5,
 			"target": 1
 		}
 	]

@@ -20,7 +20,7 @@
 		"defenseMultiplierMagical": 1,
 		"criticalChance": 0,
 		"criticalDamageMultiplier": 1,
-		"cooldownReduction": 0
+		"cooldownReduction": 1
 	},
 	"activeSkillIds": ["bite"],
 	"isBoss": false,

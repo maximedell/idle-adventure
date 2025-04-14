@@ -7,10 +7,14 @@ interface AdventurerState {
 	dexterity: number;
 	intelligence: number;
 	combatStats: CombatStats;
+	combatStatsModifier: CombatStats;
+	buffs: Record<string, number>;
+	debuffs: Record<string, number>;
 	level: number;
 	cooldowns: Record<string, number>;
 	manaBuffer: number;
 	activeSkills: string[];
+	unlockedSkills: string[];
 	gcd: number; // global cooldown
 	experience: number;
 	currentHealth: number;
@@ -27,8 +31,15 @@ interface AdventurerActions {
 		dexterity: number,
 		intelligence: number,
 		level: number,
-		health: number,
-		mana: number,
+		experience: number,
+		currentHealth: number,
+		currentMana: number,
+		statPoints: number,
+		talentPoints: number,
+		classIds: string[],
+		activeSkills: string[],
+		unlockedSkillIds: string[],
+		unlockedTalentIds: string[],
 		cooldowns: Record<string, number>
 	) => void;
 	setCooldown: (skillId: string, cooldown: number) => void;
@@ -47,6 +58,8 @@ interface AdventurerActions {
 	setManaBuffer: (value: number) => void;
 	addActiveSkill: (skillId: string) => void;
 	removeActiveSkill: (skillId: string) => void;
+	unlockSkill: (skillId: string) => void;
+	setUnlockedSkills: (skills: string[]) => void;
 	setGcd: (value: number) => void;
 	gainExperience: (amount: number) => void;
 	setExperience: (value: number) => void;
@@ -60,6 +73,13 @@ interface AdventurerActions {
 	setUnlockedTalentIds: (ids: string[]) => void;
 	unlockTalent: (id: string) => void;
 	setCombatStats: (stats: CombatStats) => void;
+	setCombatStatsModifier: (stats: CombatStats) => void;
+	setBuff: (buffId: string, value: number) => void;
+	setDebuff: (debuffId: string, value: number) => void;
+	setBuffTimer: (buffId: string, value: number) => void;
+	setDebuffTimer: (debuffId: string, value: number) => void;
+	removeBuff: (buffId: string) => void;
+	removeDebuff: (debuffId: string) => void;
 }
 
 interface AdventurerStore extends AdventurerState, AdventurerActions {}
@@ -100,6 +120,27 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			talentPoints: 0,
 			classIds: [],
 			unlockedTalentIds: [],
+			buffs: {},
+			debuffs: {},
+			combatStatsModifier: {
+				level: 0,
+				maxHealth: 0,
+				maxMana: 0,
+				armor: 0,
+				magicResist: 0,
+				criticalChance: 0,
+				criticalDamageMultiplier: 0,
+				damageMultiplierPhysical: 0,
+				damageMultiplierMagical: 0,
+				defenseMultiplierPhysical: 0,
+				defenseMultiplierMagical: 0,
+				strength: 0,
+				dexterity: 0,
+				intelligence: 0,
+				manaRegen: 0,
+				cooldownReduction: 0,
+			},
+			unlockedSkills: [],
 
 			addActiveSkill: (skillId: string) =>
 				set((state) => ({
@@ -164,8 +205,15 @@ export const useAdventurerStore = create<AdventurerStore>()(
 				dexterity: number,
 				intelligence: number,
 				level: number,
+				experience: number,
 				health: number,
 				mana: number,
+				statPoints: number,
+				talentPoints: number,
+				classIds: string[],
+				activeSkills: string[],
+				unlockedSkillIds: string[],
+				unlockedTalentIds: string[],
 				cooldowns: Record<string, number>
 			) =>
 				set((state) => ({
@@ -173,8 +221,15 @@ export const useAdventurerStore = create<AdventurerStore>()(
 					dexterity: (state.dexterity = dexterity),
 					intelligence: (state.intelligence = intelligence),
 					level: (state.level = level),
+					experience: (state.experience = experience),
 					currentHealth: (state.currentHealth = health),
 					currentMana: (state.currentMana = mana),
+					statPoints: (state.statPoints = statPoints),
+					talentPoints: (state.talentPoints = talentPoints),
+					classIds: (state.classIds = classIds),
+					activeSkills: (state.activeSkills = activeSkills),
+					unlockedSkills: (state.unlockedSkills = unlockedSkillIds),
+					unlockedTalentIds: (state.unlockedTalentIds = unlockedTalentIds),
 					cooldowns: (state.cooldowns = cooldowns),
 				})),
 			levelUp: () =>
@@ -225,6 +280,51 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			setCombatStats: (stats: CombatStats) =>
 				set((state) => ({
 					combatStats: (state.combatStats = stats),
+				})),
+			setCombatStatsModifier: (stats: CombatStats) =>
+				set((state) => ({
+					combatStatsModifier: (state.combatStatsModifier = stats),
+				})),
+			setBuff: (buffId: string, value: number) =>
+				set((state) => ({
+					buffs: { ...state.buffs, [buffId]: value },
+				})),
+			setDebuff: (debuffId: string, value: number) =>
+				set((state) => ({
+					debuffs: { ...state.debuffs, [debuffId]: value },
+				})),
+			setBuffTimer: (buffId: string, value: number) =>
+				set((state) => ({
+					buffs: { ...state.buffs, [buffId]: value },
+				})),
+			setDebuffTimer: (debuffId: string, value: number) =>
+				set((state) => ({
+					debuffs: { ...state.debuffs, [debuffId]: value },
+				})),
+			removeBuff: (buffId: string) =>
+				// remove the buff from the buffs object
+				set((state) => ({
+					buffs: Object.fromEntries(
+						Object.entries(state.buffs).filter(([key]) => key !== buffId)
+					),
+				})),
+			removeDebuff: (debuffId: string) =>
+				// remove the debuff from the debuffs object
+				set((state) => ({
+					debuffs: Object.fromEntries(
+						Object.entries(state.debuffs).filter(([key]) => key !== debuffId)
+					),
+				})),
+			setUnlockedSkills: (skills: string[]) =>
+				set((state) => ({
+					unlockedSkills: (state.unlockedSkills = skills),
+				})),
+			unlockSkill: (skillId: string) =>
+				set((state) => ({
+					unlockedSkills: [
+						...state.unlockedSkills,
+						...(state.unlockedSkills.includes(skillId) ? [] : [skillId]),
+					],
 				})),
 		};
 	})

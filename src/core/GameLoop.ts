@@ -6,6 +6,9 @@ import villageAlleys from "../data/areas/village-alleys.json";
 import { Adventurer } from "../modules/Adventurer";
 import { Area } from "../modules/Area";
 import { DataUtil } from "../utils/DataUtil";
+import { loadGame } from "../utils/SaveSystem";
+import { useAreaStore } from "../stores/AreaStore";
+import { useInventoryStore } from "../stores/InventoryStore";
 
 export function GameLoop() {
 	const hasStartedRef = useRef(false);
@@ -51,10 +54,30 @@ function applyTick(delta: number) {
 
 async function initGame() {
 	await DataUtil.preloadAll();
-	const unlockedRegions = { "home-village": ["village-alleys"] };
-	const adventurer = await Adventurer.create(startingAdventurer);
-	const activeArea = await Area.create(villageAlleys);
 
-	useGameStore.getState().initStore(adventurer, activeArea, unlockedRegions);
-	console.log("Game initialized");
+	const save = loadGame();
+	if (save) {
+		const { game, adventurer, areas, inventory } = save;
+		const loadedAdventurer = await Adventurer.create(adventurer);
+		let loadedArea: Area;
+		if (game.activeArea) {
+			useAreaStore.getState().setMonstersByArea(areas.monstersByArea);
+			const AreaData = await DataUtil.getAreaById(game.activeArea);
+			loadedArea = await Area.create(AreaData);
+		} else {
+			loadedArea = await Area.create(villageAlleys);
+		}
+		useGameStore
+			.getState()
+			.initStore(loadedAdventurer, loadedArea, game.unlockedRegions);
+		useInventoryStore.getState().initStore(inventory);
+		console.log("Game loaded from save");
+	} else {
+		const unlockedRegions = { "home-village": ["village-alleys"] };
+		const adventurer = await Adventurer.create(startingAdventurer);
+		const activeArea = await Area.create(villageAlleys);
+
+		useGameStore.getState().initStore(adventurer, activeArea, unlockedRegions);
+		console.log("Game initialized");
+	}
 }

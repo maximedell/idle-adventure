@@ -12,10 +12,20 @@ import RegionSidebar from "./ui/region/RegionSidebar";
 import { useIsStatusOpen, useToggleStatus } from "./selectors/UISelector";
 import ModalWrapper from "./ui/modal/ModalWrapper";
 import StatusModal from "./ui/modal/StatusModal";
+import { useEffect } from "react";
+import { saveGame } from "./utils/SaveSystem";
 
 function App() {
 	const isStatusOpen = useIsStatusOpen();
 	const toggleStatus = useToggleStatus();
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			console.log("[AutoSave] Saving game...");
+			saveGame();
+		}, 1000 * 10); // Save every 10 seconds
+		return () => clearInterval(interval);
+	}, []);
 	return (
 		<>
 			<GameLoop />

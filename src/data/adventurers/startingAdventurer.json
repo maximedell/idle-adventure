@@ -1,12 +1,15 @@
 {
-	"gold": 0,
-	"talentPoints": 0,
-	"destinyPoints": 0,
-	"unlockedSkillIds": ["minor-strike"],
-	"activeSkillIds": ["minor-strike"],
-	"unlockedTalentIds": [],
 	"strength": 0,
 	"dexterity": 0,
 	"intelligence": 0,
-	"level": 1
+	"level": 1,
+	"experience": 0,
+	"currentHealth": 100,
+	"currentMana": 5,
+	"statPoints": 0,
+	"talentPoints": 0,
+	"classIds": [],
+	"activeSkillIds": ["minor-strike"],
+	"unlockedSkillIds": ["minor-strike"],
+	"unlockedTalentIds": []
 }

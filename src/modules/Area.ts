@@ -23,7 +23,7 @@ export class Area {
 		let counter = 0;
 		for (const monsterUid of monsters) {
 			const monsterId = data.monsterIds.find(
-				(m) => m === data.monsterIds[counter]
+				(m) => m === data.monsterIds[counter % data.monsterIds.length]
 			);
 			if (!monsterId) continue;
 			const monsterData = await DataUtil.getMonsterById(monsterId);

@@ -45,8 +45,15 @@ export class Adventurer {
 			data.dexterity,
 			data.intelligence,
 			data.level,
-			BASE_STATS_CONSTANTS.maxHealth,
-			BASE_STATS_CONSTANTS.maxMana,
+			data.experience,
+			data.currentHealth,
+			data.currentMana,
+			data.statPoints,
+			data.talentPoints,
+			data.classIds,
+			data.activeSkillIds,
+			data.unlockedSkillIds,
+			data.unlockedTalentIds,
 			cooldowns
 		);
 		if (!state.activeSkills.length) {

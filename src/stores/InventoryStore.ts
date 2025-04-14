@@ -17,6 +17,12 @@ interface InventoryActions {
 	addGold: (amount: number) => void;
 	removeGold: (amount: number) => void;
 	setSize: (size: number) => void;
+	initStore: (inventory: {
+		size: number;
+		items: Record<string, number>;
+		resources: Record<string, number>;
+		gold: number;
+	}) => void;
 }
 
 interface InventoryStore extends InventoryState, InventoryActions {}
@@ -85,6 +91,18 @@ export const useInventoryStore = create<InventoryStore>()(
 			set((state) => ({
 				resources: { ...state.resources, [resourceId]: 0 },
 				gold: state.gold + value,
+			})),
+		initStore: (inventory: {
+			size: number;
+			items: Record<string, number>;
+			resources: Record<string, number>;
+			gold: number;
+		}) =>
+			set(() => ({
+				size: inventory.size,
+				items: inventory.items,
+				resources: inventory.resources,
+				gold: inventory.gold,
 			})),
 	}))
 );
