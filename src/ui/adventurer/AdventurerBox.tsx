@@ -11,7 +11,6 @@ import SkillIcon from "../skill/SkillIcon";
 import InfoIcon from "../../icons/shared/info.svg?react";
 import TooltipWrapper from "../shared/TooltipWrapper";
 import SkillTooltip from "../skill/SkillTooltip";
-import { useToggleStatus } from "../../selectors/UISelector";
 
 export function AdventurerBox() {
 	const adventurer = useAdventurer();
@@ -20,7 +19,6 @@ export function AdventurerBox() {
 	const experience = useAdventurerExperience();
 	const currentHealth = useAdventurerCurrentHealth();
 	const currentMana = useAdventurerCurrentMana();
-	const toggleStatus = useToggleStatus();
 	if (!adventurer) return null;
 	const Info = InfoIcon;
 	const skills = adventurer
@@ -31,10 +29,7 @@ export function AdventurerBox() {
 			<div>
 				<div className="flex flex-rox justify-center relative">
 					<h2 className="title">Aventurier Niv.{level}</h2>
-					<button
-						onClick={() => toggleStatus()}
-						className="w-6 h-6 absolute top-0 right-0 "
-					>
+					<button className="w-6 h-6 absolute top-0 right-0 ">
 						<Info className="w-full h-full fill-current text-primary-light" />
 					</button>
 				</div>

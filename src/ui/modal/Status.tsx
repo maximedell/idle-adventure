@@ -5,9 +5,10 @@ import {
 	useAdventurerClassIds,
 	useAdventurerTalentPoints,
 } from "../../selectors/AdventurerSelector";
-import "./StatusModal.css";
+import "./Status.css";
 import { useAdventurer } from "../../selectors/GameSelector";
-export default function StatusModal() {
+import { StatUtil } from "../../utils/StatUtil";
+export default function Status() {
 	const stats = useAdventurerStats();
 	const level = useAdventurerLevel();
 	const statPoints = useAdventurerStatPoints();
@@ -28,13 +29,16 @@ export default function StatusModal() {
 	};
 
 	return (
-		<div className="modal">
+		<div className="border border-primary rounded-lg p-4 flex flex-row justify-evenly w-full">
 			<div className="flex flex-col w-fit border border-primary-dark p-2 rounded-lg">
 				<h2 className="title">Statistiques</h2>
 				<div className="flex flex-col gap-2">
 					{Object.entries(stats).map(([key, value]) => (
-						<div key={key} className="stat">
-							<span className="font-bold">{key}</span>
+						<div
+							key={key}
+							className="grid grid-cols-[1fr_auto_auto] items-center gap-2 py-1"
+						>
+							<span className="font-bold">{StatUtil.getStatName(key)}</span>
 							<span>{value}</span>
 							{statPoints > 0 ? (
 								<button
@@ -46,7 +50,7 @@ export default function StatusModal() {
 									<span className="text-sm font-bold">+</span>
 								</button>
 							) : (
-								<button>
+								<button className="invisible">
 									<span className="invisible">+</span>
 								</button>
 							)}
