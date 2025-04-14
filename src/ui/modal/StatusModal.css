@@ -1,0 +1,11 @@
+.stat {
+	@apply grid grid-cols-[1fr_auto_auto] items-center gap-2 py-1;
+}
+
+.modal {
+	@apply flex gap-5;
+}
+
+.class {
+	@apply flex flex-col h-full justify-between;
+}

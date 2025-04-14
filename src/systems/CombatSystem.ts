@@ -15,6 +15,8 @@ function handleCombatTick() {
 	const player = state.adventurer;
 	const area = state.activeArea;
 	if (!player || !area) return;
+	const playerCombatStats = player.getCombatStats();
+	if (!playerCombatStats) throw new Error("Player has no combat stats");
 	const enemies = area.getMonsters();
 	const alive = enemies.filter((e) => e.isAlive());
 	const skill = player.getAvailableSkill();
@@ -37,11 +39,11 @@ function handleCombatTick() {
 	for (const effect of skill.effects) {
 		if (effect.type === "damage") {
 			const targets = alive.slice(0, effect.target);
-			const critMultiplier = getActualCritMultiplier(player.getCombatStats());
+			const critMultiplier = getActualCritMultiplier(playerCombatStats);
 			for (const target of targets) {
 				const dmg = SkillUtil.getEffectiveDamageToTarget(
 					effect,
-					player.getCombatStats(),
+					playerCombatStats,
 					target.getCombatStats(),
 					critMultiplier
 				);
@@ -49,7 +51,9 @@ function handleCombatTick() {
 				state.addBattleLog(
 					`L'aventurier utilise ${
 						skill.name
-					} et inflige ${dmg} dégâts à ${target.getName()}`,
+					} et inflige ${dmg} dégâts à ${target.getName()}. ${
+						critMultiplier > 1 ? "Coup Critique!" : ""
+					}`,
 					"default"
 				);
 				if (!target.isAlive()) {
@@ -74,17 +78,25 @@ function handleCombatTick() {
 
 				for (const effect of enemySkill.effects) {
 					if (effect.type === "damage") {
+						const critMultiplier = getActualCritMultiplier(
+							enemy.getCombatStats()
+						);
 						const dmg = SkillUtil.getEffectiveDamageToTarget(
 							effect,
 							enemy.getCombatStats(),
-							target.getCombatStats(),
-							getActualCritMultiplier(enemy.getCombatStats())
+							playerCombatStats,
+							critMultiplier
 						);
+						if (typeof dmg !== "number") {
+							throw new Error("Invalid damage value");
+						}
 						target.applyDamage(dmg);
 						state.addBattleLog(
 							`${enemy.getName()} utilise ${
 								enemySkill.name
-							} et inflige ${dmg} dégâts à l'aventurier`,
+							} et inflige ${dmg} dégâts à l'aventurier. ${
+								critMultiplier > 1 ? "Coup Critique!" : ""
+							}`,
 							"warning"
 						);
 					}

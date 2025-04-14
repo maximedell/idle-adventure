@@ -3,6 +3,7 @@ import { Skill } from "../types/skill";
 import { Resource } from "../types/resource";
 import { AreaData } from "../types/area";
 import { Region } from "../types/region";
+import { Class } from "../types/class";
 
 const monsterModules = import.meta.glob("../data/monsters/*.json", {
 	import: "default",
@@ -28,6 +29,8 @@ const regionModules = import.meta.glob("../data/regions/*.json", {
 	import: "default",
 }) as Record<string, () => Promise<Region>>;
 const regionCache: Record<string, Region> = {};
+
+const classDataMap: Record<string, Class> = {};
 
 export const DataUtil = {
 	async getMonsterById(id: string): Promise<MonsterData> {
@@ -90,5 +93,24 @@ export const DataUtil = {
 		const data = await loader();
 		regionCache[id] = data;
 		return data;
+	},
+
+	async preloadAllClasses(): Promise<void> {
+		const modules = import.meta.glob("../data/classes/*.json", {
+			eager: true,
+			import: "default",
+		}) as Record<string, Class>;
+		for (const [path, data] of Object.entries(modules)) {
+			const id = path.split("/").pop()?.split(".")[0] || "";
+			classDataMap[id] = data;
+		}
+	},
+
+	getClassById(id: string): Class {
+		return classDataMap[id];
+	},
+
+	preloadAll() {
+		this.preloadAllClasses();
 	},
 };

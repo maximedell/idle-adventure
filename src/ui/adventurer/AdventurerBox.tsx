@@ -4,7 +4,6 @@ import {
 	useAdventurerCurrentHealth,
 	useAdventurerCurrentMana,
 	useAdventurerLevel,
-	useAdventurerIntelligence,
 } from "../../selectors/AdventurerSelector";
 import { useAdventurer } from "../../selectors/GameSelector";
 import StatBar from "../shared/StatBar";
@@ -12,15 +11,16 @@ import SkillIcon from "../skill/SkillIcon";
 import InfoIcon from "../../icons/shared/info.svg?react";
 import TooltipWrapper from "../shared/TooltipWrapper";
 import SkillTooltip from "../skill/SkillTooltip";
+import { useToggleStatus } from "../../selectors/UISelector";
 
 export function AdventurerBox() {
 	const adventurer = useAdventurer();
 	const level = useAdventurerLevel();
-	const intelligence = useAdventurerIntelligence();
 	const activeSkillIds = useAdventurerActiveSkills();
 	const experience = useAdventurerExperience();
 	const currentHealth = useAdventurerCurrentHealth();
 	const currentMana = useAdventurerCurrentMana();
+	const toggleStatus = useToggleStatus();
 	if (!adventurer) return null;
 	const Info = InfoIcon;
 	const skills = adventurer
@@ -31,7 +31,10 @@ export function AdventurerBox() {
 			<div>
 				<div className="flex flex-rox justify-center relative">
 					<h2 className="title">Aventurier Niv.{level}</h2>
-					<button className="w-6 h-6 absolute top-0 right-0 ">
+					<button
+						onClick={() => toggleStatus()}
+						className="w-6 h-6 absolute top-0 right-0 "
+					>
 						<Info className="w-full h-full fill-current text-primary-light" />
 					</button>
 				</div>
@@ -56,12 +59,12 @@ export function AdventurerBox() {
 			/>
 			<StatBar
 				stat={currentHealth}
-				maxStat={adventurer.getMaxHealth(level)}
+				maxStat={adventurer.getCombatStat("maxHealth")}
 				color="hp"
 			/>
 			<StatBar
 				stat={currentMana}
-				maxStat={adventurer.getMaxMana(intelligence)}
+				maxStat={adventurer.getCombatStat("maxMana")}
 				color="mana"
 			/>
 		</div>

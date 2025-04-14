@@ -1,11 +1,12 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
+import { CombatStats } from "../types/stats";
 
-type Stat = "strength" | "dexterity" | "intelligence";
 interface AdventurerState {
 	strength: number;
 	dexterity: number;
 	intelligence: number;
+	combatStats: CombatStats;
 	level: number;
 	cooldowns: Record<string, number>;
 	manaBuffer: number;
@@ -14,6 +15,10 @@ interface AdventurerState {
 	experience: number;
 	currentHealth: number;
 	currentMana: number;
+	statPoints: number;
+	talentPoints: number;
+	classIds: string[];
+	unlockedTalentIds: string[];
 }
 
 interface AdventurerActions {
@@ -27,8 +32,14 @@ interface AdventurerActions {
 		cooldowns: Record<string, number>
 	) => void;
 	setCooldown: (skillId: string, cooldown: number) => void;
-	setStat: (stat: Stat, value: number) => void;
-	addStat: (stat: Stat, value: number) => void;
+	setStat: (
+		stat: "strength" | "dexterity" | "intelligence",
+		value: number
+	) => void;
+	addStat: (
+		stat: "strength" | "dexterity" | "intelligence",
+		value: number
+	) => void;
 	levelUp: () => void;
 	useMana: (amount: number) => void;
 	regenMana: (amount: number) => void;
@@ -41,6 +52,14 @@ interface AdventurerActions {
 	setExperience: (value: number) => void;
 	setCurrentHealth: (value: number) => void;
 	setCurrentMana: (value: number) => void;
+	addStatPoints: (value: number) => void;
+	removeStatPoints: (value: number) => void;
+	addTalentPoints: (value: number) => void;
+	removeTalentPoints: (value: number) => void;
+	addClassId: (classId: string) => void;
+	setUnlockedTalentIds: (ids: string[]) => void;
+	unlockTalent: (id: string) => void;
+	setCombatStats: (stats: CombatStats) => void;
 }
 
 interface AdventurerStore extends AdventurerState, AdventurerActions {}
@@ -52,6 +71,24 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			strength: 0,
 			dexterity: 0,
 			intelligence: 0,
+			combatStats: {
+				level: 1,
+				maxHealth: 100,
+				maxMana: 100,
+				armor: 0,
+				magicResist: 0,
+				criticalChance: 0,
+				criticalDamageMultiplier: 0,
+				damageMultiplierPhysical: 0,
+				damageMultiplierMagical: 0,
+				defenseMultiplierPhysical: 0,
+				defenseMultiplierMagical: 0,
+				strength: 0,
+				dexterity: 0,
+				intelligence: 0,
+				manaRegen: 0,
+				cooldownReduction: 0,
+			},
 			level: 1,
 			currentHealth: 100,
 			currentMana: 100,
@@ -59,6 +96,10 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			activeSkills: [],
 			gcd: 0,
 			experience: 0,
+			statPoints: 5,
+			talentPoints: 0,
+			classIds: [],
+			unlockedTalentIds: [],
 
 			addActiveSkill: (skillId: string) =>
 				set((state) => ({
@@ -77,13 +118,13 @@ export const useAdventurerStore = create<AdventurerStore>()(
 				set((state) => ({
 					cooldowns: { ...state.cooldowns, [skillId]: cooldown },
 				})),
-			setStat: (stat: Stat, value: number) =>
-				set(
-					(state) =>
-						({
-							[stat]: (state[stat] = value),
-						} as Pick<AdventurerState, Stat>)
-				),
+			setStat: (
+				stat: "strength" | "dexterity" | "intelligence",
+				value: number
+			) =>
+				set((state) => ({
+					[stat]: (state[stat] = value),
+				})),
 
 			useMana: (amount: number) =>
 				set((state) => ({
@@ -140,13 +181,51 @@ export const useAdventurerStore = create<AdventurerStore>()(
 				set((state) => ({
 					level: (state.level += 1),
 				})),
-			addStat: (stat: Stat, value: number) =>
-				set(
-					(state) =>
-						({
-							[stat]: (state[stat] += value),
-						} as Pick<AdventurerState, Stat>)
-				),
+			addStat: (
+				stat: "strength" | "dexterity" | "intelligence",
+				value: number
+			) =>
+				set((state) => ({
+					[stat]: state[stat] + value,
+				})),
+			addStatPoints: (value: number) =>
+				set((state) => ({
+					statPoints: (state.statPoints += value),
+				})),
+			removeStatPoints: (value: number) =>
+				set((state) => ({
+					statPoints: (state.statPoints -= value),
+				})),
+			addTalentPoints: (value: number) =>
+				set((state) => ({
+					talentPoints: (state.talentPoints += value),
+				})),
+			removeTalentPoints: (value: number) =>
+				set((state) => ({
+					talentPoints: (state.talentPoints -= value),
+				})),
+			addClassId: (classId: string) =>
+				set((state) => ({
+					classIds: [
+						...state.classIds,
+						...(state.classIds.includes(classId) ? [] : [classId]),
+					],
+				})),
+			setUnlockedTalentIds: (ids: string[]) =>
+				set((state) => ({
+					unlockedTalentIds: (state.unlockedTalentIds = ids),
+				})),
+			unlockTalent: (id: string) =>
+				set((state) => ({
+					unlockedTalentIds: [
+						...state.unlockedTalentIds,
+						...(state.unlockedTalentIds.includes(id) ? [] : [id]),
+					],
+				})),
+			setCombatStats: (stats: CombatStats) =>
+				set((state) => ({
+					combatStats: (state.combatStats = stats),
+				})),
 		};
 	})
 );

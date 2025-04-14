@@ -13,6 +13,7 @@ interface InventoryActions {
 	removeItem: (itemId: string, quantity: number) => void;
 	addResource: (resourceId: string, quantity: number) => void;
 	removeResource: (resourceId: string, quantity: number) => void;
+	sellResource: (resourceId: string, value: number) => void;
 	addGold: (amount: number) => void;
 	removeGold: (amount: number) => void;
 	setSize: (size: number) => void;
@@ -79,6 +80,11 @@ export const useInventoryStore = create<InventoryStore>()(
 		setSize: (size: number) =>
 			set(() => ({
 				size,
+			})),
+		sellResource: (resourceId: string, value: number) =>
+			set((state) => ({
+				resources: { ...state.resources, [resourceId]: 0 },
+				gold: state.gold + value,
 			})),
 	}))
 );

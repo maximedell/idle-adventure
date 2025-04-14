@@ -52,13 +52,13 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 
 				<StatBar
 					stat={health ? health : reviveTimer ? Math.floor(reviveTimer) : 0}
-					maxStat={health ? monster.getStats().health : reviveTime}
+					maxStat={health ? monster.getStats().maxHealth : reviveTime}
 					color={health ? "hp" : "exp"}
 				/>
-				{monster.getStats().mana > 0 && (
+				{monster.getStats().maxMana > 0 && (
 					<StatBar
 						stat={mana ?? 0}
-						maxStat={monster.getStats().mana}
+						maxStat={monster.getStats().maxMana}
 						color="mana"
 					/>
 				)}

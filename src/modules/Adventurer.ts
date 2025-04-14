@@ -1,17 +1,25 @@
 import { useAdventurerStore } from "../stores/AdventurerStore";
 import { AdventurerData } from "../types/adventurer";
 import { Skill } from "../types/skill";
-import { CombatStats } from "../types/stats";
+import {
+	LevelDependentStatKeys,
+	BaseStatDependentStatKeys,
+	CombatStats,
+	GeneralStatKeys,
+	BaseStatKeys,
+} from "../types/stats";
 import { useInventoryStore } from "../stores/InventoryStore";
 import { DataUtil } from "../utils/DataUtil";
-
-type Stat = "strength" | "dexterity" | "intelligence";
+import { ClassUtil } from "../utils/ClassUtil";
+import { Class } from "../types/class";
+import {
+	PER_LEVEL_CONSTANTS,
+	XP_CONSTANTS,
+	BASE_STATS_CONSTANTS,
+	BASE_STAT_DEPENDENT_CONSTANTS,
+} from "../data/constant";
 export class Adventurer {
 	private skills: Skill[] = [];
-	private baseManaRegen: number = 0.2;
-	private baseMaxMana: number = 5;
-	private baseMaxHealth: number = 100;
-	private classId: string | null = null;
 
 	constructor(private data: AdventurerData) {}
 
@@ -28,7 +36,6 @@ export class Adventurer {
 			})
 		);
 		instance.skills = skills;
-		instance.classId = data.classId || null;
 		const cooldowns = skills.reduce((acc, skill) => {
 			acc[skill.id] = 0;
 			return acc;
@@ -38,8 +45,8 @@ export class Adventurer {
 			data.dexterity,
 			data.intelligence,
 			data.level,
-			instance.getMaxHealth(data.level),
-			instance.getMaxMana(data.intelligence),
+			BASE_STATS_CONSTANTS.maxHealth,
+			BASE_STATS_CONSTANTS.maxMana,
 			cooldowns
 		);
 		if (!state.activeSkills.length) {
@@ -47,105 +54,22 @@ export class Adventurer {
 				state.addActiveSkill(skill.id);
 			}
 		}
+		const combatStats = instance.calculateCombatStats(data.level);
+		state.setCombatStats(combatStats);
 		console.log("Adventurer created");
 		return instance;
 	}
+	// Tick
 	applyTick(delta: number) {
 		this.regenerateMana(delta);
 		this.reduceCooldowns(delta);
 		this.updateGcd(delta);
 	}
+
+	// Getters from store
 	getLevel(): number {
 		return useAdventurerStore.getState().level;
 	}
-
-	levelUp() {
-		let state = useAdventurerStore.getState();
-		state.addStat("strength", 1);
-		state.addStat("dexterity", 1);
-		state.addStat("intelligence", 1);
-		state.levelUp();
-		state = useAdventurerStore.getState();
-		state.setCurrentHealth(this.getMaxHealth(state.level));
-		state.setCurrentMana(this.getMaxMana(state.intelligence));
-	}
-
-	getMaxHealth(level: number): number {
-		return this.baseMaxHealth + 50 * (level - 1);
-	}
-
-	getMaxMana(intelligence: number): number {
-		return this.baseMaxMana + intelligence * 2;
-	}
-
-	getManaRegen(intelligence: number): number {
-		return this.baseManaRegen + intelligence * 0.1;
-	}
-
-	getStats(): Record<string, number> {
-		return {
-			strength: this.getStat("strength"),
-			dexterity: this.getStat("dexterity"),
-			intelligence: this.getStat("intelligence"),
-		};
-	}
-
-	getCombatStats(): CombatStats {
-		const stats = this.getStats();
-		return {
-			health: this.getCurrentHealth(),
-			mana: this.getCurrentMana(),
-			strength: stats.strength,
-			dexterity: stats.dexterity,
-			intelligence: stats.intelligence,
-			maxHealth: this.getMaxHealth(stats.level),
-			maxMana: this.getMaxMana(stats.intelligence),
-			manaRegen: this.getManaRegen(stats.intelligence),
-			damageMultiplierPhysical: 1,
-			damageMultiplierMagical: 1,
-			defenseMultiplierPhysical: 1,
-			defenseMultiplierMagical: 1,
-			cooldownReduction: 0,
-			armor: this.getArmor(),
-			magicResist: this.getMagicResist(),
-			criticalChance: 0,
-			criticalDamageMultiplier: 0,
-		};
-	}
-
-	getArmor(): number {
-		return this.getStats().strength * 0.1;
-	}
-
-	getMagicResist(): number {
-		return this.getStats().intelligence * 0.1;
-	}
-
-	setStat(stat: Stat, value: number) {
-		useAdventurerStore.getState().setStat(stat, value);
-	}
-
-	getStat(stat: Stat): number {
-		switch (stat) {
-			case "strength":
-				return useAdventurerStore.getState().strength;
-			case "dexterity":
-				return useAdventurerStore.getState().dexterity;
-			case "intelligence":
-				return useAdventurerStore.getState().intelligence;
-			default:
-				throw new Error(`Stat ${stat} not found`);
-		}
-	}
-
-	getClass() {
-		return this.classId;
-	}
-
-	getClassName() {
-		return this.classId || "Aucune classe";
-	}
-
 	getCurrentHealth() {
 		return useAdventurerStore.getState().currentHealth;
 	}
@@ -154,15 +78,314 @@ export class Adventurer {
 		return useAdventurerStore.getState().currentMana;
 	}
 
+	getClassIds(): string[] {
+		return useAdventurerStore.getState().classIds;
+	}
+
+	getClass(classId: string): Class | null {
+		const classData = DataUtil.getClassById(classId);
+		if (!classData) return null;
+		return classData;
+	}
+
+	getClassName(): string {
+		const classIds = this.getClassIds();
+		if (classIds.length === 0) return "Aventurier";
+		if (classIds.length === 1) {
+			const classData = this.getClass(classIds[0]);
+			if (!classData) return "Aventurier";
+			return classData.name;
+		} else {
+			const sortedClassIds = classIds.sort().join(",");
+			switch (sortedClassIds) {
+				case "mage,warrior":
+					return "Guerrier Arcaniste";
+				case "assassin,warrior":
+					return "Exécuteur";
+				case "assassin,mage":
+					return "Mage d'Ombre";
+				default:
+					return "Aventurier";
+			}
+		}
+	}
+	getBaseStatFromPoints(stat: BaseStatKeys): number {
+		return useAdventurerStore.getState()[stat];
+	}
+
+	getCombatStats(): CombatStats {
+		return useAdventurerStore.getState().combatStats;
+	}
+
+	getCombatStat(stat: keyof CombatStats): number {
+		const combatStats = this.getCombatStats();
+		if (!combatStats) return 0;
+		return combatStats[stat] || 0;
+	}
+
+	// Setters from store
+	levelUp() {
+		let state = useAdventurerStore.getState();
+		state.levelUp();
+		state = useAdventurerStore.getState();
+
+		state.addStatPoints(PER_LEVEL_CONSTANTS.statPoints);
+		if (state.level % 5 === 0) {
+			state.addTalentPoints(PER_LEVEL_CONSTANTS.talentPoints);
+		}
+		state = useAdventurerStore.getState();
+		const combatStats = this.calculateCombatStats(state.level);
+		state.setCombatStats(combatStats);
+
+		state.setCurrentHealth(combatStats.maxHealth);
+		state.setCurrentMana(combatStats.maxMana);
+	}
+
+	increaseStat(statKey: BaseStatKeys, amount: number) {
+		const state = useAdventurerStore.getState();
+		if (state.statPoints > amount) {
+			state.addStat(statKey, amount);
+			state.removeStatPoints(amount);
+		}
+	}
+
+	setStat(statKey: BaseStatKeys, value: number) {
+		useAdventurerStore.getState().setStat(statKey, value);
+	}
+
+	setCombatStats(combatStats: CombatStats) {
+		useAdventurerStore.getState().setCombatStats(combatStats);
+	}
+
+	// stats calculations
+
+	calculateCombatStats(level: number = this.getLevel()): CombatStats {
+		const strength = this.calculateBaseStat("strength");
+		const dexterity = this.calculateBaseStat("dexterity");
+		const intelligence = this.calculateBaseStat("intelligence");
+
+		return {
+			level: level,
+			dexterity: dexterity,
+			strength: strength,
+			intelligence: intelligence,
+			maxHealth: this.calculateMaxHealth(),
+			maxMana: this.calculateMaxMana(intelligence),
+			manaRegen: this.calculateManaRegen(intelligence),
+			armor: this.calculateArmor(strength),
+			magicResist: this.calculateMagicResist(intelligence),
+			criticalChance: this.calculateCriticalChance(dexterity),
+			criticalDamageMultiplier:
+				this.calculateCriticalDamageMultiplier(dexterity),
+			damageMultiplierPhysical: this.calculateGeneralStat(
+				"damageMultiplierPhysical"
+			),
+			damageMultiplierMagical: this.calculateGeneralStat(
+				"damageMultiplierMagical"
+			),
+			defenseMultiplierPhysical: this.calculateGeneralStat(
+				"defenseMultiplierPhysical"
+			),
+			defenseMultiplierMagical: this.calculateGeneralStat(
+				"defenseMultiplierMagical"
+			),
+			cooldownReduction: this.calculateGeneralStat("cooldownReduction"),
+		};
+	}
+
+	calculateBaseStats(stat: BaseStatKeys): number {
+		return this.calculateBaseStat(stat);
+	}
+	calculateBaseStat(key: BaseStatKeys): number {
+		const level = this.getLevel();
+		let multiplier = 0;
+		// Add the amount increase per level
+		multiplier += this.calculateLevelDependentStat(key);
+		multiplier += PER_LEVEL_CONSTANTS.baseStat;
+		// Multiply by level the total amount per level
+		let statValue = (level - 1) * multiplier;
+
+		// Add from different sources
+		statValue += this.getBaseStatFromPoints(key);
+		statValue += this.calculateTalentStatFromClasses(key);
+		// TODO : add calculateEquipmentStat
+		// TODO : add calculatePassiveStat
+		return statValue;
+	}
+
+	calculateLevelDependentStat(stat: LevelDependentStatKeys): number {
+		let statValue = 0;
+		const classIds = useAdventurerStore.getState().classIds;
+		for (const classId of classIds) {
+			statValue += ClassUtil.getStatOnLevelUpFromClassId(stat, classId);
+		}
+		return statValue;
+	}
+	calculateTalentStatFromClasses(stat: keyof CombatStats): number {
+		let statValue = 0;
+		const classIds = useAdventurerStore.getState().classIds;
+		for (const classId of classIds) {
+			statValue += ClassUtil.getStatFromClassId(stat, classId);
+		}
+		return statValue;
+	}
+
+	calculateBaseStatDependentStatFromClasses(
+		baseStat: BaseStatKeys,
+		stat: BaseStatDependentStatKeys
+	): number {
+		let statValue = 0;
+		const classIds = useAdventurerStore.getState().classIds;
+		for (const classId of classIds) {
+			statValue += ClassUtil.getBaseStatDependentStatFromClassId(
+				baseStat,
+				stat,
+				classId
+			);
+		}
+		return statValue;
+	}
+
+	calculateMaxHealth(): number {
+		const level = this.getLevel();
+		let multiplier = 0;
+		// Add the amount increase per level
+		multiplier += PER_LEVEL_CONSTANTS.health;
+		multiplier += this.calculateLevelDependentStat("maxHealth");
+		// Multiply by level the total amount per level
+		let statValue = (level - 1) * multiplier;
+
+		// Add from different sources
+		statValue += BASE_STATS_CONSTANTS.maxHealth;
+		statValue += this.calculateTalentStatFromClasses("maxHealth");
+		// TODO : add calculateEquipmentStat
+		// TODO : add calculatePassiveStat
+
+		return Math.max(0, statValue);
+	}
+
+	calculateMaxMana(intelligence: number): number {
+		let multiplier = 0;
+		// Add the amount increase per intelligence
+		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.maxMana;
+		multiplier += this.calculateBaseStatDependentStatFromClasses(
+			"intelligence",
+			"maxMana"
+		);
+		// Multiply by intelligence the total amount per intelligence
+		let statValue = intelligence * multiplier;
+		// Add from different sources
+		statValue += BASE_STATS_CONSTANTS.maxMana;
+		statValue += this.calculateTalentStatFromClasses("maxMana");
+		// TODO : add calculateEquipmentStat
+		// TODO : add calculatePassiveStat
+		return Math.max(0, statValue);
+	}
+
+	calculateManaRegen(intelligence: number): number {
+		let multiplier = 0;
+		// Add the amount increase per intelligence
+		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.manaRegen;
+		multiplier += this.calculateBaseStatDependentStatFromClasses(
+			"intelligence",
+			"manaRegen"
+		);
+		// Multiply by intelligence the total amount per intelligence
+		let statValue = intelligence * multiplier;
+
+		// Add from different sources
+		statValue += BASE_STATS_CONSTANTS.manaRegen;
+		statValue += this.calculateTalentStatFromClasses("manaRegen");
+		// TODO: add calculateEquipmentStat
+		// TODO: add calculatePassiveStat
+		return Math.max(0, statValue);
+	}
+
+	calculateArmor(strength: number): number {
+		let multiplier = 0;
+		// Add the amount increase per strength
+		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.armor;
+		multiplier += this.calculateBaseStatDependentStatFromClasses(
+			"strength",
+			"armor"
+		);
+		// Multiply by strength the total amount per strength
+		let statValue = strength * multiplier;
+
+		// Add from different sources
+		statValue += this.calculateTalentStatFromClasses("armor");
+		// TODO : add calculateEquipmentStat
+		// TODO : add calculatePassiveStat
+		return Math.max(0, statValue);
+	}
+
+	calculateMagicResist(intelligence: number): number {
+		let multiplier = 0;
+		// Add the amount increase per intelligence
+		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.magicResist;
+		multiplier += this.calculateBaseStatDependentStatFromClasses(
+			"intelligence",
+			"magicResist"
+		);
+		// Multiply by intelligence the total amount per intelligence
+		let statValue = intelligence * multiplier;
+		// Add from different sources
+		statValue += this.calculateTalentStatFromClasses("magicResist");
+		// TODO : add calculateEquipmentStat
+		// TODO : add calculatePassiveStat
+		return Math.max(0, statValue);
+	}
+	calculateCriticalChance(dexterity: number): number {
+		let multiplier = 0;
+		// Add the amount increase per dexterity
+		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.criticalChance;
+		multiplier += this.calculateBaseStatDependentStatFromClasses(
+			"dexterity",
+			"criticalChance"
+		);
+		// Multiply by dexterity the total amount per dexterity
+		let statValue = dexterity * multiplier;
+		// Add from different sources
+		statValue += this.calculateTalentStatFromClasses("criticalChance");
+		// TODO : add calculateEquipmentStat
+		// TODO : add calculatePassiveStat
+		return Math.max(0, statValue);
+	}
+	calculateCriticalDamageMultiplier(dexterity: number): number {
+		let multiplier = 0;
+		// Add the amount increase per dexterity
+		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.criticalDamageMultiplier;
+		multiplier += this.calculateBaseStatDependentStatFromClasses(
+			"dexterity",
+			"criticalDamageMultiplier"
+		);
+		// Multiply by dexterity the total amount per dexterity
+		let statValue = dexterity * multiplier;
+		// Add from different sources
+		statValue += this.calculateTalentStatFromClasses(
+			"criticalDamageMultiplier"
+		);
+		// TODO : add calculateEquipmentStat
+		// TODO : add calculatePassiveStat
+		return Math.max(0, statValue);
+	}
+	calculateGeneralStat(stat: GeneralStatKeys): number {
+		let statValue = 0;
+		statValue += this.calculateTalentStatFromClasses(stat);
+		// TODO : add calculateEquipmentStat
+		// TODO : add calculatePassiveStat
+		return Math.max(1, statValue);
+	}
+
 	isAlive(): boolean {
 		return this.getCurrentHealth() > 0;
 	}
 
 	regenerateMana(delta: number) {
 		const currentMana = this.getCurrentMana();
-		const maxMana = this.getMaxMana(this.getStat("intelligence"));
+		const maxMana = this.getCombatStat("maxMana");
 		if (currentMana >= maxMana) return;
-		const manaRegen = this.getManaRegen(this.getStat("intelligence"));
+		const manaRegen = this.getCombatStat("manaRegen");
 		const manaBuffer = useAdventurerStore.getState().manaBuffer;
 		const newMana = manaBuffer + manaRegen * delta;
 		if (newMana >= 0.1) {
@@ -250,7 +473,9 @@ export class Adventurer {
 	}
 
 	xpRequiredToLevelUp(level: number): number {
-		return Math.floor(100 * Math.pow(1.2, level - 1));
+		return Math.floor(
+			XP_CONSTANTS.baseXP * Math.pow(XP_CONSTANTS.levelExponent, level - 1)
+		);
 	}
 
 	gainExperience(amount: number) {
@@ -283,6 +508,7 @@ export class Adventurer {
 		for (const resourceId in resources) {
 			if (currentSize >= inventorySizeMax) break;
 			const quantity = resources[resourceId];
+			if (quantity <= 0) continue;
 			if (currentSize + quantity <= inventorySizeMax) {
 				newResources[resourceId] = quantity;
 				currentSize += quantity;

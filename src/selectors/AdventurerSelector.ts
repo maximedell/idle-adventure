@@ -1,3 +1,4 @@
+import { useShallow } from "zustand/shallow";
 import { useAdventurerStore } from "../stores/AdventurerStore";
 
 export const useAdventurerLevel = () => {
@@ -37,4 +38,34 @@ export const useAdventurerSkillCooldown = (skillId: string) => {
 	if (cooldown === undefined) return 0;
 
 	return cooldown;
+};
+
+export const useAdventurerStatPoints = () => {
+	return useAdventurerStore((state) => state.statPoints);
+};
+
+export const useAdventurerStats = () => {
+	return useAdventurerStore(
+		useShallow((state) => ({
+			strength: state.strength,
+			dexterity: state.dexterity,
+			intelligence: state.intelligence,
+		}))
+	);
+};
+
+export const useAdventurerClassIds = () => {
+	return useAdventurerStore((state) => state.classIds);
+};
+
+export const useAdventurerTalentPoints = () => {
+	return useAdventurerStore((state) => state.talentPoints);
+};
+
+export const useAdventurerUnlockedTalents = () => {
+	return useAdventurerStore((state) => state.unlockedTalentIds);
+};
+
+export const useAdventurerCombatStats = () => {
+	return useAdventurerStore((state) => state.combatStats);
 };

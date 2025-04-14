@@ -9,8 +9,13 @@ import BattleLog from "./ui/battle/BattleLog";
 import NotificationContainer from "./ui/notification/NotificationContainer";
 import InventorySidebar from "./ui/inventory/InventorySidebar";
 import RegionSidebar from "./ui/region/RegionSidebar";
+import { useIsStatusOpen, useToggleStatus } from "./selectors/UISelector";
+import ModalWrapper from "./ui/modal/ModalWrapper";
+import StatusModal from "./ui/modal/StatusModal";
 
 function App() {
+	const isStatusOpen = useIsStatusOpen();
+	const toggleStatus = useToggleStatus();
 	return (
 		<>
 			<GameLoop />
@@ -31,6 +36,11 @@ function App() {
 							<AreaBox />
 							<BattleLog />
 						</div>
+						{isStatusOpen && (
+							<ModalWrapper onClose={() => toggleStatus()}>
+								<StatusModal />
+							</ModalWrapper>
+						)}
 					</div>
 					<div className="sidebar-right">
 						<RegionSidebar />

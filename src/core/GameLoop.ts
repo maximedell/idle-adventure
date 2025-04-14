@@ -5,6 +5,7 @@ import startingAdventurer from "../data/adventurers/startingAdventurer.json";
 import villageAlleys from "../data/areas/village-alleys.json";
 import { Adventurer } from "../modules/Adventurer";
 import { Area } from "../modules/Area";
+import { DataUtil } from "../utils/DataUtil";
 
 export function GameLoop() {
 	const hasStartedRef = useRef(false);
@@ -49,6 +50,7 @@ function applyTick(delta: number) {
 }
 
 async function initGame() {
+	await DataUtil.preloadAll();
 	const unlockedRegions = { "home-village": ["village-alleys"] };
 	const adventurer = await Adventurer.create(startingAdventurer);
 	const activeArea = await Area.create(villageAlleys);

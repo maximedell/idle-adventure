@@ -1,0 +1,26 @@
+{
+	"id": "warrior",
+	"name": "Guerrier",
+	"description": "Le guerrier est un combattant robuste, capable de résister à de lourds dégâts tout en infligeant des coups puissants. Il excelle dans le combat rapproché et utilise une variété d'armes pour écraser ses ennemis.",
+	"baseSkillId": "heavy-strike",
+	"talents": [
+		{
+			"id": "warrior-base",
+			"name": "Guerrier",
+			"description": "Augmente le gain de force par niveau de 1 et débloque la compétence: Frappe lourde.",
+			"requiredTalentIds": [],
+			"cost": 1,
+			"talentEffects": [
+				{
+					"type": "onLevelUp",
+					"stat": "strength",
+					"value": 1
+				},
+				{
+					"type": "skill",
+					"skillId": "heavy-strike"
+				}
+			]
+		}
+	]
+}

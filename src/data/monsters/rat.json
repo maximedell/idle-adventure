@@ -19,7 +19,7 @@
 		"defenseMultiplierPhysical": 1,
 		"defenseMultiplierMagical": 1,
 		"criticalChance": 0,
-		"criticalDamage": 1,
+		"criticalDamageMultiplier": 1,
 		"cooldownReduction": 0
 	},
 	"activeSkillIds": ["bite"],

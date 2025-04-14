@@ -7,8 +7,10 @@ import {
 import { DataUtil } from "../../utils/DataUtil";
 import GoldIcon from "../../icons/shared/gold.svg?react";
 import { Resource } from "../../types/resource";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import LoadingSpinner from "../shared/LoadingSpinner";
+import SellIcon from "../../icons/shared/sell.svg?react";
+import { useInventoryStore } from "../../stores/InventoryStore";
 export default function InventorySidebar() {
 	const [resources, setResources] = useState<Record<string, Resource>>({});
 	const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +31,11 @@ export default function InventorySidebar() {
 		fetchResources();
 		setIsLoading(false);
 	}, [resourceRecords]);
+
+	const handleClick = (resourceId: string, value: number) => {
+		useInventoryStore.getState().sellResource(resourceId, value);
+	};
+
 	if (isLoading) {
 		return <LoadingSpinner />;
 	}
@@ -44,9 +51,18 @@ export default function InventorySidebar() {
 			<h3 className="text-md font-semibold mt-4">Resources:</h3>
 			{/* Use a list to display resources */}
 			<ul className="pl-5 l">
-				{Object.entries(resourceRecords).map(([key, value]) => (
-					<li key={key} className="text-sm">
-						{resources[key]?.name}: {value}
+				{Object.entries(resourceRecords).map(([key, amount]) => (
+					<li key={key} className="text-sm flex flex-row justify-between">
+						<p className="flex w-fit">
+							{resources[key]?.name}: {amount}
+						</p>
+						<button
+							className="flex flex-row"
+							onClick={() => handleClick(key, amount * resources[key]?.value)}
+						>
+							<SellIcon className="w-4 h-4 fill-current text-primary-light" />
+							{resources[key]?.value * amount}
+						</button>
 					</li>
 				))}
 			</ul>

@@ -2,7 +2,7 @@ export type AdventurerData = {
 	gold: number;
 	talentPoints: number;
 	destinyPoints: number;
-	classId?: string;
+	classIds?: string[];
 	unlockedSkillIds: string[];
 	activeSkillIds: string[];
 	unlockedTalentIds: string[];

@@ -3,10 +3,7 @@ import { CombatStats } from "../types/stats";
 
 export const SkillUtil = {
 	getEffectiveCooldown(skill: Skill, stats: CombatStats): number {
-		const cooldown =
-			skill.cooldown *
-			(1 - stats.dexterity * 0.01) *
-			(1 - stats.cooldownReduction);
+		const cooldown = skill.cooldown / stats.cooldownReduction;
 		return Math.floor(cooldown * 10) / 10;
 	},
 

@@ -5,6 +5,6 @@
 	"monsterIds": [],
 	"unlockRequirement": {
 		"level": 15,
-		"gold": 2000
+		"gold": 100
 	}
 }

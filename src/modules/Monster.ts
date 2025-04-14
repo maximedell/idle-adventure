@@ -38,8 +38,8 @@ export class Monster {
 		state.initMonster(
 			uid,
 			instance.recordSkills,
-			instance.stats.health,
-			instance.stats.mana
+			instance.stats.maxHealth,
+			instance.stats.maxMana
 		);
 		state.setManaBuffer(uid, 0);
 		state.setReviveBuffer(uid, 0);
@@ -67,28 +67,7 @@ export class Monster {
 		return this.level;
 	}
 	getCombatStats(): CombatStats {
-		const stats = {
-			...this.data.stats,
-		};
-		return {
-			strength: stats.strength,
-			dexterity: stats.dexterity,
-			intelligence: stats.intelligence,
-			health: this.getCurrentHealth(),
-			maxHealth: this.stats.health,
-			mana: this.getCurrentMana(),
-			maxMana: this.stats.mana,
-			manaRegen: this.stats.manaRegen,
-			armor: stats.armor,
-			magicResist: stats.magicResist,
-			damageMultiplierPhysical: stats.damageMultiplierPhysical,
-			damageMultiplierMagical: stats.damageMultiplierMagical,
-			defenseMultiplierPhysical: stats.defenseMultiplierPhysical,
-			defenseMultiplierMagical: stats.defenseMultiplierMagical,
-			cooldownReduction: stats.cooldownReduction,
-			criticalChance: stats.criticalChance,
-			criticalDamageMultiplier: stats.criticalDamageMultiplier,
-		};
+		return this.data.stats;
 	}
 	getCurrentHealth() {
 		return useMonsterStore.getState().health[this.uid];
@@ -109,7 +88,7 @@ export class Monster {
 	}
 
 	regenerateMana(delta: number) {
-		const maxMana = this.getStats().mana;
+		const maxMana = this.getStats().maxMana;
 		if (maxMana === 0) return;
 		const currentMana = this.getCurrentMana();
 		if (currentMana >= maxMana) return;
@@ -198,8 +177,8 @@ export class Monster {
 				.initMonster(
 					this.uid,
 					this.recordSkills,
-					this.stats.health,
-					this.stats.mana
+					this.stats.maxHealth,
+					this.stats.maxMana
 				);
 		} else {
 			useMonsterStore.getState().setReviveBuffer(this.uid, newReviveBuffer);

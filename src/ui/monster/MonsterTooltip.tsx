@@ -1,6 +1,5 @@
 import React, { JSX } from "react";
 import { Monster } from "../../modules/Monster";
-import { StatUtil } from "../../utils/StatUtil";
 
 interface MonsterTooltipProps {
 	monster: Monster;
@@ -18,7 +17,7 @@ export default function MonsterTooltip({
 		<div className={`${className} text-nowrap`}>
 			<h3 className="text-lg font-bold">{data.name}</h3>
 			<p className="text-sm">Niveau: {data.level}</p>
-			<p className="text-sm">PV: {stats.health}</p>
+			<p className="text-sm">PV: {stats.maxHealth}</p>
 			{optionalStats &&
 				optionalStats.map((stat, index) => (
 					<React.Fragment key={index}>{stat}</React.Fragment>
