@@ -22,11 +22,13 @@ export type SaveData = {
 	};
 	areas: {
 		monstersByArea: Record<string, string[]>;
+		discoveredMonsters: string[];
 	};
 	inventory: {
 		size: number;
 		items: Record<string, number>;
 		resources: Record<string, number>;
 		gold: number;
+		discoveredResources: string[];
 	};
 };

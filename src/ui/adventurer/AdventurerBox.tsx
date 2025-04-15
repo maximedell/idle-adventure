@@ -25,7 +25,7 @@ export function AdventurerBox() {
 		.getActiveSkills()
 		.filter((skill) => activeSkillIds.includes(skill.id));
 	return (
-		<div className="box-adventurer">
+		<div className="box-content">
 			<div>
 				<div className="flex flex-rox justify-center relative">
 					<h2 className="title">Aventurier Niv.{level}</h2>

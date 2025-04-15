@@ -9,6 +9,7 @@ import { DataUtil } from "../utils/DataUtil";
 import { loadGame } from "../utils/SaveSystem";
 import { useAreaStore } from "../stores/AreaStore";
 import { useInventoryStore } from "../stores/InventoryStore";
+import { IconUtil } from "../utils/IconUtil";
 
 export function GameLoop() {
 	const hasStartedRef = useRef(false);
@@ -61,7 +62,7 @@ async function initGame() {
 		const loadedAdventurer = await Adventurer.create(adventurer);
 		let loadedArea: Area;
 		if (game.activeArea) {
-			useAreaStore.getState().setMonstersByArea(areas.monstersByArea);
+			useAreaStore.getState().initStore(areas);
 			const AreaData = await DataUtil.getAreaById(game.activeArea);
 			loadedArea = await Area.create(AreaData);
 		} else {

@@ -1,11 +1,12 @@
-import { skill } from "../../types/skill";
-import { skillIcons } from "../../icons/skills";
+import { Skill } from "../../types/skill";
 import { useAdventurerSkillCooldown } from "../../selectors/AdventurerSelector";
 import { useMonsterSkillCooldown } from "../../selectors/MonsterSelector";
-import { useId } from "react";
+import { useEffect, useId, useState } from "react";
+import { IconUtil } from "../../utils/IconUtil";
+import LoadingSpinner from "../shared/LoadingSpinner";
 
 interface SkillIconProps {
-	skill: skill;
+	skill: Skill;
 	className?: string;
 	monsterUid?: string;
 }
@@ -15,23 +16,34 @@ export default function SkillIcon({
 	className,
 	monsterUid,
 }: SkillIconProps) {
+	const [SkillIcon, setSkillIcon] = useState<React.FC<
+		React.SVGProps<SVGSVGElement>
+	> | null>(null);
+	const [loading, setLoading] = useState(true);
+	useEffect(() => {
+		const loadIcon = async () => {
+			const icon = await IconUtil.getSkillIcon(skill.id);
+			setSkillIcon(() => icon);
+			setLoading(false);
+		};
+		loadIcon();
+	}, [skill.id]);
 	const cooldown = monsterUid
 		? useMonsterSkillCooldown(monsterUid, skill.id)
 		: useAdventurerSkillCooldown(skill.id);
 	const maxCooldown = skill.cooldown;
-	const Icon = skillIcons[skill.id];
 	const state: SkillState = cooldown === 0 ? "active" : "cooldown";
 	const skillColor =
 		{
 			active: "text-primary-light",
 			cooldown: "text-accent",
 		}[state] || "text-gray-500"; // Default color if not found
-
+	if (loading) return <LoadingSpinner />;
 	return (
 		<div
 			className={`relative flex items-center justify-center ${skillColor} ${className} rounded border border-primary`}
 		>
-			{Icon && <Icon className="w-full h-full fill-current" />}
+			{SkillIcon && <SkillIcon className="w-full h-full fill-current" />}
 			{cooldown > 0 && (
 				<CooldownOverlaySquare percentage={cooldown / maxCooldown} />
 			)}

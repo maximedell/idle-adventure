@@ -22,7 +22,6 @@ export type TalentEffect = {
 	id: string;
 	type: "stat" | "skill" | "onLevelUp" | "combatStatPerBaseStat";
 	value?: number;
-	damageType?: "physical" | "magical";
 	skillId?: string;
 	stat?: keyof CombatStats;
 	baseStat?: BaseStatKeys;

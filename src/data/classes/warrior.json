@@ -10,6 +10,8 @@
 			"description": "Augmente le gain de force par niveau de 1 et débloque la compétence: Frappe lourde.",
 			"requiredTalentIds": [],
 			"cost": 1,
+			"x": 0,
+			"y": 0,
 			"talentEffects": [
 				{
 					"type": "onLevelUp",
@@ -19,6 +21,72 @@
 				{
 					"type": "skill",
 					"skillId": "heavy-strike"
+				}
+			]
+		},
+		{
+			"id": "warrior-armor",
+			"name": "Armure renforcée",
+			"description": "Réduit les dégâts physiques subis de 2%.",
+			"requiredTalentIds": ["warrior-base"],
+			"cost": 1,
+			"x": 0,
+			"y": 1,
+			"talentEffects": [
+				{
+					"type": "stat",
+					"stat": "defenseMultiplierPhysical",
+					"value": 2
+				}
+			]
+		},
+		{
+			"id": "warrior-weapon-mastery",
+			"name": "Maîtrise des armes",
+			"description": "Augmente les dégâts infligés par les attaques physiques de 5%.",
+			"requiredTalentIds": ["warrior-base"],
+			"cost": 1,
+			"x": 1,
+			"y": 1,
+			"talentEffects": [
+				{
+					"type": "stat",
+					"stat": "damageMultiplierPhysical",
+					"value": 0.05
+				}
+			]
+		},
+		{
+			"id": "warrior-berserk",
+			"name": "Berserker",
+			"description": "Augmente la vitesse d'attaque de 10% pendant 5 secondes après avoir subi des dégâts.",
+			"requiredTalentIds": ["warrior-weapon-mastery"],
+			"cost": 1,
+			"x": 1,
+			"y": 2,
+			"talentEffects": [
+				{
+					"type": "onDamageTaken",
+					"stat": "attackSpeedMultiplier",
+					"value": 0.1,
+					"duration": 5
+				}
+			]
+		},
+		{
+			"id": "warrior-shield-block",
+			"name": "Blocage avec bouclier",
+			"description": "Réduit les dégâts subis de 50% pendant 2 secondes après avoir utilisé une compétence.",
+			"requiredTalentIds": ["warrior-armor"],
+			"cost": 1,
+			"x": 0,
+			"y": 2,
+			"talentEffects": [
+				{
+					"type": "onSkillUsed",
+					"stat": "defenseMultiplierPhysical",
+					"value": 50,
+					"duration": 2
 				}
 			]
 		}

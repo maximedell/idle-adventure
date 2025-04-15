@@ -8,6 +8,7 @@ import {
 import "./Status.css";
 import { useAdventurer } from "../../selectors/GameSelector";
 import { StatUtil } from "../../utils/StatUtil";
+import { useUIStore } from "../../stores/UIStore";
 export default function Status() {
 	const stats = useAdventurerStats();
 	const level = useAdventurerLevel();
@@ -15,6 +16,7 @@ export default function Status() {
 	const adventurer = useAdventurer();
 	const talentPoints = useAdventurerTalentPoints();
 	const classIds = useAdventurerClassIds();
+	const setCurrentMenu = useUIStore.getState().setCurrentMenu;
 	if (classIds.length) {
 		//TODO fetch class data
 	}
@@ -29,7 +31,7 @@ export default function Status() {
 	};
 
 	return (
-		<div className="border border-primary rounded-lg p-4 flex flex-row justify-evenly w-full">
+		<div className="box-content flex flex-row gap-4">
 			<div className="flex flex-col w-fit border border-primary-dark p-2 rounded-lg">
 				<h2 className="title">Statistiques</h2>
 				<div className="flex flex-col gap-2">
@@ -65,7 +67,10 @@ export default function Status() {
 					{!classIds.length && (
 						<>
 							<p className="text-sm">Aucune classe sélectionnée</p>
-							<button className="class-button">
+							<button
+								className="class-button"
+								onClick={() => setCurrentMenu("class")}
+							>
 								<span className="text-sm font-bold">Choisir une classe</span>
 							</button>
 							<p>Points de talents: {talentPoints}</p>

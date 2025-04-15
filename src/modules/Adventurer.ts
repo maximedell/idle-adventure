@@ -503,7 +503,7 @@ export class Adventurer {
 	addResourcesToInventory(
 		resources: Record<string, number>
 	): Record<string, number> {
-		const state = useInventoryStore.getState();
+		let state = useInventoryStore.getState();
 		const inventoryResources = state.resources;
 		const inventorySizeMax = state.size;
 		const inventorySize = Object.keys(inventoryResources).reduce(
@@ -513,9 +513,12 @@ export class Adventurer {
 		const newResources: Record<string, number> = {};
 		let currentSize = inventorySize;
 		for (const resourceId in resources) {
+			state = useInventoryStore.getState();
 			if (currentSize >= inventorySizeMax) break;
 			const quantity = resources[resourceId];
 			if (quantity <= 0) continue;
+			if (!state.discoveredResources.includes(resourceId))
+				state.addDiscoveredResource(resourceId);
 			if (currentSize + quantity <= inventorySizeMax) {
 				newResources[resourceId] = quantity;
 				currentSize += quantity;

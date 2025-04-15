@@ -18,6 +18,9 @@ export class Area {
 			} else {
 				state.addArea(data.id, data.monsterIds[0] + "0");
 			}
+			if (!state.discoveredMonsters.includes(data.id)) {
+				state.addDiscoveredMonster(data.id);
+			}
 		}
 		const monsters = useAreaStore.getState().monstersByArea[data.id] || [];
 		let counter = 0;
@@ -52,15 +55,16 @@ export class Area {
 		const monsterIds = useAreaStore.getState().monstersByArea[this.data.id];
 		const monsterId =
 			this.data.monsterIds[monsterIds.length % this.data.monsterIds.length];
-
+		const state = useAreaStore.getState();
 		if (monsterIds.length < this.data.size) {
 			const monsterData = await DataUtil.getMonsterById(monsterId);
 			this.monsters.push(
 				await Monster.create(monsterData, monsterId + monsterIds.length)
 			);
-			useAreaStore
-				.getState()
-				.addMonsterToArea(this.data.id, monsterId + monsterIds.length);
+			state.addMonsterToArea(this.data.id, monsterId + monsterIds.length);
+		}
+		if (!state.discoveredMonsters.includes(monsterId)) {
+			state.addDiscoveredMonster(monsterId);
 		}
 	}
 	getMonsterByUid(uid: string) {

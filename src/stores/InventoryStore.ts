@@ -6,6 +6,7 @@ interface InventoryState {
 	items: Record<string, number>;
 	resources: Record<string, number>;
 	gold: number;
+	discoveredResources: string[];
 }
 
 interface InventoryActions {
@@ -22,7 +23,9 @@ interface InventoryActions {
 		items: Record<string, number>;
 		resources: Record<string, number>;
 		gold: number;
+		discoveredResources: string[];
 	}) => void;
+	addDiscoveredResource: (resourceId: string) => void;
 }
 
 interface InventoryStore extends InventoryState, InventoryActions {}
@@ -33,6 +36,7 @@ export const useInventoryStore = create<InventoryStore>()(
 		items: {},
 		resources: {},
 		gold: 0,
+		discoveredResources: [],
 		addItem: (itemId: string, quantity: number) =>
 			set((state) => {
 				const currentQuantity = state.items[itemId] || 0;
@@ -97,12 +101,20 @@ export const useInventoryStore = create<InventoryStore>()(
 			items: Record<string, number>;
 			resources: Record<string, number>;
 			gold: number;
+			discoveredResources: string[];
 		}) =>
 			set(() => ({
 				size: inventory.size,
 				items: inventory.items,
 				resources: inventory.resources,
 				gold: inventory.gold,
+				discoveredResources: inventory.discoveredResources,
+			})),
+		addDiscoveredResource: (resourceId: string) =>
+			set((state) => ({
+				discoveredResources: [
+					...new Set([...state.discoveredResources, resourceId]),
+				],
 			})),
 	}))
 );

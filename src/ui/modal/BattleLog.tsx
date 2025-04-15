@@ -59,7 +59,7 @@ export default function BattleLog() {
 		return acc;
 	}, []);
 	return (
-		<div className="box-adventurer">
+		<div className="box-content">
 			<h2 className="mb-2 text-center">Battle Log</h2>
 			<div className="flex flex-row gap-2">
 				<div className="">

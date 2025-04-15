@@ -10,6 +10,7 @@ import NotificationContainer from "./ui/notification/NotificationContainer";
 import InventorySidebar from "./ui/inventory/InventorySidebar";
 import RegionSidebar from "./ui/region/RegionSidebar";
 import Status from "./ui/modal/Status";
+import Class from "./ui/modal/Class";
 import { useEffect } from "react";
 import { saveGame } from "./utils/SaveSystem";
 import { useUIStore } from "./stores/UIStore";
@@ -82,6 +83,7 @@ function App() {
 							<AreaBox />
 							{currentMenu === "combat" && <BattleLog />}
 							{currentMenu === "status" && <Status />}
+							{currentMenu === "class" && <Class />}
 						</div>
 					</div>
 					<div className="sidebar-right">

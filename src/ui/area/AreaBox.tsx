@@ -28,7 +28,7 @@ export default function AreaBox() {
 		setBattleState(!battleState);
 	};
 	return (
-		<div className={`box-area relative ${borderColor}`}>
+		<div className={`box-content flex flex-col items-center relative`}>
 			<h2>{activeArea.getName()}</h2>
 			<div className="absolute top-0 right-0 m-4 text-primary-light">
 				<button className={"w-8 h-8 rounded"} onClick={() => handleClick()}>

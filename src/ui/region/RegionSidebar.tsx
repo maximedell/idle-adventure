@@ -60,7 +60,7 @@ export default function RegionSidebar() {
 						}
 					>
 						<div className="text-sm w-full bg-primary-light text-black p-1 px-2 flex justify-between items-center">
-							<h2 className="text-black">{region.name}</h2>
+							<h3 className="text-black">{region.name}</h3>
 							<DevelopIcon
 								className={`w-4 h-4 fill-current ${
 									developedRegions[region.id] ? "rotate-180" : ""

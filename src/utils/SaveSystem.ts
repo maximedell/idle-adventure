@@ -35,12 +35,14 @@ export function saveGame() {
 		},
 		areas: {
 			monstersByArea: area.monstersByArea,
+			discoveredMonsters: area.discoveredMonsters,
 		},
 		inventory: {
 			size: inventory.size,
 			items: inventory.items,
 			resources: inventory.resources,
 			gold: inventory.gold,
+			discoveredResources: inventory.discoveredResources,
 		},
 	};
 

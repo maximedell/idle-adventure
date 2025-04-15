@@ -110,6 +110,10 @@ export const DataUtil = {
 		return classDataMap[id];
 	},
 
+	getAllClasses(): Class[] {
+		return Object.values(classDataMap);
+	},
+
 	preloadAll() {
 		this.preloadAllClasses();
 	},
