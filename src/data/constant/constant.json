@@ -1,7 +1,0 @@
-{
-	"baseManaPerIntelligence": 2,
-	"baseHealthPerLevel": 50,
-	"baseManaRegenPerIntelligence": 0.1,
-	"baseCritChancePerDex": 0.01,
-	"baseCritDamageMultiplierPerDex": 0.05
-}

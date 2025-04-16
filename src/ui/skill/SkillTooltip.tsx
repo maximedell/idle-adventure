@@ -42,7 +42,7 @@ function getCooldownDescription(
 		return `Temps de recharge: ${SkillUtil.getEffectiveCooldown(
 			skill,
 			owner.getCombatStats()
-		).toFixed(2)} secondes`;
+		)} secondes`;
 	}
 	return `Temps de recharge: ${skill.cooldown} secondes`;
 }

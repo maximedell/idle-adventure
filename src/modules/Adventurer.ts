@@ -1,23 +1,12 @@
 import { useAdventurerStore } from "../stores/AdventurerStore";
 import { AdventurerData } from "../types/adventurer";
 import { Skill } from "../types/skill";
-import {
-	LevelDependentStatKeys,
-	BaseStatDependentStatKeys,
-	CombatStats,
-	GeneralStatKeys,
-	BaseStatKeys,
-} from "../types/stats";
-import { useInventoryStore } from "../stores/InventoryStore";
+import { CombatStats, BaseStatKeys } from "../types/stats";
 import { DataUtil } from "../utils/DataUtil";
-import { ClassUtil } from "../utils/ClassUtil";
 import { Class } from "../types/class";
-import {
-	PER_LEVEL_CONSTANTS,
-	XP_CONSTANTS,
-	BASE_STATS_CONSTANTS,
-	BASE_STAT_DEPENDENT_CONSTANTS,
-} from "../data/constant";
+import { PER_LEVEL_CONSTANTS, XP_CONSTANTS } from "../data/constant";
+import { StatUtil } from "../utils/StatUtil";
+import { MathUtil } from "../utils/MathUtil";
 export class Adventurer {
 	private skills: Skill[] = [];
 
@@ -61,7 +50,7 @@ export class Adventurer {
 				state.addActiveSkill(skill.id);
 			}
 		}
-		const combatStats = instance.calculateCombatStats(data.level);
+		const combatStats = StatUtil.calculateCombatStats(data.level);
 		state.setCombatStats(combatStats);
 		console.log("Adventurer created");
 		return instance;
@@ -141,7 +130,7 @@ export class Adventurer {
 			state.addTalentPoints(PER_LEVEL_CONSTANTS.talentPoints);
 		}
 		state = useAdventurerStore.getState();
-		const combatStats = this.calculateCombatStats(state.level);
+		const combatStats = StatUtil.calculateCombatStats(state.level);
 		state.setCombatStats(combatStats);
 
 		state.setCurrentHealth(combatStats.maxHealth);
@@ -164,226 +153,6 @@ export class Adventurer {
 		useAdventurerStore.getState().setCombatStats(combatStats);
 	}
 
-	// stats calculations
-
-	calculateCombatStats(level: number = this.getLevel()): CombatStats {
-		const strength = this.calculateBaseStat("strength");
-		const dexterity = this.calculateBaseStat("dexterity");
-		const intelligence = this.calculateBaseStat("intelligence");
-
-		return {
-			level: level,
-			dexterity: dexterity,
-			strength: strength,
-			intelligence: intelligence,
-			maxHealth: this.calculateMaxHealth(),
-			maxMana: this.calculateMaxMana(intelligence),
-			manaRegen: this.calculateManaRegen(intelligence),
-			armor: this.calculateArmor(strength),
-			magicResist: this.calculateMagicResist(intelligence),
-			criticalChance: this.calculateCriticalChance(dexterity),
-			criticalDamageMultiplier:
-				this.calculateCriticalDamageMultiplier(dexterity),
-			damageMultiplierPhysical: this.calculateGeneralStat(
-				"damageMultiplierPhysical"
-			),
-			damageMultiplierMagical: this.calculateGeneralStat(
-				"damageMultiplierMagical"
-			),
-			defenseMultiplierPhysical: this.calculateGeneralStat(
-				"defenseMultiplierPhysical"
-			),
-			defenseMultiplierMagical: this.calculateGeneralStat(
-				"defenseMultiplierMagical"
-			),
-			cooldownReduction: this.calculateGeneralStat("cooldownReduction"),
-		};
-	}
-
-	calculateBaseStats(stat: BaseStatKeys): number {
-		return this.calculateBaseStat(stat);
-	}
-	calculateBaseStat(key: BaseStatKeys): number {
-		const level = this.getLevel();
-		let multiplier = 0;
-		// Add the amount increase per level
-		multiplier += this.calculateLevelDependentStat(key);
-		multiplier += PER_LEVEL_CONSTANTS.baseStat;
-		// Multiply by level the total amount per level
-		let statValue = (level - 1) * multiplier;
-
-		// Add from different sources
-		statValue += this.getBaseStatFromPoints(key);
-		statValue += this.calculateTalentStatFromClasses(key);
-		// TODO : add calculateEquipmentStat
-		// TODO : add calculatePassiveStat
-		return statValue;
-	}
-
-	calculateLevelDependentStat(stat: LevelDependentStatKeys): number {
-		let statValue = 0;
-		const classIds = useAdventurerStore.getState().classIds;
-		for (const classId of classIds) {
-			statValue += ClassUtil.getStatOnLevelUpFromClassId(stat, classId);
-		}
-		return statValue;
-	}
-	calculateTalentStatFromClasses(stat: keyof CombatStats): number {
-		let statValue = 0;
-		const classIds = useAdventurerStore.getState().classIds;
-		for (const classId of classIds) {
-			statValue += ClassUtil.getStatFromClassId(stat, classId);
-		}
-		return statValue;
-	}
-
-	calculateBaseStatDependentStatFromClasses(
-		baseStat: BaseStatKeys,
-		stat: BaseStatDependentStatKeys
-	): number {
-		let statValue = 0;
-		const classIds = useAdventurerStore.getState().classIds;
-		for (const classId of classIds) {
-			statValue += ClassUtil.getBaseStatDependentStatFromClassId(
-				baseStat,
-				stat,
-				classId
-			);
-		}
-		return statValue;
-	}
-
-	calculateMaxHealth(): number {
-		const level = this.getLevel();
-		let multiplier = 0;
-		// Add the amount increase per level
-		multiplier += PER_LEVEL_CONSTANTS.health;
-		multiplier += this.calculateLevelDependentStat("maxHealth");
-		// Multiply by level the total amount per level
-		let statValue = (level - 1) * multiplier;
-
-		// Add from different sources
-		statValue += BASE_STATS_CONSTANTS.maxHealth;
-		statValue += this.calculateTalentStatFromClasses("maxHealth");
-		// TODO : add calculateEquipmentStat
-		// TODO : add calculatePassiveStat
-
-		return Math.max(0, statValue);
-	}
-
-	calculateMaxMana(intelligence: number): number {
-		let multiplier = 0;
-		// Add the amount increase per intelligence
-		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.maxMana;
-		multiplier += this.calculateBaseStatDependentStatFromClasses(
-			"intelligence",
-			"maxMana"
-		);
-		// Multiply by intelligence the total amount per intelligence
-		let statValue = intelligence * multiplier;
-		// Add from different sources
-		statValue += BASE_STATS_CONSTANTS.maxMana;
-		statValue += this.calculateTalentStatFromClasses("maxMana");
-		// TODO : add calculateEquipmentStat
-		// TODO : add calculatePassiveStat
-		return Math.max(0, statValue);
-	}
-
-	calculateManaRegen(intelligence: number): number {
-		let multiplier = 0;
-		// Add the amount increase per intelligence
-		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.manaRegen;
-		multiplier += this.calculateBaseStatDependentStatFromClasses(
-			"intelligence",
-			"manaRegen"
-		);
-		// Multiply by intelligence the total amount per intelligence
-		let statValue = intelligence * multiplier;
-
-		// Add from different sources
-		statValue += BASE_STATS_CONSTANTS.manaRegen;
-		statValue += this.calculateTalentStatFromClasses("manaRegen");
-		// TODO: add calculateEquipmentStat
-		// TODO: add calculatePassiveStat
-		return Math.max(0, statValue);
-	}
-
-	calculateArmor(strength: number): number {
-		let multiplier = 0;
-		// Add the amount increase per strength
-		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.armor;
-		multiplier += this.calculateBaseStatDependentStatFromClasses(
-			"strength",
-			"armor"
-		);
-		// Multiply by strength the total amount per strength
-		let statValue = strength * multiplier;
-
-		// Add from different sources
-		statValue += this.calculateTalentStatFromClasses("armor");
-		// TODO : add calculateEquipmentStat
-		// TODO : add calculatePassiveStat
-		return Math.max(0, statValue);
-	}
-
-	calculateMagicResist(intelligence: number): number {
-		let multiplier = 0;
-		// Add the amount increase per intelligence
-		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.magicResist;
-		multiplier += this.calculateBaseStatDependentStatFromClasses(
-			"intelligence",
-			"magicResist"
-		);
-		// Multiply by intelligence the total amount per intelligence
-		let statValue = intelligence * multiplier;
-		// Add from different sources
-		statValue += this.calculateTalentStatFromClasses("magicResist");
-		// TODO : add calculateEquipmentStat
-		// TODO : add calculatePassiveStat
-		return Math.max(0, statValue);
-	}
-	calculateCriticalChance(dexterity: number): number {
-		let multiplier = 0;
-		// Add the amount increase per dexterity
-		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.criticalChance;
-		multiplier += this.calculateBaseStatDependentStatFromClasses(
-			"dexterity",
-			"criticalChance"
-		);
-		// Multiply by dexterity the total amount per dexterity
-		let statValue = dexterity * multiplier;
-		// Add from different sources
-		statValue += this.calculateTalentStatFromClasses("criticalChance");
-		// TODO : add calculateEquipmentStat
-		// TODO : add calculatePassiveStat
-		return Math.max(0, statValue);
-	}
-	calculateCriticalDamageMultiplier(dexterity: number): number {
-		let multiplier = 0;
-		// Add the amount increase per dexterity
-		multiplier += BASE_STAT_DEPENDENT_CONSTANTS.criticalDamageMultiplier;
-		multiplier += this.calculateBaseStatDependentStatFromClasses(
-			"dexterity",
-			"criticalDamageMultiplier"
-		);
-		// Multiply by dexterity the total amount per dexterity
-		let statValue = dexterity * multiplier;
-		// Add from different sources
-		statValue += this.calculateTalentStatFromClasses(
-			"criticalDamageMultiplier"
-		);
-		// TODO : add calculateEquipmentStat
-		// TODO : add calculatePassiveStat
-		return Math.max(0, statValue);
-	}
-	calculateGeneralStat(stat: GeneralStatKeys): number {
-		let statValue = 0;
-		statValue += this.calculateTalentStatFromClasses(stat);
-		// TODO : add calculateEquipmentStat
-		// TODO : add calculatePassiveStat
-		return Math.max(1, statValue);
-	}
-
 	isAlive(): boolean {
 		return this.getCurrentHealth() > 0;
 	}
@@ -399,7 +168,7 @@ export class Adventurer {
 			if (currentMana + newMana > maxMana) {
 				useAdventurerStore.getState().regenMana(maxMana - currentMana);
 			} else {
-				useAdventurerStore.getState().regenMana(Math.floor(newMana * 10) / 10);
+				useAdventurerStore.getState().regenMana(MathUtil.floorTo(newMana, 1));
 			}
 			useAdventurerStore.getState().setManaBuffer(0);
 		} else {
@@ -498,39 +267,5 @@ export class Adventurer {
 		} else {
 			state.gainExperience(amount);
 		}
-	}
-
-	addResourcesToInventory(
-		resources: Record<string, number>
-	): Record<string, number> {
-		let state = useInventoryStore.getState();
-		const inventoryResources = state.resources;
-		const inventorySizeMax = state.size;
-		const inventorySize = Object.keys(inventoryResources).reduce(
-			(acc, key) => acc + inventoryResources[key],
-			0
-		);
-		const newResources: Record<string, number> = {};
-		let currentSize = inventorySize;
-		for (const resourceId in resources) {
-			state = useInventoryStore.getState();
-			if (currentSize >= inventorySizeMax) break;
-			const quantity = resources[resourceId];
-			if (quantity <= 0) continue;
-			if (!state.discoveredResources.includes(resourceId))
-				state.addDiscoveredResource(resourceId);
-			if (currentSize + quantity <= inventorySizeMax) {
-				newResources[resourceId] = quantity;
-				currentSize += quantity;
-			} else {
-				newResources[resourceId] = inventorySizeMax - currentSize;
-				currentSize = inventorySizeMax;
-			}
-		}
-		for (const resourceId in newResources) {
-			const quantity = newResources[resourceId];
-			state.addResource(resourceId, quantity);
-		}
-		return newResources;
 	}
 }

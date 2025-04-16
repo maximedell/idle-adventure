@@ -1,6 +1,10 @@
 Shop System
 Craft System
-Deat & Destiny System
+Equipment System
+Death & Destiny System
 Upgrade Item System
 Enchant Item System
 Quest System
+
+-> Finally
+ADD CONTENT

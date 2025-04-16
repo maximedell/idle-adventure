@@ -1,38 +1,19 @@
 import {
 	useActiveArea,
-	useUnlockedRegions,
+	useUnlockedRegionIds,
 } from "../../selectors/GameSelector";
-import { DataUtil } from "../../utils/DataUtil";
+import { useUnlockedRegions } from "../../hooks/useUnlockedRegions";
 import DevelopIcon from "../../icons/shared/develop.svg?react";
 import RegionArea from "./RegionArea";
 import { useEffect, useState } from "react";
-import { Region } from "../../types/region";
-import LoadingSpinner from "../shared/LoadingSpinner";
 export default function RegionSidebar() {
-	const unlockedRegions = useUnlockedRegions();
-	const [regions, setRegions] = useState<Region[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
+	const unlockedRegions = useUnlockedRegionIds();
+	const regions = useUnlockedRegions(unlockedRegions);
 	const [developedRegions, setDevelopedRegions] = useState<
 		Record<string, boolean>
 	>({});
 	const activeAreaId = useActiveArea()?.getId();
 
-	useEffect(() => {
-		const fetchRegions = async () => {
-			const regionsData = await Promise.all(
-				Object.keys(unlockedRegions).map(async (regionId) => {
-					const region = await DataUtil.getRegionById(regionId);
-					if (!region) {
-						throw new Error(`Region with id ${regionId} not found`);
-					}
-					return region;
-				})
-			);
-			setRegions(regionsData);
-			setIsLoading(false);
-		};
-		fetchRegions();
-	}, [unlockedRegions]);
 	useEffect(() => {
 		const initialDevelopedRegions = regions.reduce((acc, region) => {
 			acc[region.id] = false;
@@ -42,7 +23,6 @@ export default function RegionSidebar() {
 	}, [regions]);
 	if (!activeAreaId) return null;
 	if (!unlockedRegions) return null;
-	if (isLoading || !activeAreaId) return <LoadingSpinner />;
 
 	return (
 		<div>

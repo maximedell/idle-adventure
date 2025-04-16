@@ -1,3 +1,5 @@
+import { MathUtil } from "../../utils/MathUtil";
+
 interface StatBarProps {
 	stat: number;
 	maxStat: number;
@@ -15,7 +17,7 @@ export default function StatBar({ stat, maxStat, color }: StatBarProps) {
 	return (
 		<div className="container-bar ">
 			<p className="text-bar">
-				{Math.floor(stat * 10) / 10}/{maxStat}
+				{MathUtil.floorTo(stat, 1)}/{maxStat}
 			</p>
 			<div
 				className={`${barColor} rounded h-full transition-all duration-300 ease-in-out`}

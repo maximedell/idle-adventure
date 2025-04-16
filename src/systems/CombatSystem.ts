@@ -1,4 +1,3 @@
-import { Adventurer } from "../modules/Adventurer";
 import { Monster } from "../modules/Monster";
 import { useGameStore } from "../stores/GameStore";
 import { useMonsterStore } from "../stores/MonsterStore";
@@ -68,7 +67,7 @@ function handleCombatTick() {
 
 	// Gérer fin de combat
 	if (aliveEnemies.length === 0) {
-		endCombatWithVictory(player, enemies);
+		endCombatWithVictory(enemies);
 	} else {
 		for (const enemy of aliveEnemies) {
 			const enemySkill = enemy.getAvailableSkill();
@@ -111,23 +110,23 @@ function handleCombatTick() {
 }
 
 function getActualCritMultiplier(stats: CombatStats): number {
-	let critChance = SkillUtil.getCriticalChance(stats);
+	let critChance = stats.criticalChance;
 	let critMultiplier = 1;
 	while (critChance > 0) {
 		if (Math.random() < critChance) {
-			critMultiplier *= 1 + SkillUtil.getCriticalMultiplier(stats);
+			critMultiplier *= 1 + stats.criticalDamageMultiplier;
 		}
 		critChance -= 1;
 	}
 	return critMultiplier;
 }
 
-function endCombatWithVictory(adventurer: Adventurer, enemies: Monster[]) {
+function endCombatWithVictory(enemies: Monster[]) {
 	useGameStore
 		.getState()
 		.addBattleLog("L'aventurier a vaincu tous les ennemis !", "success");
 	useMonsterStore.getState().setRespawnMonsters(true);
-	RewardSystem.applyRewardDrops(adventurer, enemies);
+	RewardSystem.applyRewardDrops(enemies);
 	useGameStore.getState().setInCombat(false);
 	return;
 	// Gérer les gains (xp, ressources...) ici

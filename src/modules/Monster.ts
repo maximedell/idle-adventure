@@ -3,6 +3,8 @@ import { Skill } from "../types/skill";
 import { CombatStats } from "../types/stats";
 import { useMonsterStore } from "../stores/MonsterStore";
 import { DataUtil } from "../utils/DataUtil";
+import { MathUtil } from "../utils/MathUtil";
+import { StatUtil } from "../utils/StatUtil";
 
 export class Monster {
 	private data: MonsterData;
@@ -39,7 +41,8 @@ export class Monster {
 			uid,
 			instance.recordSkills,
 			instance.stats.maxHealth,
-			instance.stats.maxMana
+			instance.stats.maxMana,
+			StatUtil.calculateMonsterCombatStats(data.stats)
 		);
 		state.setManaBuffer(uid, 0);
 		state.setReviveBuffer(uid, 0);
@@ -67,7 +70,7 @@ export class Monster {
 		return this.level;
 	}
 	getCombatStats(): CombatStats {
-		return this.data.stats;
+		return useMonsterStore.getState().monstersCombatStats[this.uid];
 	}
 	getCurrentHealth() {
 		return useMonsterStore.getState().health[this.uid];
@@ -100,7 +103,9 @@ export class Monster {
 			if (currentMana + newMana > maxMana) {
 				useMonsterStore.getState().regenMana(this.uid, maxMana - currentMana);
 			} else {
-				useMonsterStore.getState().regenMana(this.uid, Math.floor(newMana));
+				useMonsterStore
+					.getState()
+					.regenMana(this.uid, MathUtil.floorTo(newMana, 1));
 			}
 			useMonsterStore.getState().setManaBuffer(this.uid, 0);
 		} else {
@@ -150,9 +155,9 @@ export class Monster {
 		useMonsterStore.getState().setGcd(this.uid, value);
 	}
 	applySkill(skill: Skill) {
+		this.setGcd(1);
 		this.useMana(skill.manaCost);
 		this.setCooldown(skill.id, skill.cooldown);
-		this.setGcd(1);
 	}
 
 	getData(): MonsterData {

@@ -6,7 +6,7 @@ import villageAlleys from "../data/areas/village-alleys.json";
 import { Adventurer } from "../modules/Adventurer";
 import { Area } from "../modules/Area";
 import { DataUtil } from "../utils/DataUtil";
-import { loadGame } from "../utils/SaveSystem";
+import { loadGame } from "../systems/SaveSystem";
 import { useAreaStore } from "../stores/AreaStore";
 import { useInventoryStore } from "../stores/InventoryStore";
 import { IconUtil } from "../utils/IconUtil";

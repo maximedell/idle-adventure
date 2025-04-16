@@ -12,7 +12,7 @@ import RegionSidebar from "./ui/region/RegionSidebar";
 import Status from "./ui/modal/Status";
 import Class from "./ui/modal/Class";
 import { useEffect } from "react";
-import { saveGame } from "./utils/SaveSystem";
+import { saveGame } from "./systems/SaveSystem";
 import { useUIStore } from "./stores/UIStore";
 
 function App() {

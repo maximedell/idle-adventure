@@ -17,6 +17,8 @@ interface GameState {
 	battleState: boolean;
 	battleLog: LogEntry[];
 	inCombat: boolean;
+	unlockedFeaturesFromShop: string[];
+	purchasedShopItems: string[];
 }
 
 interface GameActions {
@@ -44,6 +46,8 @@ export const useGameStore = create<GameStore>()(
 			battleState: false,
 			battleLog: [],
 			inCombat: false,
+			unlockedFeaturesFromShop: [],
+			purchasedShopItems: [],
 
 			initStore: (adventurer, area, unlockedRegions) =>
 				set(() => ({

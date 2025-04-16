@@ -4,6 +4,8 @@ import { Resource } from "../types/resource";
 import { AreaData } from "../types/area";
 import { Region } from "../types/region";
 import { Class } from "../types/class";
+import { ShopItem } from "../types/shopItem";
+import { preload } from "react-dom";
 
 const monsterModules = import.meta.glob("../data/monsters/*.json", {
 	import: "default",
@@ -31,6 +33,8 @@ const regionModules = import.meta.glob("../data/regions/*.json", {
 const regionCache: Record<string, Region> = {};
 
 const classDataMap: Record<string, Class> = {};
+
+const shopItemDataMap: Record<string, ShopItem> = {};
 
 export const DataUtil = {
 	async getMonsterById(id: string): Promise<MonsterData> {
@@ -106,6 +110,17 @@ export const DataUtil = {
 		}
 	},
 
+	async preloadAllShopItems(): Promise<void> {
+		const modules = import.meta.glob("../data/shop/*.json", {
+			eager: true,
+			import: "default",
+		}) as Record<string, ShopItem>;
+		for (const [path, data] of Object.entries(modules)) {
+			const id = path.split("/").pop()?.split(".")[0] || "";
+			shopItemDataMap[id] = data;
+		}
+	},
+
 	getClassById(id: string): Class {
 		return classDataMap[id];
 	},
@@ -114,7 +129,16 @@ export const DataUtil = {
 		return Object.values(classDataMap);
 	},
 
+	getShopItemById(id: string): ShopItem {
+		return shopItemDataMap[id];
+	},
+
+	getAllShopItems(): ShopItem[] {
+		return Object.values(shopItemDataMap);
+	},
+
 	preloadAll() {
 		this.preloadAllClasses();
+		this.preloadAllShopItems();
 	},
 };

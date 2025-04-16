@@ -29,7 +29,7 @@ export const ClassUtil = {
 		return statValue;
 	},
 
-	getStatOnLevelUpFromClassId(
+	getPerLevelDependentStatsFromClassId(
 		stat: LevelDependentStatKeys,
 		classId: string
 	): number {
@@ -48,7 +48,7 @@ export const ClassUtil = {
 		return statValue;
 	},
 
-	getBaseStatDependentStatFromClassId(
+	getPerStatDependentStatFromClassId(
 		baseStat: BaseStatKeys,
 		combatStat: BaseStatDependentStatKeys,
 		classId: string

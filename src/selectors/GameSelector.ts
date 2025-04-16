@@ -16,10 +16,18 @@ export const useBattleLog = () => {
 	return useGameStore((state) => state.battleLog);
 };
 
-export const useUnlockedRegions = () => {
+export const useUnlockedRegionIds = () => {
 	return useGameStore((state) => state.unlockedRegions);
 };
 
 export const useUnlockedAreas = (regionId: string) => {
 	return useGameStore((state) => state.unlockedRegions);
+};
+
+export const usePurchasedShopItems = () => {
+	return useGameStore((state) => state.purchasedShopItems);
+};
+
+export const useUnlockedFeaturesFromShop = () => {
+	return useGameStore((state) => state.unlockedFeaturesFromShop);
 };

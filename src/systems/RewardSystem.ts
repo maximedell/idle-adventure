@@ -3,6 +3,7 @@ import { Monster } from "../modules/Monster";
 import { ResourceDropData } from "../types/monster";
 import { useGameStore } from "../stores/GameStore";
 import { DataUtil } from "../utils/DataUtil";
+import { useInventoryStore } from "../stores/InventoryStore";
 export const RewardSystem = {
 	/**
 	 * Calculates and apply the rewarded experience for defeating a monster.
@@ -26,7 +27,7 @@ export const RewardSystem = {
 			);
 	},
 
-	async applyRewardDrops(adventurer: Adventurer, monsters: Monster[]) {
+	async applyRewardDrops(monsters: Monster[]) {
 		const state = useGameStore.getState();
 		let resources: Record<string, number> = {};
 		let gold = 0;
@@ -47,7 +48,7 @@ export const RewardSystem = {
 			}
 			gold += Math.max(0, Math.floor(Math.random() * monsterData.rewards.gold));
 		}
-		const newResources = adventurer.addResourcesToInventory(resources);
+		const newResources = this.addResourcesToInventory(resources);
 		let leftoverResources: Record<string, number> = {};
 		for (const resourceId in resources) {
 			if (!newResources[resourceId]) {
@@ -137,5 +138,39 @@ export const RewardSystem = {
 			amount = Math.max(1, Math.floor(Math.random() * quantity));
 		}
 		return amount;
+	},
+
+	addResourcesToInventory(
+		resources: Record<string, number>
+	): Record<string, number> {
+		let state = useInventoryStore.getState();
+		const inventoryResources = state.resources;
+		const inventorySizeMax = state.size;
+		const inventorySize = Object.keys(inventoryResources).reduce(
+			(acc, key) => acc + inventoryResources[key],
+			0
+		);
+		const newResources: Record<string, number> = {};
+		let currentSize = inventorySize;
+		for (const resourceId in resources) {
+			state = useInventoryStore.getState();
+			if (currentSize >= inventorySizeMax) break;
+			const quantity = resources[resourceId];
+			if (quantity <= 0) continue;
+			if (!state.discoveredResources.includes(resourceId))
+				state.addDiscoveredResource(resourceId);
+			if (currentSize + quantity <= inventorySizeMax) {
+				newResources[resourceId] = quantity;
+				currentSize += quantity;
+			} else {
+				newResources[resourceId] = inventorySizeMax - currentSize;
+				currentSize = inventorySizeMax;
+			}
+		}
+		for (const resourceId in newResources) {
+			const quantity = newResources[resourceId];
+			state.addResource(resourceId, quantity);
+		}
+		return newResources;
 	},
 };

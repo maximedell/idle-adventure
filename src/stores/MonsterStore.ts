@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
+import { CombatStats } from "../types/stats";
 
 interface MonsterState {
 	mana: Record<string, number>;
@@ -9,6 +10,7 @@ interface MonsterState {
 	reviveBuffer: Record<string, number>;
 	gcd: Record<string, number>;
 	respawnMonsters: boolean;
+	monstersCombatStats: Record<string, CombatStats>;
 }
 
 interface MonsterActions {
@@ -17,7 +19,8 @@ interface MonsterActions {
 		uid: string,
 		recordSkills: Record<string, number>,
 		health: number,
-		mana: number
+		mana: number,
+		combatStats?: CombatStats
 	) => void; // Initialize cooldowns for a specific monster
 	initMana: (uid: string, mana: number) => void;
 	initHealth: (uid: string, health: number) => void;
@@ -44,6 +47,7 @@ export const useMonsterStore = create<MonsterStore>()(
 			reviveBuffer: {},
 			gcd: {},
 			respawnMonsters: false,
+			monstersCombatStats: {},
 			setManaBuffer: (uid: string, value: number) =>
 				set((state) => ({
 					manaBuffer: {
@@ -57,7 +61,7 @@ export const useMonsterStore = create<MonsterStore>()(
 					mana: {},
 					health: {},
 				})),
-			initMonster: (ui, recordSkills, health, mana) =>
+			initMonster: (ui, recordSkills, health, mana, combatStat?) =>
 				set((state) => ({
 					cooldowns: {
 						...state.cooldowns,
@@ -78,6 +82,10 @@ export const useMonsterStore = create<MonsterStore>()(
 					reviveBuffer: {
 						...state.reviveBuffer,
 						[ui]: 0,
+					},
+					monstersCombatStats: {
+						...state.monstersCombatStats,
+						[ui]: combatStat ?? state.monstersCombatStats[ui],
 					},
 				})),
 			initMana: (uid, mana) =>

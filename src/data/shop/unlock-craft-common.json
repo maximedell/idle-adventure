@@ -1,0 +1,12 @@
+{
+	"id": "unlock-craft-common",
+	"name": "Petit atelier",
+	"description": "Débloque la possibilité de fabriquer des objets communs.",
+	"cost": 40,
+	"effects": [
+		{
+			"type": "unlockFeature",
+			"featureId": "craf_common"
+		}
+	]
+}

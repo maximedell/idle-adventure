@@ -1,0 +1,12 @@
+{
+	"id": "increase-inventory-0",
+	"name": "Sacoche de voyage",
+	"description": "Augmente la capacité d'inventaire de 10 emplacements.",
+	"cost": 30,
+	"effects": [
+		{
+			"type": "increaseInventorySize",
+			"value": 10
+		}
+	]
+}

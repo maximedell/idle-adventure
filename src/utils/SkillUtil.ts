@@ -1,10 +1,11 @@
 import { SkillEffect, Skill } from "../types/skill";
 import { CombatStats } from "../types/stats";
+import { MathUtil } from "./MathUtil";
 
 export const SkillUtil = {
 	getEffectiveCooldown(skill: Skill, stats: CombatStats): number {
 		const cooldown = skill.cooldown / stats.cooldownReduction;
-		return Math.floor(cooldown * 10) / 10;
+		return MathUtil.floorTo(cooldown, 1);
 	},
 
 	getEffectiveDamageToTarget(
@@ -19,39 +20,27 @@ export const SkillUtil = {
 		effectiveDamage *= critMultiplier;
 
 		if (effect.damageType === "physical") {
-			defenseMultiplier =
-				target.defenseMultiplierPhysical * (1 + target.strength / 100);
+			defenseMultiplier = target.defenseMultiplierPhysical;
 			defenseFlat = target.armor;
 		} else {
-			defenseMultiplier =
-				target.defenseMultiplierMagical * (1 + target.intelligence / 100);
+			defenseMultiplier = target.defenseMultiplierMagical;
 			defenseFlat = target.magicResist;
 		}
 		let damage = (effectiveDamage - defenseFlat) * (1 / defenseMultiplier);
-		damage = Math.floor(damage * 10) / 10;
+		damage = MathUtil.floorTo(damage, 1);
 		return Math.max(damage, 0);
 	},
 
 	getEffectiveDamage(effect: SkillEffect, attacker: CombatStats): number {
 		let damage = 0;
 		if (effect.damageType === "physical") {
-			const damageMultiplier =
-				attacker.damageMultiplierPhysical * (1 + attacker.strength / 100);
+			const damageMultiplier = attacker.damageMultiplierPhysical;
 			damage += effect.value * damageMultiplier;
 		} else if (effect.damageType === "magical") {
-			const damageMultiplier =
-				attacker.damageMultiplierMagical * (1 + attacker.intelligence / 100);
+			const damageMultiplier = attacker.damageMultiplierMagical;
 			damage += effect.value * damageMultiplier;
 		}
-		damage = Math.floor(damage * 10) / 10;
+		damage = MathUtil.floorTo(damage, 1);
 		return Math.max(damage, 0);
-	},
-
-	getCriticalChance(stats: CombatStats): number {
-		return stats.dexterity * 0.01 + stats.criticalChance;
-	},
-
-	getCriticalMultiplier(stats: CombatStats): number {
-		return stats.criticalDamageMultiplier + stats.dexterity * 0.05;
 	},
 };
