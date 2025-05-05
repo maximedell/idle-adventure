@@ -3,5 +3,5 @@
 }
 
 .class {
-	@apply flex flex-col h-full justify-between;
+	@apply flex flex-col h-full gap-2;
 }

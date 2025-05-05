@@ -4,28 +4,25 @@
 
 @layer base {
 	html {
-		@apply bg-primary-dark min-h-screen h-full;
+		@apply bg-primary-dark;
 	}
 	body {
 		@apply h-full;
-	}
-	main {
-		@apply flex flex-row w-full h-full justify-between border-x border-primary;
 	}
 	h1 {
 		@apply text-2xl font-bold;
 	}
 	h2 {
-		@apply text-xl font-bold text-primary-light;
+		@apply text-xl font-bold text-primary-light text-center;
 	}
 	h3 {
 		@apply text-sm text-primary-light;
 	}
 	li {
-		@apply text-base font-bold text-primary-light;
+		@apply text-base font-bold pl-2 text-primary-light;
 	}
 	ul {
-		@apply list-none pl-4;
+		@apply list-none pl-2 list-inside gap-2;
 	}
 	a {
 		@apply text-primary-light underline;
@@ -51,54 +48,45 @@
 
 @layer components {
 	#root {
-		@apply bg-primary-dark min-h-screen h-full;
+		@apply bg-primary-dark  min-h-screen h-full;
 	}
-	.App {
-		@apply h-full flex flex-col items-center mx-auto max-w-7xl text-primary-light;
-	}
-	.App-header {
-		@apply text-white w-full h-12 flex justify-between items-center border-b border-accent shadow-md;
-	}
-	.logo-l {
-		@apply h-full;
-	}
-	.logo-r {
-		@apply h-full;
-	}
+
 	.navbar-button {
 		@apply text-primary-dark bg-primary-light p-1 font-bold w-1/6 hover:bg-primary-dark hover:text-primary-light;
 	}
 	.title {
 		@apply text-2xl font-bold text-center text-accent;
 	}
-	.container-main {
-		@apply flex flex-col w-full;
-	}
-	.sidebar-left {
-		@apply w-1/5 p-2 mr-8;
-	}
-	.content-main {
-		@apply flex flex-col items-center justify-center mt-4 h-fit w-full mx-auto;
-	}
-	.sidebar-right {
-		@apply w-1/5 p-0 ml-8;
-	}
 	.btn {
-		@apply inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+		@apply cursor-pointer inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-dark bg-primary-light hover:bg-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark;
+	}
+	.btn-disabled {
+		@apply inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium bg-primary-light text-red-700;
 	}
 	.box-content {
-		@apply bg-primary-dark shadow-md border-primary border rounded-lg p-4 mb-4 w-full;
+		@apply bg-primary-dark p-4 mb-4 w-full;
+	}
+	.name {
+		@apply text-primary-light text-base font-semibold;
 	}
 
-	.box-monster {
-		@apply bg-primary-dark shadow-md border-accent border rounded-lg p-3 w-full h-full;
+	.description {
+		@apply text-primary-light ml-2 text-sm font-normal;
 	}
-
-	.container-bar {
-		@apply bg-primary-light flex w-full h-4 rounded relative mt-2;
+	.tooltip-container {
+		@apply flex flex-col;
 	}
-	.text-bar {
-		@apply text-primary-dark absolute left-1/2 -translate-x-1/2  text-xs font-bold;
+	.list-title {
+		@apply text-primary-light text-base font-semibold;
+	}
+	.list-name {
+		@apply text-primary text-sm font-semibold;
+	}
+	.list-description {
+		@apply text-primary-light text-sm font-bold pl-2;
+	}
+	.list-category {
+		@apply border border-primary rounded-sm p-2;
 	}
 }
 

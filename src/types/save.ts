@@ -3,7 +3,8 @@ export type SaveData = {
 	timestamp: number;
 	game: {
 		unlockedRegions: Record<string, string[]>;
-		activeArea: string | null;
+		unlockedFeaturesFromShop: string[];
+		purchasedShopItems: string[];
 	};
 	adventurer: {
 		strength: number;
@@ -21,8 +22,10 @@ export type SaveData = {
 		unlockedTalentIds: string[];
 	};
 	areas: {
+		activeAreaId: string | null;
 		monstersByArea: Record<string, string[]>;
 		discoveredMonsters: string[];
+		monsterMaxPerArea: Record<string, number>;
 	};
 	inventory: {
 		size: number;
@@ -30,5 +33,6 @@ export type SaveData = {
 		resources: Record<string, number>;
 		gold: number;
 		discoveredResources: string[];
+		maxGold: number;
 	};
 };

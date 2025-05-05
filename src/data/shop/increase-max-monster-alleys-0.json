@@ -1,0 +1,13 @@
+{
+	"id": "increase-max-monster-alleys-0",
+	"name": "Vieille carte du village",
+	"description": "Une vieille carte du village, qui indique l'emplacement de plusieurs ruelles. Permet de trouver un monstre supplémentaire",
+	"cost": 20,
+	"effects": [
+		{
+			"type": "increaseMonsterMaxPerArea",
+			"value": 1,
+			"areaId": "village-alleys"
+		}
+	]
+}

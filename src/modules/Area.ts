@@ -2,6 +2,7 @@ import { AreaData } from "../types/area";
 import { useAreaStore } from "../stores/AreaStore";
 import { Monster } from "./Monster";
 import { DataUtil } from "../utils/DataUtil";
+import { useGameStore } from "../stores/GameStore";
 
 export class Area {
 	private data: AreaData = {} as AreaData;
@@ -34,8 +35,25 @@ export class Area {
 			instance.monsters.push(newMonster);
 			counter++;
 		}
+		state.setActiveAreaId(data.id);
+		useGameStore.setState({ area: instance });
 		console.log("Area created", data.id);
 		return instance;
+	}
+
+	addArea() {
+		const state = useAreaStore.getState();
+		if (this.data.isBossArea) {
+			state.addArea(this.data.id, this.data.monsterIds[0]);
+		} else {
+			state.addArea(this.data.id, this.data.monsterIds[0] + "0");
+		}
+		if (state.discoveredMonsters.includes(this.data.monsterIds[0])) {
+			state.addDiscoveredMonster(this.data.monsterIds[0]);
+		}
+		if (!state.monsterMaxPerArea[this.data.id]) {
+			state.setMonsterMaxPerArea(this.data.id, this.data.size);
+		}
 	}
 
 	getId() {
@@ -45,23 +63,23 @@ export class Area {
 	getName() {
 		return this.data.name;
 	}
-	getSize() {
-		return this.data.size;
+	getMaxMonster() {
+		return useAreaStore.getState().monsterMaxPerArea[this.data.id];
 	}
 	getMonsters() {
 		return this.monsters;
 	}
 	async addMonster() {
-		const monsterIds = useAreaStore.getState().monstersByArea[this.data.id];
-		const monsterId =
-			this.data.monsterIds[monsterIds.length % this.data.monsterIds.length];
 		const state = useAreaStore.getState();
-		if (monsterIds.length < this.data.size) {
+		const monsterUids = state.monstersByArea[this.data.id];
+		const monsterId =
+			this.data.monsterIds[monsterUids.length % this.data.monsterIds.length];
+		if (monsterUids.length < state.monsterMaxPerArea[this.data.id]) {
 			const monsterData = await DataUtil.getMonsterById(monsterId);
 			this.monsters.push(
-				await Monster.create(monsterData, monsterId + monsterIds.length)
+				await Monster.create(monsterData, monsterId + monsterUids.length)
 			);
-			state.addMonsterToArea(this.data.id, monsterId + monsterIds.length);
+			state.addMonsterToArea(this.data.id, monsterId + monsterUids.length);
 		}
 		if (!state.discoveredMonsters.includes(monsterId)) {
 			state.addDiscoveredMonster(monsterId);

@@ -10,9 +10,7 @@ export class Monster {
 	private data: MonsterData;
 	private uid: string;
 	private skills: Skill[] = [];
-	private level: number = 1;
 	private stats: CombatStats = {} as CombatStats;
-	private recordSkills: Record<string, number> = {};
 
 	constructor(data: MonsterData, uid: string) {
 		this.uid = uid;
@@ -22,8 +20,18 @@ export class Monster {
 		const instance = new Monster(data, uid);
 		const state = useMonsterStore.getState();
 		instance.data = { ...data };
-		instance.skills = await Promise.all(
-			data.activeSkillIds.map(async (skillId) => {
+		instance.skills = await instance.getSkillsData();
+		instance.uid = uid;
+		instance.stats = StatUtil.calculateMonsterCombatStats(data.stats);
+		instance.initMonster();
+		state.setManaBuffer(uid, 0);
+		state.setReviveBuffer(uid, 0);
+		console.log("Monster created", uid);
+		return instance;
+	}
+	async getSkillsData(): Promise<Skill[]> {
+		return await Promise.all(
+			this.data.activeSkillIds.map(async (skillId) => {
 				const skill = await DataUtil.getSkillById(skillId);
 				if (!skill) {
 					throw new Error(`Skill with id ${skillId} not found`);
@@ -31,27 +39,26 @@ export class Monster {
 				return skill;
 			})
 		);
-		instance.stats = data.stats;
-		instance.level = data.level;
-		instance.recordSkills = instance.skills.reduce((acc, skill) => {
+	}
+	getInitialCooldowns(): Record<string, number> {
+		return this.skills.reduce((acc, skill) => {
 			acc[skill.id] = 0;
 			return acc;
 		}, {} as Record<string, number>);
-		state.initMonster(
-			uid,
-			instance.recordSkills,
-			instance.stats.maxHealth,
-			instance.stats.maxMana,
-			StatUtil.calculateMonsterCombatStats(data.stats)
-		);
-		state.setManaBuffer(uid, 0);
-		state.setReviveBuffer(uid, 0);
-		console.log("Monster created", uid);
-		return instance;
+	}
+	initMonster() {
+		useMonsterStore
+			.getState()
+			.initMonster(
+				this.uid,
+				this.getInitialCooldowns(),
+				this.stats.maxHealth,
+				this.stats.maxMana
+			);
 	}
 	applyTick(delta: number) {
 		if (!this.isAlive()) {
-			this.revive(delta);
+			this.respawn(delta);
 		}
 		this.regenerateMana(delta);
 		this.reduceCooldowns(delta);
@@ -67,10 +74,10 @@ export class Monster {
 		return this.stats;
 	}
 	getLevel(): number {
-		return this.level;
+		return this.stats.level;
 	}
 	getCombatStats(): CombatStats {
-		return useMonsterStore.getState().monstersCombatStats[this.uid];
+		return this.stats;
 	}
 	getCurrentHealth() {
 		return useMonsterStore.getState().health[this.uid];
@@ -170,23 +177,17 @@ export class Monster {
 	getName() {
 		return this.data.name;
 	}
-	revive(delta: number) {
-		if (this.isAlive() || !useMonsterStore.getState().respawnMonsters) return;
-		const reviveBuffer = useMonsterStore.getState().reviveBuffer[this.uid];
+	respawn(delta: number) {
+		const state = useMonsterStore.getState();
+		if (this.isAlive() || !state.respawnMonsters) return;
+		const reviveBuffer = state.reviveBuffer[this.uid];
 		const reviveTime = this.data.reviveTime;
 		const newReviveBuffer = reviveBuffer + delta;
 		if (newReviveBuffer >= reviveTime) {
-			useMonsterStore.getState().setReviveBuffer(this.uid, 0);
-			useMonsterStore
-				.getState()
-				.initMonster(
-					this.uid,
-					this.recordSkills,
-					this.stats.maxHealth,
-					this.stats.maxMana
-				);
+			state.setReviveBuffer(this.uid, 0);
+			this.initMonster();
 		} else {
-			useMonsterStore.getState().setReviveBuffer(this.uid, newReviveBuffer);
+			state.setReviveBuffer(this.uid, newReviveBuffer);
 		}
 	}
 	getSkills() {
@@ -198,5 +199,4 @@ export class Monster {
 			this.setGcd(Math.max(0, gcd - delta));
 		}
 	}
-	respawn() {}
 }

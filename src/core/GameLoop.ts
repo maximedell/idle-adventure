@@ -1,15 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useGameStore } from "../stores/GameStore";
 import { startCombat } from "../systems/CombatSystem";
-import startingAdventurer from "../data/adventurers/startingAdventurer.json";
-import villageAlleys from "../data/areas/village-alleys.json";
-import { Adventurer } from "../modules/Adventurer";
-import { Area } from "../modules/Area";
 import { DataUtil } from "../utils/DataUtil";
-import { loadGame } from "../systems/SaveSystem";
-import { useAreaStore } from "../stores/AreaStore";
-import { useInventoryStore } from "../stores/InventoryStore";
-import { IconUtil } from "../utils/IconUtil";
+import { loadGame, startGame, loadSave } from "../systems/SaveSystem";
 
 export function GameLoop() {
 	const hasStartedRef = useRef(false);
@@ -41,7 +34,7 @@ export function GameLoop() {
 function applyTick(delta: number) {
 	const state = useGameStore.getState();
 	const player = state.adventurer;
-	const activeArea = state.activeArea;
+	const activeArea = state.area;
 	if (!player || !activeArea) return;
 	const ennemies = activeArea.getMonsters();
 	player.applyTick(delta);
@@ -56,29 +49,12 @@ function applyTick(delta: number) {
 async function initGame() {
 	await DataUtil.preloadAll();
 
-	const save = loadGame();
+	const save = loadSave();
 	if (save) {
-		const { game, adventurer, areas, inventory } = save;
-		const loadedAdventurer = await Adventurer.create(adventurer);
-		let loadedArea: Area;
-		if (game.activeArea) {
-			useAreaStore.getState().initStore(areas);
-			const AreaData = await DataUtil.getAreaById(game.activeArea);
-			loadedArea = await Area.create(AreaData);
-		} else {
-			loadedArea = await Area.create(villageAlleys);
-		}
-		useGameStore
-			.getState()
-			.initStore(loadedAdventurer, loadedArea, game.unlockedRegions);
-		useInventoryStore.getState().initStore(inventory);
+		loadGame(save);
 		console.log("Game loaded from save");
 	} else {
-		const unlockedRegions = { "home-village": ["village-alleys"] };
-		const adventurer = await Adventurer.create(startingAdventurer);
-		const activeArea = await Area.create(villageAlleys);
-
-		useGameStore.getState().initStore(adventurer, activeArea, unlockedRegions);
+		startGame();
 		console.log("Game initialized");
 	}
 }

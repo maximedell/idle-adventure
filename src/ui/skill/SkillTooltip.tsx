@@ -15,21 +15,19 @@ export default function SkillTooltip({
 	owner,
 }: SkillTooltipProps) {
 	return (
-		<div className={`${className} text-nowrap`}>
-			<h3 className="text-lg font-bold">{skill.name}</h3>
-			<p className="text-sm">{skill.description}</p>
-			<p className="text-sm">Coût en mana: {skill.manaCost}</p>
-			<p className="text-sm">{getCooldownDescription(skill, owner)}</p>
-			<div className="mt-2">
-				<h4 className="font-semibold">Effets{owner && " caculés"}:</h4>
-				<ul className="list-none list-inside">
-					{skill.effects.map((effect, index) => (
-						<li key={index} className="text-sm text-nowrap">
-							{getDesciriptionFromEffect(effect, owner)}
-						</li>
-					))}
-				</ul>
-			</div>
+		<div className={`${className} flex flex-col`}>
+			<span className="name">{skill.name}</span>
+			<span className="description">{skill.description}</span>
+			<span className="description">Coût en mana: {skill.manaCost}</span>
+			<span className="description">
+				{getCooldownDescription(skill, owner)}
+			</span>
+			<span className="description">Effets{owner && " caculés"}:</span>
+			{skill.effects.map((effect, index) => (
+				<span key={index} className="pl-2 description">
+					{getDesciriptionFromEffect(effect, owner)}
+				</span>
+			))}
 		</div>
 	);
 }

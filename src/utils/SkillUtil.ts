@@ -5,7 +5,7 @@ import { MathUtil } from "./MathUtil";
 export const SkillUtil = {
 	getEffectiveCooldown(skill: Skill, stats: CombatStats): number {
 		const cooldown = skill.cooldown / stats.cooldownReduction;
-		return MathUtil.floorTo(cooldown, 1);
+		return MathUtil.ceilTo(cooldown, 1);
 	},
 
 	getEffectiveDamageToTarget(

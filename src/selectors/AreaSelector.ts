@@ -1,22 +1,16 @@
 import { useAreaStore } from "../stores/AreaStore";
 import { useGameStore } from "../stores/GameStore";
-
-export const useAreaMonsters = () => {
-	const monstersByArea = useAreaStore((state) => state.monstersByArea);
-	const activeArea = useGameStore((state) => state.activeArea);
-	if (!activeArea) return null;
-
-	const monsters = monstersByArea[activeArea.getId()] || [];
-	return monsters;
+export const useActiveAreaId = () => {
+	return useAreaStore((state) => state.activeAreaId);
 };
-
-export const useActiveArea = () => {
-	const activeArea = useGameStore((state) => state.activeArea);
-	if (!activeArea) return null;
-
-	return activeArea;
+export const useMonstersByArea = () => {
+	return useAreaStore((state) => state.monstersByArea);
 };
 
 export const useBattleState = () => {
 	return useGameStore((state) => state.battleState);
+};
+
+export const useMaxMontersPerArea = () => {
+	return useAreaStore((state) => state.monsterMaxPerArea);
 };

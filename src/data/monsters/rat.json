@@ -3,8 +3,8 @@
 	"name": "Rat de campagne",
 	"description": "Un rat ordinaire, mais qui a la fâcheuse tendance à se reproduire très vite.",
 	"reviveTime": 10,
-	"level": 1,
 	"stats": {
+		"level": 1,
 		"health": 15,
 		"maxHealth": 15,
 		"mana": 0,

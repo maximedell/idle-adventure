@@ -18,7 +18,6 @@ export default function InventorySidebar() {
 	const gold = useGold();
 	const max = useInventorySizeMax();
 	const taken = useInventorySizeTaken();
-
 	useEffect(() => {
 		const fetchResources = async () => {
 			const resourceData: Record<string, Resource> = {};

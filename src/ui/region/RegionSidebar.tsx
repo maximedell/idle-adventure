@@ -1,19 +1,26 @@
-import {
-	useActiveArea,
-	useUnlockedRegionIds,
-} from "../../selectors/GameSelector";
-import { useUnlockedRegions } from "../../hooks/useUnlockedRegions";
+import { useUnlockedRegionIds } from "../../selectors/GameSelector";
+import { Region } from "../../types/region";
 import DevelopIcon from "../../icons/shared/develop.svg?react";
 import RegionArea from "./RegionArea";
 import { useEffect, useState } from "react";
+import { useActiveAreaId } from "../../selectors/AreaSelector";
+import { DataUtil } from "../../utils/DataUtil";
 export default function RegionSidebar() {
-	const unlockedRegions = useUnlockedRegionIds();
-	const regions = useUnlockedRegions(unlockedRegions);
+	const unlockedRegionIds = useUnlockedRegionIds();
+	const [regions, setRegions] = useState<Region[]>([]);
 	const [developedRegions, setDevelopedRegions] = useState<
 		Record<string, boolean>
 	>({});
-	const activeAreaId = useActiveArea()?.getId();
-
+	const activeAreaId = useActiveAreaId();
+	useEffect(() => {
+		const fetchRegions = async () => {
+			const loaded = await Promise.all(
+				Object.keys(unlockedRegionIds).map((id) => DataUtil.getRegionById(id))
+			);
+			setRegions(loaded.filter(Boolean) as Region[]);
+		};
+		fetchRegions();
+	}, [unlockedRegionIds]);
 	useEffect(() => {
 		const initialDevelopedRegions = regions.reduce((acc, region) => {
 			acc[region.id] = false;
@@ -21,17 +28,16 @@ export default function RegionSidebar() {
 		}, {} as Record<string, boolean>);
 		setDevelopedRegions(initialDevelopedRegions);
 	}, [regions]);
-	if (!activeAreaId) return null;
-	if (!unlockedRegions) return null;
+	if (!activeAreaId || !unlockedRegionIds) return null;
 
 	return (
-		<div>
-			<h2 className="text-lg font-bold text-center">Regions</h2>
-			<ul className="p-0">
+		<div className="flex flex-col w-full items-start">
+			<h2 className="text-lg font-bold text-center w-full">Regions</h2>
+			<ul className="p-0 pl-0 w-full">
 				{regions.map((region) => (
 					<li
 						key={region.id}
-						className="cursor-pointer select-none"
+						className="cursor-pointer select-none p-0"
 						onClick={() =>
 							setDevelopedRegions((prev) => ({
 								...prev,

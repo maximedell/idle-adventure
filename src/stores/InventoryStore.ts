@@ -7,6 +7,7 @@ interface InventoryState {
 	resources: Record<string, number>;
 	gold: number;
 	discoveredResources: string[];
+	maxGold: number;
 }
 
 interface InventoryActions {
@@ -24,8 +25,11 @@ interface InventoryActions {
 		resources: Record<string, number>;
 		gold: number;
 		discoveredResources: string[];
+		maxGold: number;
 	}) => void;
+	clearStore: () => void;
 	addDiscoveredResource: (resourceId: string) => void;
+	increaseSize: (amount: number) => void;
 }
 
 interface InventoryStore extends InventoryState, InventoryActions {}
@@ -37,6 +41,7 @@ export const useInventoryStore = create<InventoryStore>()(
 		resources: {},
 		gold: 0,
 		discoveredResources: [],
+		maxGold: 0,
 		addItem: (itemId: string, quantity: number) =>
 			set((state) => {
 				const currentQuantity = state.items[itemId] || 0;
@@ -82,6 +87,7 @@ export const useInventoryStore = create<InventoryStore>()(
 		addGold: (amount: number) =>
 			set((state) => ({
 				gold: state.gold + amount,
+				maxGold: Math.max(state.maxGold, state.gold + amount),
 			})),
 		removeGold: (amount: number) =>
 			set((state) => ({
@@ -95,6 +101,7 @@ export const useInventoryStore = create<InventoryStore>()(
 			set((state) => ({
 				resources: { ...state.resources, [resourceId]: 0 },
 				gold: state.gold + value,
+				maxGold: Math.max(state.maxGold, state.gold + value),
 			})),
 		initStore: (inventory: {
 			size: number;
@@ -102,6 +109,7 @@ export const useInventoryStore = create<InventoryStore>()(
 			resources: Record<string, number>;
 			gold: number;
 			discoveredResources: string[];
+			maxGold: number;
 		}) =>
 			set(() => ({
 				size: inventory.size,
@@ -109,12 +117,26 @@ export const useInventoryStore = create<InventoryStore>()(
 				resources: inventory.resources,
 				gold: inventory.gold,
 				discoveredResources: inventory.discoveredResources,
+				maxGold: inventory.maxGold,
+			})),
+		clearStore: () =>
+			set(() => ({
+				size: 20,
+				items: {},
+				resources: {},
+				gold: 0,
+				discoveredResources: [],
+				maxGold: 0,
 			})),
 		addDiscoveredResource: (resourceId: string) =>
 			set((state) => ({
 				discoveredResources: [
 					...new Set([...state.discoveredResources, resourceId]),
 				],
+			})),
+		increaseSize: (amount: number) =>
+			set((state) => ({
+				size: Math.max(0, state.size + amount),
 			})),
 	}))
 );

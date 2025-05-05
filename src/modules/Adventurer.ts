@@ -7,9 +7,10 @@ import { Class } from "../types/class";
 import { PER_LEVEL_CONSTANTS, XP_CONSTANTS } from "../data/constant";
 import { StatUtil } from "../utils/StatUtil";
 import { MathUtil } from "../utils/MathUtil";
+import { useGameStore } from "../stores/GameStore";
+
 export class Adventurer {
 	private skills: Skill[] = [];
-
 	constructor(private data: AdventurerData) {}
 
 	static async create(data: AdventurerData): Promise<Adventurer> {
@@ -29,7 +30,7 @@ export class Adventurer {
 			acc[skill.id] = 0;
 			return acc;
 		}, {} as Record<string, number>);
-		state.initAdventurer(
+		state.initStore(
 			data.strength,
 			data.dexterity,
 			data.intelligence,
@@ -52,9 +53,11 @@ export class Adventurer {
 		}
 		const combatStats = StatUtil.calculateCombatStats(data.level);
 		state.setCombatStats(combatStats);
+		useGameStore.setState({ adventurer: instance });
 		console.log("Adventurer created");
 		return instance;
 	}
+
 	// Tick
 	applyTick(delta: number) {
 		this.regenerateMana(delta);
@@ -139,9 +142,11 @@ export class Adventurer {
 
 	increaseStat(statKey: BaseStatKeys, amount: number) {
 		const state = useAdventurerStore.getState();
-		if (state.statPoints > amount) {
+		if (state.statPoints >= amount) {
 			state.addStat(statKey, amount);
 			state.removeStatPoints(amount);
+			const combatStats = StatUtil.calculateCombatStats(state.level);
+			state.setCombatStats(combatStats);
 		}
 	}
 
@@ -214,10 +219,6 @@ export class Adventurer {
 		return usable[0] || null;
 	}
 
-	getSkills(): Skill[] {
-		return this.skills;
-	}
-
 	useMana(amount: number) {
 		useAdventurerStore.getState().useMana(amount);
 	}
@@ -233,7 +234,12 @@ export class Adventurer {
 	}
 
 	applyDamage(amount: number) {
-		useAdventurerStore.getState().loseHealth(amount);
+		const state = useAdventurerStore.getState();
+		if (state.currentHealth - amount <= 0) {
+			state.setCurrentHealth(0);
+		} else {
+			useAdventurerStore.getState().loseHealth(amount);
+		}
 	}
 
 	getCooldowns() {

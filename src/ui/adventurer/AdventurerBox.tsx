@@ -5,12 +5,12 @@ import {
 	useAdventurerCurrentMana,
 	useAdventurerLevel,
 } from "../../selectors/AdventurerSelector";
-import { useAdventurer } from "../../selectors/GameSelector";
 import StatBar from "../shared/StatBar";
 import SkillIcon from "../skill/SkillIcon";
 import InfoIcon from "../../icons/shared/info.svg?react";
 import TooltipWrapper from "../shared/TooltipWrapper";
 import SkillTooltip from "../skill/SkillTooltip";
+import { useAdventurer } from "../../selectors/GameSelector";
 
 export function AdventurerBox() {
 	const adventurer = useAdventurer();

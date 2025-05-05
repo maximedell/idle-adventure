@@ -2,7 +2,6 @@ import StatBar from "../shared/StatBar";
 import {
 	useMonsterHealth,
 	useMonsterMana,
-	useActiveArea,
 	useReviveTimer,
 } from "../../selectors/MonsterSelector";
 import SkillIcon from "../skill/SkillIcon";
@@ -12,13 +11,14 @@ import { useBattleState } from "../../selectors/AreaSelector";
 import TooltipWrapper from "../shared/TooltipWrapper";
 import SkillTooltip from "../skill/SkillTooltip";
 import MonsterTooltip from "./MonsterTooltip";
+import { useArea } from "../../selectors/GameSelector";
 
 interface MonsterBoxProps {
 	monsterUid?: string;
 }
 
 export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
-	const activeArea = useActiveArea();
+	const activeArea = useArea();
 	const health = useMonsterHealth(monsterUid);
 	const mana = useMonsterMana(monsterUid);
 	const reviveTimer = useReviveTimer(monsterUid);
@@ -41,7 +41,7 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 		if (!monster) return null;
 		const reviveTime = monster.getData().reviveTime;
 		return (
-			<div className="box-monster">
+			<div className="bg-primary-dark shadow-md border-accent border rounded-lg p-3 w-full h-full">
 				<div className="flex flex-row justify-center cursor-default w-full">
 					<TooltipWrapper
 						tooltipContent={<MonsterTooltip monster={monster} className="" />}
@@ -82,8 +82,11 @@ export default function MonsterBox({ monsterUid }: MonsterBoxProps) {
 	}
 
 	return (
-		<button className="box-monster" onClick={handleClick}>
-			Ajouter un monster
+		<button
+			className="bg-primary-dark shadow-md border-accent border rounded-lg p-3 w-full h-full"
+			onClick={handleClick}
+		>
+			Chercher plus de monstre
 		</button>
 	);
 }

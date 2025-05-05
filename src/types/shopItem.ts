@@ -7,7 +7,8 @@ export type ShopItem = {
 };
 
 type ShopItemEffect = {
-	type: "unlockFeature" | "increaseInventorySize";
+	type: "unlockFeature" | "increaseInventorySize" | "increaseMonsterMaxPerArea";
 	value?: number;
 	featureId?: string;
+	areaId?: string;
 };

@@ -15,13 +15,6 @@ export const useReviveTimer = (monsterUid: string | undefined) => {
 		: 0;
 };
 
-export const useActiveArea = () => {
-	const activeArea = useGameStore((state) => state.activeArea);
-	if (!activeArea) return null;
-
-	return activeArea;
-};
-
 export const useMonsterSkillCooldown = (
 	monsterUid: string,
 	skillId: string

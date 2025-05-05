@@ -12,7 +12,7 @@ export function startCombat() {
 function handleCombatTick() {
 	const state = useGameStore.getState();
 	const player = state.adventurer;
-	const area = state.activeArea;
+	const area = state.area;
 	if (!player || !area) return;
 	const playerCombatStats = player.getCombatStats();
 	if (!playerCombatStats) throw new Error("Player has no combat stats");
@@ -114,7 +114,7 @@ function getActualCritMultiplier(stats: CombatStats): number {
 	let critMultiplier = 1;
 	while (critChance > 0) {
 		if (Math.random() < critChance) {
-			critMultiplier *= 1 + stats.criticalDamageMultiplier;
+			critMultiplier *= stats.criticalDamageMultiplier;
 		}
 		critChance -= 1;
 	}

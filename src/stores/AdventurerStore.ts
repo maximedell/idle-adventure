@@ -26,7 +26,7 @@ interface AdventurerState {
 }
 
 interface AdventurerActions {
-	initAdventurer: (
+	initStore: (
 		strength: number,
 		dexterity: number,
 		intelligence: number,
@@ -42,6 +42,7 @@ interface AdventurerActions {
 		unlockedTalentIds: string[],
 		cooldowns: Record<string, number>
 	) => void;
+	clearStore: () => void;
 	setCooldown: (skillId: string, cooldown: number) => void;
 	setStat: (
 		stat: "strength" | "dexterity" | "intelligence",
@@ -94,7 +95,7 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			combatStats: {
 				level: 1,
 				maxHealth: 100,
-				maxMana: 100,
+				maxMana: 5,
 				armor: 0,
 				magicResist: 0,
 				criticalChance: 0,
@@ -111,7 +112,7 @@ export const useAdventurerStore = create<AdventurerStore>()(
 			},
 			level: 1,
 			currentHealth: 100,
-			currentMana: 100,
+			currentMana: 5,
 			manaBuffer: 0,
 			activeSkills: [],
 			gcd: 0,
@@ -200,14 +201,14 @@ export const useAdventurerStore = create<AdventurerStore>()(
 					currentMana: (state.currentMana = value),
 				})),
 
-			initAdventurer: (
+			initStore: (
 				strength: number,
 				dexterity: number,
 				intelligence: number,
 				level: number,
 				experience: number,
-				health: number,
-				mana: number,
+				currentHealth: number,
+				currentMana: number,
 				statPoints: number,
 				talentPoints: number,
 				classIds: string[],
@@ -222,8 +223,8 @@ export const useAdventurerStore = create<AdventurerStore>()(
 					intelligence: (state.intelligence = intelligence),
 					level: (state.level = level),
 					experience: (state.experience = experience),
-					currentHealth: (state.currentHealth = health),
-					currentMana: (state.currentMana = mana),
+					currentHealth: (state.currentHealth = currentHealth),
+					currentMana: (state.currentMana = currentMana),
 					statPoints: (state.statPoints = statPoints),
 					talentPoints: (state.talentPoints = talentPoints),
 					classIds: (state.classIds = classIds),
@@ -231,6 +232,63 @@ export const useAdventurerStore = create<AdventurerStore>()(
 					unlockedSkills: (state.unlockedSkills = unlockedSkillIds),
 					unlockedTalentIds: (state.unlockedTalentIds = unlockedTalentIds),
 					cooldowns: (state.cooldowns = cooldowns),
+				})),
+			clearStore: () =>
+				set(() => ({
+					cooldowns: {},
+					strength: 0,
+					dexterity: 0,
+					intelligence: 0,
+					combatStats: {
+						level: 1,
+						maxHealth: 100,
+						maxMana: 5,
+						armor: 0,
+						magicResist: 0,
+						criticalChance: 0,
+						criticalDamageMultiplier: 0,
+						damageMultiplierPhysical: 0,
+						damageMultiplierMagical: 0,
+						defenseMultiplierPhysical: 0,
+						defenseMultiplierMagical: 0,
+						strength: 0,
+						dexterity: 0,
+						intelligence: 0,
+						manaRegen: 0,
+						cooldownReduction: 0,
+					},
+					level: 1,
+					currentHealth: 100,
+					currentMana: 5,
+					manaBuffer: 0,
+					activeSkills: [],
+					gcd: 0,
+					experience: 0,
+					statPoints: 5,
+					talentPoints: 0,
+					classIds: [],
+					unlockedTalentIds: [],
+					buffs: {},
+					debuffs: {},
+					combatStatsModifier: {
+						level: 0,
+						maxHealth: 0,
+						maxMana: 0,
+						armor: 0,
+						magicResist: 0,
+						criticalChance: 0,
+						criticalDamageMultiplier: 0,
+						damageMultiplierPhysical: 0,
+						damageMultiplierMagical: 0,
+						defenseMultiplierPhysical: 0,
+						defenseMultiplierMagical: 0,
+						strength: 0,
+						dexterity: 0,
+						intelligence: 0,
+						manaRegen: 0,
+						cooldownReduction: 0,
+					},
+					unlockedSkills: [],
 				})),
 			levelUp: () =>
 				set((state) => ({

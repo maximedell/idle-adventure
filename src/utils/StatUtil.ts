@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import {
 	BASE_STAT_DEPENDENT_STAT_KEYS,
 	BASE_STAT_KEYS,
@@ -18,6 +19,7 @@ import {
 	LevelDependentStatKeys,
 } from "../types/stats";
 import { ClassUtil } from "./ClassUtil";
+import { MathUtil } from "./MathUtil";
 
 export const StatUtil = {
 	getStatName(stat: keyof CombatStats): string {
@@ -41,13 +43,13 @@ export const StatUtil = {
 			case "magicResist":
 				return "Résistance magique";
 			case "damageMultiplierPhysical":
-				return "Multiplicateur de dégâts physique";
+				return "Augmentation de dégâts physique";
 			case "damageMultiplierMagical":
-				return "Multiplicateur de dégâts magique";
+				return "Augmentation de dégâts magique";
 			case "defenseMultiplierPhysical":
-				return "Multiplicateur de défense physique";
+				return "Réduction de dégâts physique";
 			case "defenseMultiplierMagical":
-				return "Multiplicateur de défense magique";
+				return "Réduction de dégâts magique";
 			case "cooldownReduction":
 				return "Réduction de temps de recharge";
 			case "criticalChance":
@@ -56,6 +58,60 @@ export const StatUtil = {
 				return "Multiplicateur de dégâts critique";
 			default:
 				return stat;
+		}
+	},
+	getStatValueText(
+		stat: keyof CombatStats,
+		value: number,
+		decimalPlaces: number = 2
+	): string {
+		switch (stat) {
+			case "level":
+				return `${MathUtil.floorTo(value, decimalPlaces)}`;
+			case "strength":
+				return `${MathUtil.floorTo(value, decimalPlaces)}`;
+			case "dexterity":
+				return `${MathUtil.floorTo(value, decimalPlaces)}`;
+			case "intelligence":
+				return `${MathUtil.floorTo(value, decimalPlaces)}`;
+			case "maxHealth":
+				return `${MathUtil.floorTo(value, decimalPlaces)} PV`;
+			case "maxMana":
+				return `${MathUtil.floorTo(value, decimalPlaces)} MP`;
+			case "manaRegen":
+				return `${MathUtil.floorTo(value, decimalPlaces)} MP/s`;
+			case "armor":
+				return `${MathUtil.floorTo(value, decimalPlaces)}`;
+			case "magicResist":
+				return `${MathUtil.floorTo(value, decimalPlaces)}`;
+			case "damageMultiplierPhysical":
+				return `${Math.floor(
+					MathUtil.floorTo(value - 1, decimalPlaces) * 100
+				)}%`;
+			case "damageMultiplierMagical":
+				return `${Math.floor(
+					MathUtil.floorTo(value - 1, decimalPlaces) * 100
+				)}%`;
+			case "defenseMultiplierPhysical":
+				return `${Math.floor(
+					MathUtil.floorTo(value - 1, decimalPlaces) * 100
+				)}%`;
+			case "defenseMultiplierMagical":
+				return `${Math.floor(
+					MathUtil.floorTo(value - 1, decimalPlaces) * 100
+				)}%`;
+			case "cooldownReduction":
+				return `${Math.floor(
+					MathUtil.floorTo(value - 1, decimalPlaces) * 100
+				)}%`;
+			case "criticalChance":
+				return `${Math.floor(MathUtil.floorTo(value, decimalPlaces) * 100)}%`;
+			case "criticalDamageMultiplier":
+				return `${Math.floor(
+					MathUtil.floorTo(value - 1, decimalPlaces) * 100
+				)}%`;
+			default:
+				return `${MathUtil.floorTo(value, decimalPlaces)}`;
 		}
 	},
 	calculateCombatStats(
@@ -128,9 +184,8 @@ export const StatUtil = {
 			// TODO: Add value from items, passive, etc.
 
 			// Set the value in the stats object
-			stats[key] = Math.max(1, statValue);
+			stats[key] = Math.max(0, statValue);
 		}
-		console.log("Combat stats calculated:", stats);
 		return stats as CombatStats;
 	},
 	calculatePerLevelDependentStatsFromClasses(
@@ -172,7 +227,7 @@ export const StatUtil = {
 	},
 
 	calculateMonsterCombatStats(monsterStats: CombatStats): CombatStats {
-		const stats: Partial<CombatStats> = {};
+		const stats: Partial<CombatStats> = { level: monsterStats.level };
 		for (const key of LEVEL_DEPENDENT_STAT_KEYS) {
 			stats[key] = monsterStats[key];
 		}

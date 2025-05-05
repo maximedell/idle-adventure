@@ -1,5 +1,7 @@
-import React, { JSX } from "react";
+import { Adventurer } from "../../modules/Adventurer";
 import { Monster } from "../../modules/Monster";
+import { useAdventurerCombatStats } from "../../selectors/AdventurerSelector";
+import { RewardSystem } from "../../systems/RewardSystem";
 
 interface MonsterTooltipProps {
 	monster: Monster;
@@ -12,33 +14,28 @@ export default function MonsterTooltip({
 }: MonsterTooltipProps) {
 	const data = monster.getData();
 	const stats = monster.getStats();
-	const optionalStats = getOptionnalStats(monster);
+	const adventurerLevel = useAdventurerCombatStats().level;
 	return (
-		<div className={`${className} text-nowrap`}>
-			<h3 className="text-lg font-bold">{data.name}</h3>
-			<p className="text-sm">Niveau: {data.level}</p>
-			<p className="text-sm">PV: {stats.maxHealth}</p>
-			{optionalStats &&
-				optionalStats.map((stat, index) => (
-					<React.Fragment key={index}>{stat}</React.Fragment>
-				))}
+		<div className={`${className} tooltip-container`}>
+			<span className="name">{data.name}</span>
+			<span className="description">Niveau: {stats.level}</span>
+			<span className="description">
+				XP calculé:{" "}
+				{RewardSystem.getRewardedExperience(
+					adventurerLevel,
+					monster.getLevel(),
+					data.rewards.experience
+				)}
+			</span>
+			{stats.strength > 0 && (
+				<span className="description">Force: {stats.strength}</span>
+			)}
+			{stats.dexterity > 0 && (
+				<span className="description">Dextérité: {stats.dexterity}</span>
+			)}
+			{stats.intelligence > 0 && (
+				<span className="description">Intelligence: {stats.intelligence}</span>
+			)}
 		</div>
 	);
-}
-
-function getOptionnalStats(monster: Monster): JSX.Element[] | null {
-	const stats = monster.getStats();
-	const statsList = [];
-	if (stats.strength > 0) {
-		statsList.push(<p className="text-sm">Force: {stats.strength}</p>);
-	}
-	if (stats.dexterity > 0) {
-		statsList.push(<p className="text-sm">Dextérité: {stats.dexterity}</p>);
-	}
-	if (stats.intelligence > 0) {
-		statsList.push(
-			<p className="text-sm">Intelligence: {stats.intelligence}</p>
-		);
-	}
-	return statsList.length > 0 ? statsList : null;
 }

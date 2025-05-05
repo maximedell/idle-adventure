@@ -15,8 +15,8 @@ export default function StatBar({ stat, maxStat, color }: StatBarProps) {
 			exp: "bg-blue-300",
 		}[color] || "bg-gray-300"; // Default color if not found
 	return (
-		<div className="container-bar ">
-			<p className="text-bar">
+		<div className="bg-primary-light flex w-full h-4 rounded relative mt-2">
+			<p className="text-primary-dark absolute left-1/2 -translate-x-1/2  text-xs font-bold">
 				{MathUtil.floorTo(stat, 1)}/{maxStat}
 			</p>
 			<div

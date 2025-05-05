@@ -13,9 +13,11 @@ export const RewardSystem = {
 	 */
 	applyRewardExperience(adventurer: Adventurer, monster: Monster) {
 		const baseExperience = monster.getData().rewards.experience;
-		const levelDifference = adventurer.getLevel() - monster.getLevel();
-		const levelDifferenceFactor = Math.max(0, 1 - 0.2 * levelDifference);
-		const experienceReward = Math.floor(baseExperience * levelDifferenceFactor);
+		const experienceReward = this.getRewardedExperience(
+			adventurer.getLevel(),
+			monster.getLevel(),
+			baseExperience
+		);
 		adventurer.gainExperience(experienceReward);
 		useGameStore
 			.getState()
@@ -25,6 +27,17 @@ export const RewardSystem = {
 				}.`,
 				"info"
 			);
+	},
+
+	getRewardedExperience(
+		adventurerLevel: number,
+		monsterLevel: number,
+		baseExperience: number
+	): number {
+		const levelDifference = adventurerLevel - monsterLevel;
+		const levelDifferenceFactor = Math.max(0, 1 - 0.2 * levelDifference);
+		const experienceReward = Math.floor(baseExperience * levelDifferenceFactor);
+		return experienceReward;
 	},
 
 	async applyRewardDrops(monsters: Monster[]) {

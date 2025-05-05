@@ -23,7 +23,7 @@ export default function TooltipWrapper({
 			{children}
 			{isHovered && (
 				<div
-					className={`pointer-events-none absolute z-10 bg-primary-dark text-primary-light p-2 border border-primary rounded-lg shadow-md flex flex-col w-fit ${tooltipClassName}`}
+					className={`pointer-events-none absolute z-10 bg-primary-dark text-primary-light p-2 border border-primary rounded-lg shadow-md flex flex-row w-fit text-nowrap${tooltipClassName}`}
 				>
 					{tooltipContent}
 				</div>

@@ -7,8 +7,8 @@ export const PER_STAT_DEPENDENT_CONSTANTS = {
 	manaRegen: 0.1,
 	damageMultiplierPhysical: 0.01,
 	damageMultiplierMagical: 0.01,
-	defenseMultiplierPhysical: 0.01,
-	defenseMultiplierMagical: 0.01,
+	defenseMultiplierPhysical: 0.005,
+	defenseMultiplierMagical: 0.005,
 	cooldownReduction: 0.005,
 } as const;
 
@@ -34,7 +34,7 @@ export const BASE_STATS_CONSTANTS = {
 	maxMana: 5,
 	manaRegen: 0.2,
 	criticalChance: 0,
-	criticalDamageMultiplier: 0,
+	criticalDamageMultiplier: 1,
 	damageMultiplierPhysical: 1,
 	damageMultiplierMagical: 1,
 	defenseMultiplierPhysical: 1,
